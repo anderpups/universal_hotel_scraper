@@ -10,7 +10,7 @@ today = datetime.now()
 tomorrow = today + timedelta(days=1)
 
 ## Generate a list of 365 random dates starting from tomorrow
-date_range = list(pandas.date_range(start=tomorrow, periods=365, freq='D'))
+date_range = list(pandas.date_range(start=tomorrow, periods=2, freq='D'))
 random.shuffle(date_range)
 
 hotel_info = []
@@ -54,7 +54,7 @@ def get_data_for_date(date):
     for hotel in hotels:
       try:
         hotel_name = hotel.find('div', class_='ws-property-title').h1.a.text
-        hotel_price = hotel.find('div', class_='ws-property-price').span.text
+        hotel_price = int((hotel.find('div', class_='ws-property-price').span.text).replace("$",""))
         hotels_list.append({"name": hotel_name, "price": hotel_price,"date": date})
       except Exception as e:
         print(f"Error parsing hotel info: {e}")
@@ -73,7 +73,7 @@ for date in date_range:
   time.sleep(sleep_seconds)
 
 ## create filename with today's date
-filename = f"hotel_info-{today.strftime('%Y%m%d')}.json"
+filename = f"data/hotel_info-{today.strftime('%Y%m%d')}.json"
 
 ## Write the data to a JSON file
 with open(filename, "w") as file:

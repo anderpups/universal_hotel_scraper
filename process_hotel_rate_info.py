@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import pandas
 
 data_folder = "data"
 all_data = []
@@ -14,3 +15,9 @@ for file_path in json_files:
         all_data.extend(data)
 
 print(f"Loaded {len(all_data)} records from {len(json_files)} files.")
+
+dataframe = pandas.DataFrame(all_data)
+
+dataframe.groupby(['date'])
+
+print(dataframe.first())
