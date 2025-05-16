@@ -15,7 +15,8 @@ random.shuffle(date_range)
 
 hotel_info = []
 
-words_to_remove = ["Loews", "Hotel", "Universal", "Inn and Suites", "Resort", ", a"]
+## Words we want to remove from the Hotel names
+words_to_remove = ["Loews", "Hotel", "Universal", "Inn and Suites", "Resort", ", a", "Endless Summer - ", "Beach", "Grand"]
 
 ## Function to remove a list of words from a string using replace()
 def remove_words_loop(text, words_to_remove):
@@ -30,7 +31,7 @@ def remove_words_loop(text, words_to_remove):
 ## Function to fetch hotel data for a specific date
 ## and return a list of dictionaries with hotel name, price, and date
 ## The function takes a date string in the format MM/DD/YYYY
-def get_data_for_date(date):
+def get_hotel_data_for_date(date):
   """
   Fetch hotel data for a specific date string (MM/DD/YYYY).
   Returns a list of dictionaries with hotel name price and date.
@@ -75,10 +76,22 @@ def get_data_for_date(date):
     print(f"Error fetching data for {date}: {e}")
     return []
 
+
+## !!! Should only grab the years once, then parse the html multiple times ##
+# def get_crowd_info_for_date(date):
+#   try:
+#     year = date.strftime('%Y')
+#     response = requests.get(f'https://www.thrill-data.com/trip-planning/crowd-calendar/resort/uor/{year}', timeout=15)
+#     print(response)
+#   except Exception as e:
+#     print(f"Error fetching data for {date}: {e}")
+#     return 'N/A'
+
 ## Loop through the date range and fetch hotel data
 for date in date_range:
   date_str = date.strftime('%m/%d/%Y')
-  date_info = get_data_for_date(date_str)
+  date_info = get_hotel_data_for_date(date_str)
+  # crowd_info = get_crowd_info_for_date(date)
   hotel_info.extend(date_info)
   print(f"Found {len(date_info)} hotels available for {date_str}")
   sleep_seconds = random.uniform(1, 6)

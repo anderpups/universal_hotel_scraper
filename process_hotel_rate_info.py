@@ -16,6 +16,10 @@ def format_price(price):
     except ValueError:
         return "N/A"
 
+# def set_highlight(cell):
+#     isna = True if cell == 'N/A' else False
+#     return ['background-color: LightGray' if isna else '']
+
 for file_path in json_files:
     with open(file_path, "r") as f:
         data = json.load(f)
@@ -31,4 +35,9 @@ for file_path in json_files:
     for col in pivot_df.columns:
         pivot_df[col] = pivot_df[col].apply(format_price)
     
+    day = pandas.to_datetime(pivot_df.index, format='%m/%d/%y').strftime('%a')
+    pivot_df.insert(0, 'Day', day)
+    
+    pivot_df.style.background_gradient(cmap='viridis')
+
     pivot_df.to_html(f"{data_folder}/hotel_info-{gather_date}.md", index_names=False)
