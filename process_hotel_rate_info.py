@@ -12,12 +12,9 @@ json_files = glob.glob(os.path.join(data_folder, "*.json"))
 for file_path in json_files:
     with open(file_path, "r") as f:
         data = json.load(f)
-        all_data.extend(data)
+        gather_date = os.path.basename(file_path).split("-")[1].split(".")[0]
+    df = pandas.DataFrame(data)
 
-print(f"Loaded {len(all_data)} records from {len(json_files)} files.")
-
-dataframe = pandas.DataFrame(all_data)
-
-dataframe.groupby(['date'])
-
-print(dataframe.first())
+    pivot_df = df.pivot_table(index='date', columns='name', values='price')
+    
+    pivot_df.to_html(f"{data_folder}/hotel_info-{gather_date}.html")

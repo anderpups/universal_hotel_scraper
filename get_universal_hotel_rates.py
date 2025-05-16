@@ -10,10 +10,22 @@ today = datetime.now()
 tomorrow = today + timedelta(days=1)
 
 ## Generate a list of 365 random dates starting from tomorrow
-date_range = list(pandas.date_range(start=tomorrow, periods=2, freq='D'))
+date_range = list(pandas.date_range(start=tomorrow, periods=365, freq='D'))
 random.shuffle(date_range)
 
 hotel_info = []
+
+words_to_remove = ["Loews", "Hotel", "Universal", "Inn and Suites", "Resort", ", a"]
+
+## Function to remove a list of words from a string using replace()
+def remove_words_loop(text, words_to_remove):
+  """Removes a list of words from a string using a loop and replace()."""
+  new_text = text
+  for word in words_to_remove:
+    new_text = new_text.replace(word, '')
+    new_text = new_text.replace("  "," ")
+    new_text = new_text.strip()
+  return new_text
 
 ## Function to fetch hotel data for a specific date
 ## and return a list of dictionaries with hotel name, price, and date
@@ -53,7 +65,7 @@ def get_data_for_date(date):
     hotels_list = []
     for hotel in hotels:
       try:
-        hotel_name = hotel.find('div', class_='ws-property-title').h1.a.text
+        hotel_name = remove_words_loop((hotel.find('div', class_='ws-property-title').h1.a.text), words_to_remove)
         hotel_price = int((hotel.find('div', class_='ws-property-price').span.text).replace("$",""))
         hotels_list.append({"name": hotel_name, "price": hotel_price,"date": date})
       except Exception as e:
