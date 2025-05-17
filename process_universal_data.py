@@ -2,6 +2,8 @@ import glob
 import json
 import os
 import pandas
+import matplotlib
+import matplotlib.pyplot as plt
 
 data_folder = "data"
 all_data = []
@@ -16,44 +18,28 @@ def format_price(price):
     except ValueError:
         return "N/A"
 
-def color_gradient(s, color1='#00ff00', color2='#ff0000'):
+def color_gradient(s, color_list=['#00ff00', '#ffff00', '#ff0000']):
     """
-    Applies a green to red color gradient to a Pandas Series,
-    where the maximum value is mapped to red.
-
-    Args:
-        s (pd.Series): The Pandas Series to style.
-        color1 (str, optional): The color for the minimum value. Defaults to 'green'.
-        color2 (str, optional): The color for the maximum value. Defaults to 'red'.
-
-    Returns:
-        pd.Series: A Series of strings with the CSS styling.
+    Applies a smooth color gradient to a Pandas Series,
+    using matplotlib for more colors between the ends.
+    color_list: list of hex colors for the gradient stops.
     """
     max_val = s.max()
-    min_val = s.min()  # Get the minimum value for scaling
-
+    min_val = s.min()
     if max_val == min_val:
-        # Handle the case where all values are the same
-        normalized = pandas.Series([0.5] * len(s), index=s.index)  # All values in the middle
+        normalized = pandas.Series([0.5] * len(s), index=s.index)
     else:
-        normalized = (s - min_val) / (max_val - min_val)  # Normalize to range 0-1
+        normalized = (s - min_val) / (max_val - min_val)
 
-    r1, g1, b1 = int(color1[1:3], 16), int(color1[3:5], 16), int(color1[5:7], 16)
-    r2, g2, b2 = int(color2[1:3], 16), int(color2[3:5], 16), int(color2[5:7], 16)
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("custom_gradient", color_list)
 
     def get_color(val):
         if pandas.isna(val):
-            return 'background-color: LightGray'
-        r = int(r1 + (r2 - r1) * val)
-        g = int(g1 + (g2 - g1) * val)
-        b = int(b1 + (b2 - b1) * val)
+            return 'background-color: DarkGray'
+        r, g, b, _ = [int(x * 255) for x in cmap(val)]
         return f'background-color: rgb({r},{g},{b})'
 
     return normalized.apply(get_color)
-
-# def set_highlight(cell):
-#     isna = True if cell == 'N/A' else False
-#     return ['background-color: LightGray' if isna else '']
 
 for file_path in json_files:
     with open(file_path, "r") as f:
@@ -64,10 +50,6 @@ for file_path in json_files:
     
     pivot_df.index = pandas.to_datetime(pivot_df.index, format='%m/%d/%y')
     pivot_df = pivot_df.sort_index()
-
-    ## Format the price columns
-    for col in pivot_df.columns:
-        pivot_df[col] = pivot_df[col].apply(format_price)
     
     with open(f'{data_folder}/crowd_info-{gather_date}.json', "r") as f:
         crowd_info = json.load(f)
@@ -87,14 +69,8 @@ for file_path in json_files:
     
     ## Format the index to be the date in the format of mm/dd/yy
     pivot_df.index = pandas.to_datetime(pivot_df.index, format='%m/%d/%y').strftime('%m/%d/%y')
-    for col in pivot_df.columns:
-        if col not in ['Day', 'Crowd']:
-            # Remove $ and convert to float, set errors='coerce' to turn 'N/A' into NaN
-            pivot_df[col] = pandas.to_numeric(
-                pivot_df[col].replace('[\$,]', '', regex=True),
-                errors='coerce'
-            )
-    # Apply color gradient column-wise and format each cell
+
+    # Apply color gradient and format each cell that is a price
     for col in pivot_df.columns:
         if col not in ['Day', 'Crowd']:
             styles = color_gradient(pivot_df[col])
@@ -103,12 +79,40 @@ for file_path in json_files:
                 for style, val in zip(styles, pivot_df[col])
             ]
 
-    # If you want to style 'Crowd' column as well, do the same:
+    # Setting gradient color for the 'Crowd' column
     styles = color_gradient(pivot_df['Crowd'])
     pivot_df['Crowd'] = [
         f'<div style="{style}">{val}</div>'
         for style, val in zip(styles, pivot_df['Crowd'])
     ]
 
-    ## Create html file
-    pivot_df.to_html(f"{data_folder}/hotel_info-{gather_date}.html", index_names=False, escape=False)
+    ## Remove the index and columns names
+    pivot_df.index.name = None
+    pivot_df.columns.name = None
+
+    styled_table = pivot_df.style.set_sticky(axis="columns")
+    
+    ## Set the style of the column headers
+    header_style = """
+    <style>
+    thead th {
+        background-color: #f8f8f8 !important;
+        color: #222 !important;
+        position: sticky;
+        top: 0;
+        z-index: 3;
+    }
+    </style>
+    """
+
+    ## Set the table to scrollable
+    html_table = styled_table.to_html( index_names=False, escape=False)
+    scrollable_html = f"""
+    {header_style}
+    <div style="height:1000px; width:1200px; overflow:auto; border:1px solid #ccc;">
+    {html_table}
+    </div>
+    """
+    with open(f"{data_folder}/hotel_info-{gather_date}.html", "w") as f:
+        f.write(scrollable_html)
+ 
