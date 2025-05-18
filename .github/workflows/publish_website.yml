@@ -49,6 +49,8 @@ jobs:
           
           cp -f ./python_code/data/* ./website/
           cd website
+          git status
+          ls -al
           git config --local user.name "github-actions"
           git config --local user.email "githubactions@fake.com"
           git add .
