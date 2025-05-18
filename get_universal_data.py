@@ -7,7 +7,7 @@ import re
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 
-lookahead_period = 5
+lookahead_period = 365
 
 ## Get todday
 today = datetime.now()

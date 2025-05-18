@@ -6,6 +6,90 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 data_folder = "data"
+index_file = os.path.join(data_folder, "index.html")
+index_html = """
+<html>
+<head>
+<title>Universal Hotel Info</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<h1>Universal Hotel Info</h1>
+<body>
+"""
+
+bottom_of_html = """
+    <script>
+    $(document).ready(function() {
+        $('#T_1e83b').DataTable({
+            scrollX: true,
+            dom: 'Bfrtip',
+            buttons: [
+                'colvis'
+            ],
+            pageLength: 30,
+            // Optional: initial sorting, e.g. by date
+            // "order": [[0, "asc"]]
+        });
+    });
+    </script>
+    <script>
+    // Custom filtering function for date range
+    $.fn.dataTable.ext.search.push(
+    function(settings, data, dataIndex) {
+        // Get the value from the first column (row header, date)
+        var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
+        if (!dateStr) return true; // skip if no date
+
+        // Parse the date in MM/DD/YY format
+        var parts = dateStr.split('/');
+        var rowDate = new Date('20' + parts[2], parts[0] - 1, parts[1]); // e.g. 05/17/25
+
+        var min = $('#min-date').val();
+        var max = $('#max-date').val();
+
+        var minDate = min ? new Date(min) : null;
+        var maxDate = max ? new Date(max) : null;
+
+        // Remove time part for comparison
+        rowDate.setHours(0,0,0,0);
+        if (minDate) minDate.setHours(0,0,0,0);
+        if (maxDate) maxDate.setHours(0,0,0,0);
+
+        if (
+        (!minDate || rowDate >= minDate) &&
+        (!maxDate || rowDate <= maxDate)
+        ) {
+        return true;
+        }
+        return false;
+    }
+    );
+
+    $(document).ready(function() {
+        var table;
+        if (!$.fn.DataTable.isDataTable('#T_1e83b')) {
+            table = $('#T_1e83b').DataTable({
+                scrollX: true,
+                dom: 'Bfrtip',
+                buttons: [
+                    'colvis'
+                ],
+                pageLength: 30,
+                // "order": [[0, "asc"]]
+            });
+        } else {
+            table = $('#T_1e83b').DataTable();
+        }
+
+        // Event listeners for the date inputs
+        $('#min-date, #max-date').on('change', function() {
+            table.draw();
+        });
+    });
+    </script>
+    </body>
+  """
+
 all_data = []
 
 # Find all JSON files in the data folder
@@ -44,7 +128,8 @@ def color_gradient(s, color_list=['#00ff00', '#ffff00', '#ff0000']):
 for file_path in json_files:
     with open(file_path, "r") as f:
         data = json.load(f)
-        gather_date = os.path.basename(file_path).split("-")[1].split(".")[0]
+        filename = os.path.basename(file_path)
+        gather_date = filename.split("-")[1].split(".")[0]
     df = pandas.DataFrame(data)
     pivot_df = df.pivot_table(index='date', columns='name', values='price')
     
@@ -94,6 +179,18 @@ for file_path in json_files:
     
     ## Set the style of the column headers
     header_style = """
+    <head>
+    <title>Universal Hotel Info</title>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables ColVis extension for column hiding -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
     <style>
     thead th {
         background-color: #f8f8f8 !important;
@@ -103,16 +200,47 @@ for file_path in json_files:
         z-index: 3;
     }
     </style>
+    <style>
+    .dataTables_filter {
+    display: none !important;
+    }
+    </style>
+    <div style="height:1000px; width:1200px; overflow:auto; border:1px solid #ccc;">
+    <style type="text/css">
+
+    #T_1e83b thead tr:nth-child(1) th {
+    position: sticky;
+    background-color: inherit;
+    top: 0px;
+    z-index: 2;
+    }
+    </style>
+
+    </head>
+    <body>
+    <div style="margin-bottom: 10px;">
+    <label for="min-date">Start date:</label>
+    <input type="date" id="min-date">
+    <label for="max-date" style="margin-left:10px;">End date:</label>
+    <input type="date" id="max-date">
+    </div>
     """
 
     ## Set the table to scrollable
-    html_table = styled_table.to_html( index_names=False, escape=False)
+    html_table = styled_table.to_html(index_names=False, escape=False, table_id="hotel-info")
     scrollable_html = f"""
     {header_style}
-    <div style="height:1000px; width:1200px; overflow:auto; border:1px solid #ccc;">
+    <div style="height:1000px; width:1000px; overflow:auto; border:1px solid #ccc;">
     {html_table}
     </div>
+    {bottom_of_html}
     """
     with open(f"{data_folder}/hotel_info-{gather_date}.html", "w") as f:
-        f.write(scrollable_html)
- 
+        f.write(scrollable_html) 
+    
+    index_html += f'<a href="hotel_info-{gather_date}.html">Data for {gather_date}</a><br>\n'
+
+index_html += "</ul>\n</body></html>"
+# Write to index.html
+with open(index_file, "w") as f:
+    f.write(index_html)
