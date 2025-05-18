@@ -47,7 +47,6 @@ jobs:
           git config --local user.email "githubactions@fake.com"
           git add .
           git commit -m "Update website" || true
-          git push
         env:
           GITHUB_TOKEN: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
           GITHUB_ACTOR: github-actions
