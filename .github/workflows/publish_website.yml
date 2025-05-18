@@ -21,12 +21,6 @@ jobs:
         with:
           path: python_code
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          path: website
-          token: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
-
       # - name: Setup python
       #   uses: actions/setup-python@v4
       #   with:
@@ -46,7 +40,8 @@ jobs:
       - name: Publish website
         if: github.ref == 'refs/heads/main'
         run: |
-          cd website
+          git clone https://github.com/anderpups/anderpups.github.io.git
+          cd anderpups.github.io      
           cp -fv ../python_code/data/* ./
           git status
           ls -al
