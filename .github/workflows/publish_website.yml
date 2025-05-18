@@ -32,10 +32,10 @@ jobs:
       #     python -m pip install --upgrade pip
       #     pip install -r python_code/requirements.txt
 
-      # - name: Run scripts
-      #   run: |
-      #     cd python_code
-      #     python3 process_universal_data.py
+      - name: Run scripts
+        run: |
+          cd python_code
+          python3 process_universal_data.py
 
       - name: Publish website
         if: github.ref == 'refs/heads/main'
