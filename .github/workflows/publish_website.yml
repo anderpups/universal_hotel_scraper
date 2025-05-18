@@ -41,13 +41,13 @@ jobs:
       - name: Run scripts
         run: |
           cd python_code
-          python3 get_universal_data.py
           python3 process_universal_data.py
 
       - name: Publish website
         if: github.ref == 'refs/heads/main'
         run: |
-          cp -f ./python_code/data/* ../website/
+          
+          cp -f ./python_code/data/* ./website/
           cd website
           git config --local user.name "github-actions"
           git config --local user.email "githubactions@fake.com"
