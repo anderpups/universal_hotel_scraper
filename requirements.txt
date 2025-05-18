@@ -1,0 +1,5 @@
+## Pypi requirements
+requests==2.28.1
+beautifulsoup4==4.11.2
+pandas==1.5.3
+matplotlib==3.6.3

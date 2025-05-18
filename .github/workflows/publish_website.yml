@@ -1,0 +1,59 @@
+name: Publish website
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  Publish:
+    name: Publish
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      # To report GitHub Actions status checks
+      statuses: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: python_code
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: website
+          token: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Run scripts
+        run: |       
+          cd python_code
+          python3 ./get_universal.data.py
+          python3 ./process_universal.data.py
+          
+      - name: Publish website
+        if: github.ref == 'refs/heads/main'
+        run: |
+          cp -f ./python_code/data/* ../website/
+          cd website
+          git config --local user.name "github-actions"
+          git config --local user.email "githubactions@fake.com"
+          git add .
+          git commit -m "Update website"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
+          GITHUB_ACTOR: github-actions

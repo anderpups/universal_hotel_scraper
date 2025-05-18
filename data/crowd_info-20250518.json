@@ -544,12 +544,12 @@
     "crowd_info": 28
   },
   {
-    "date": "05/17/25",
-    "crowd_info": 34
+    "date": "05/17/26",
+    "crowd_info": 30
   },
   {
-    "date": "05/18/25",
-    "crowd_info": 32
+    "date": "05/18/26",
+    "crowd_info": 33
   },
   {
     "date": "05/19/25",
@@ -1458,9 +1458,5 @@
   {
     "date": "12/31/25",
     "crowd_info": 43
-  },
-    {
-    "date": "05/17/26",
-    "crowd_info": 28
   }
 ]

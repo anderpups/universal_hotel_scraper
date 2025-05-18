@@ -18,77 +18,76 @@ index_html = """
 """
 
 bottom_of_html = """
-    <script>
-    $(document).ready(function() {
-        $('#T_1e83b').DataTable({
-            scrollX: true,
-            dom: 'Bfrtip',
-            buttons: [
-                'colvis'
-            ],
-            pageLength: 30,
-            // Optional: initial sorting, e.g. by date
-            // "order": [[0, "asc"]]
-        });
+<script>
+$(document).ready(function() {
+    var table = $('#T_hotel-info').DataTable({
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'colvis',
+                collectionLayout: 'fixed two-column',
+                text: 'Columns',
+                postfixButtons: [
+                    {
+                        text: 'Select All',
+                        action: function ( e, dt, node, config ) {
+                            dt.columns().visible(true, false);
+                        }
+                    },
+                    {
+                        text: 'Deselect All',
+                        action: function ( e, dt, node, config ) {
+                            // Keep the first two columns (date and day) visible, hide the rest
+                            dt.columns().every(function(idx) {
+                                if(idx > 1) {
+                                    this.visible(false, false);
+                                } else {
+                                    this.visible(true, false);
+                                }
+                            });
+                        }
+                    }
+                ]
+            }
+        ],
+        pageLength: 30
     });
-    </script>
-    <script>
-    // Custom filtering function for date range
+
+    // Date range filter (keep your existing code)
     $.fn.dataTable.ext.search.push(
-    function(settings, data, dataIndex) {
-        // Get the value from the first column (row header, date)
-        var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
-        if (!dateStr) return true; // skip if no date
-
-        // Parse the date in MM/DD/YY format
-        var parts = dateStr.split('/');
-        var rowDate = new Date('20' + parts[2], parts[0] - 1, parts[1]); // e.g. 05/17/25
-
-        var min = $('#min-date').val();
-        var max = $('#max-date').val();
-
-        var minDate = min ? new Date(min) : null;
-        var maxDate = max ? new Date(max) : null;
-
-        // Remove time part for comparison
-        rowDate.setHours(0,0,0,0);
-        if (minDate) minDate.setHours(0,0,0,0);
-        if (maxDate) maxDate.setHours(0,0,0,0);
-
-        if (
-        (!minDate || rowDate >= minDate) &&
-        (!maxDate || rowDate <= maxDate)
-        ) {
-        return true;
+        function(settings, data, dataIndex) {
+            var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
+            if (!dateStr) return true;
+            var parts = dateStr.split('/');
+            var rowDate = new Date(
+                parseInt('20' + parts[2], 10),
+                parseInt(parts[0], 10) - 1,
+                parseInt(parts[1], 10)
+            );
+            function parseInputDate(str) {
+                var parts = str.split('-');
+                return new Date(parts[0], parts[1] - 1, parts[2]);
+            }
+            var min = $('#min-date').val();
+            var max = $('#max-date').val();
+            var minDate = min ? parseInputDate(min) : null;
+            var maxDate = max ? parseInputDate(max) : null;
+            rowDate.setHours(0,0,0,0);
+            if (minDate) minDate.setHours(0,0,0,0);
+            if (maxDate) maxDate.setHours(0,0,0,0);
+            if ((!minDate || rowDate >= minDate) && (!maxDate || rowDate <= maxDate)) {
+                return true;
+            }
+            return false;
         }
-        return false;
-    }
     );
-
-    $(document).ready(function() {
-        var table;
-        if (!$.fn.DataTable.isDataTable('#T_1e83b')) {
-            table = $('#T_1e83b').DataTable({
-                scrollX: true,
-                dom: 'Bfrtip',
-                buttons: [
-                    'colvis'
-                ],
-                pageLength: 30,
-                // "order": [[0, "asc"]]
-            });
-        } else {
-            table = $('#T_1e83b').DataTable();
-        }
-
-        // Event listeners for the date inputs
-        $('#min-date, #max-date').on('change', function() {
-            table.draw();
-        });
+    $('#min-date, #max-date').on('change', function() {
+        table.draw();
     });
-    </script>
-    </body>
-  """
+});
+</script>
+</body>
+"""
 
 all_data = []
 
@@ -176,7 +175,6 @@ for file_path in json_files:
     pivot_df.columns.name = None
 
     styled_table = pivot_df.style.set_sticky(axis="columns")
-    
     ## Set the style of the column headers
     header_style = """
     <head>
@@ -205,10 +203,10 @@ for file_path in json_files:
     display: none !important;
     }
     </style>
-    <div style="height:1000px; width:1200px; overflow:auto; border:1px solid #ccc;">
+    <div style="height:2000px; width:1400px; overflow:auto; border:1px solid #ccc;">
     <style type="text/css">
 
-    #T_1e83b thead tr:nth-child(1) th {
+    #T_hotel-info thead tr:nth-child(1) th {
     position: sticky;
     background-color: inherit;
     top: 0px;
@@ -227,10 +225,10 @@ for file_path in json_files:
     """
 
     ## Set the table to scrollable
-    html_table = styled_table.to_html(index_names=False, escape=False, table_id="hotel-info")
+    html_table = styled_table.to_html(index_names=False, escape=False, uuid="hotel-info")
     scrollable_html = f"""
     {header_style}
-    <div style="height:1000px; width:1000px; overflow:auto; border:1px solid #ccc;">
+    <div style="height:2000px; width:1400px; overflow:auto; border:1px solid #ccc;">
     {html_table}
     </div>
     {bottom_of_html}
@@ -238,7 +236,7 @@ for file_path in json_files:
     with open(f"{data_folder}/hotel_info-{gather_date}.html", "w") as f:
         f.write(scrollable_html) 
     
-    index_html += f'<a href="hotel_info-{gather_date}.html">Data for {gather_date}</a><br>\n'
+    index_html += f'<a href="hotel_info-{gather_date}.html">{gather_date}</a><br>\n'
 
 index_html += "</ul>\n</body></html>"
 # Write to index.html
