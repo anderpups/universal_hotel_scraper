@@ -43,13 +43,9 @@ jobs:
           git clone https://github.com/anderpups/anderpups.github.io.git
           cd anderpups.github.io      
           cp -fv ../python_code/data/* ./
-          git config --local user.name "github-actions"
-          git config --local user.email "githubactions@fake.com"
+          git config user.name "github-actions"
+          git config user.email "github-actions@fake.com"
+          git remote set-url origin https://github-actions:${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}@github.com/anderpups/anderpups.github.io.git
           git add .
           git commit -m "Update website" --allow-empty
           git push --verbose
-        env:
-          GITHUB_TOKEN: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
-          GITHUB_ACTOR: github-actions
-          GITHUB_REPOSITORY: anderpups/anderpups.github.io
-          GITHUB_REF: main
