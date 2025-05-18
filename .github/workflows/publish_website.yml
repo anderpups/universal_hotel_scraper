@@ -51,7 +51,7 @@ jobs:
           git status
           git commit -m "Update website"
           git status
-          git push
+          git push --verbose
         env:
           GITHUB_TOKEN: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
           GITHUB_ACTOR: github-actions

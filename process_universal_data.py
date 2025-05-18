@@ -10,7 +10,7 @@ index_file = os.path.join(data_folder, "index.html")
 index_html = """
 <html>
 <head>
-<title>Universal Hotel Info</title>
+<title>Universal Hotel Info!</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <h1>Universal Hotel Info</h1>
