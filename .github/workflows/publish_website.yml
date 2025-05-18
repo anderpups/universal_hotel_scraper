@@ -42,8 +42,8 @@ jobs:
         run: |
           cd python_code
           ls -la
-          python3 get_universal.data.py
-          python3 process_universal.data.py
+          python3 get_universal_data.py
+          python3 process_universal_data.py
 
       - name: Publish website
         if: github.ref == 'refs/heads/main'
