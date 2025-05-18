@@ -46,16 +46,17 @@ jobs:
       - name: Publish website
         if: github.ref == 'refs/heads/main'
         run: |
-          ls -al
           cd website
           cp -fv ../python_code/data/* ./
-      # git status
-      # ls -al
-      # git config --local user.name "github-actions"
-      # git config --local user.email "githubactions@fake.com"
-      # git add .
-      # git commit -m "Update website"
-      # git push
+          git status
+          ls -al
+          git config --local user.name "github-actions"
+          git config --local user.email "githubactions@fake.com"
+          git add .
+          git status
+          git commit -m "Update website"
+          git status
+          git push
         env:
           GITHUB_TOKEN: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
           GITHUB_ACTOR: github-actions
