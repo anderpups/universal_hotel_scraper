@@ -48,7 +48,7 @@ jobs:
           git add .
           git commit -m "Update website"
           git status
-          git push --verbose
+          git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
           GITHUB_ACTOR: github-actions
