@@ -60,3 +60,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
           GITHUB_ACTOR: github-actions
+          GITHUB_REPOSITORY: anderpups/anderpups.github.io
+          GITHUB_REF: main
