@@ -160,7 +160,7 @@ for date in date_range:
   date_info = get_hotel_data_for_date(date_str)
   hotel_info.extend(date_info)
   print(f"Found {len(date_info)} hotels available for {date_str}")
-  sleep_seconds = random.uniform(1, 6)
+  sleep_seconds = random.uniform(1, 2)
   time.sleep(sleep_seconds)
 
 crowd_info = get_crowd_info_dates(crowd_info, date_range)
