@@ -27,28 +27,28 @@ jobs:
           path: website
           token: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
 
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11.2"
-          cache: "pip"
+      # - name: Setup python
+      #   uses: actions/setup-python@v4
+      #   with:
+      #     python-version: "3.11.2"
+      #     cache: "pip"
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r python_code/requirements.txt
+      # - name: Install dependencies
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -r python_code/requirements.txt
 
-      - name: Run scripts
-        run: |
-          cd python_code
-          python3 process_universal_data.py
+      # - name: Run scripts
+      #   run: |
+      #     cd python_code
+      #     python3 process_universal_data.py
 
       - name: Publish website
         if: github.ref == 'refs/heads/main'
         run: |
           ls -al
-      # cp -f ./python_code/data/* ./website/
-      # cd website
+          cd website
+          cp -fv ../python_code/data/* ./
       # git status
       # ls -al
       # git config --local user.name "github-actions"
