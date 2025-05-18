@@ -7,7 +7,7 @@ import re
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 
-lookahead_period = 365
+lookahead_period = 5
 
 ## Get todday
 today = datetime.now()
@@ -91,7 +91,7 @@ def get_hotel_data_for_date(date):
         ## Get the hotel price and convert it to an integer
         hotel_price = int((hotel.find('div', class_='ws-property-price').span.text).replace("$",""))
         ## Append the hotel data to the list
-        hotels_list.append({"name": hotel_name, "price": hotel_price,"date": date})
+        hotels_list.append({"name": hotel_name, "price": hotel_price,"date": datetime.strptime(date, "%m/%d/%Y").strftime("%m/%d/%y")})
       except Exception as e:
         print(f"Error parsing hotel info: {e}")
     return hotels_list

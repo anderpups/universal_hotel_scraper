@@ -2,4 +2,4 @@ Left off trying to get the table id to be consistent with pandas.to_html
 
 hotel_info.html has the stuff needed.
 
-process_universal_data.py is failing on the data from 5/17.
+process_universal_data.py is failing on the data from 5/17. It was the long year in the date. Should be fixed
