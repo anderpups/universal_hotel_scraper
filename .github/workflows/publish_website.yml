@@ -43,12 +43,9 @@ jobs:
           git clone https://github.com/anderpups/anderpups.github.io.git
           cd anderpups.github.io      
           cp -fv ../python_code/data/* ./
-          git status
-          ls -al
           git config --local user.name "github-actions"
           git config --local user.email "githubactions@fake.com"
           git add .
-          git status
           git commit -m "Update website"
           git status
           git push --verbose
