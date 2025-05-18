@@ -1,6 +1,6 @@
 name: Lint
 on:
-  push:
+  workflow_dispatch:
 jobs:
   lint:
     name: Lint
