@@ -41,6 +41,7 @@ jobs:
       - name: Run scripts
         run: |
           cd python_code
+          ls -la
           python3 get_universal.data.py
           python3 process_universal.data.py
 
