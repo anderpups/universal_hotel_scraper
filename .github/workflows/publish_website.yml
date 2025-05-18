@@ -46,7 +46,8 @@ jobs:
           git config --local user.name "github-actions"
           git config --local user.email "githubactions@fake.com"
           git add .
-          git commit -m "Update website" || true
+          git commit -m "Update website" --allow-empty
+          
         env:
           GITHUB_TOKEN: ${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}
           GITHUB_ACTOR: github-actions
