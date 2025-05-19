@@ -17,11 +17,34 @@ index_html = """
 <body>
 """
 
-bottom_of_html = """
+top_of_table_html = """
+  <!doctype html>
+  <head>
+  <title>Universal Hotel Info for 20250519</title>
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
+  <!-- DataTables ColVis extension for column hiding -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+
+</head>
+<body>
+<label for="min-date">Start:</label>
+<input type="date" id="min-date">
+<label for="max-date" style="margin-left:10px;">End:</label>
+<input type="date" id="max-date">
+"""
+
+bottom_of_table_html = """
 <script>
 $(document).ready(function() {
     var table = $('#T_hotel-info').DataTable({
-        dom: 'lBfrtip',
+        dom: 'lBrtip',
         buttons: [
             {
                 extend: 'colvis',
@@ -61,7 +84,7 @@ $(document).ready(function() {
                     if (type === 'sort' || type === 'type') {
                         // Extract number from the div, handle unavailable
                         var number = $(data).text();
-                        return (number === 'unavailable' || number === '') ? -Infinity : parseFloat(number); // Sort unavailable as smallest
+                        return (number === 'unavailable' || number === '') ? Infinity : parseFloat(number); // Sort unavailable as largest
                     }
                     // For display, format with a dollar sign
                     if (type === 'display') {
@@ -80,43 +103,43 @@ $(document).ready(function() {
         ]
     });
 
-    // Date range filter
-    $.fn.dataTable.ext.search.push(
-        function(settings, data, dataIndex) {
-            var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
-            if (!dateStr) return true;
-            var parts = dateStr.split('/');
-            // Ensure the year is correctly parsed as 20xx
-            var year = parseInt(parts[2], 10);
-            if (year < 2000) { // Simple check if it's a two-digit year
-                year += 2000;
-            }
-            var rowDate = new Date(
-                year,
-                parseInt(parts[0], 10) - 1, // Month is 0-indexed
-                parseInt(parts[1], 10)
-            );
-
-            function parseInputDate(str) {
-                if (!str) return null;
-                var dateParts = str.split('-');
-                return new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10));
-            }
-
-            var min = $('#min-date').val();
-            var max = $('#max-date').val();
-            var minDate = parseInputDate(min);
-            var maxDate = parseInputDate(max);
-
-            rowDate.setHours(0,0,0,0);
-            if (minDate) minDate.setHours(0,0,0,0);
-            if (maxDate) maxDate.setHours(0,0,0,0);
-
-            if ((!minDate || rowDate >= minDate) && (!maxDate || rowDate <= maxDate)) {
-                return true;
-            }
-            return false;
+// Date range filter
+$.fn.dataTable.ext.search.push(
+    function(settings, data, dataIndex) {
+        var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
+        if (!dateStr) return true;
+        var parts = dateStr.split('/');
+        // Ensure the year is correctly parsed as 20xx
+        var year = parseInt(parts[2], 10);
+        if (year < 2000) { // Simple check if it's a two-digit year
+            year += 2000;
         }
+        var rowDate = new Date(
+            year,
+            parseInt(parts[0], 10) - 1, // Month is 0-indexed
+            parseInt(parts[1], 10)
+        );
+
+        function parseInputDate(str) {
+            if (!str) return null;
+            var dateParts = str.split('-');
+            return new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10));
+        }
+
+        var min = $('#min-date').val();
+        var max = $('#max-date').val();
+        var minDate = parseInputDate(min);
+        var maxDate = parseInputDate(max);
+
+        rowDate.setHours(0,0,0,0);
+        if (minDate) minDate.setHours(0,0,0,0);
+        if (maxDate) maxDate.setHours(0,0,0,0);
+
+        if ((!minDate || rowDate >= minDate) && (!maxDate || rowDate <= maxDate)) {
+            return true;
+        }
+        return false;
+    }
     );
     $('#min-date, #max-date').on('change', function() {
         table.draw();
@@ -124,6 +147,7 @@ $(document).ready(function() {
 });
 </script>
 </body>
+</html>
 """
 
 all_data = []
@@ -211,71 +235,27 @@ for file_path in json_files:
     pivot_df.index.name = None
     pivot_df.columns.name = None
 
-    styled_table = pivot_df.style.set_sticky(axis="columns")
-    ## Set the style of the column headers
-    header_style = """
-    <head>
-    <title>Universal Hotel Info</title>
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <!-- DataTables ColVis extension for column hiding -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
-    <style>
-    thead th {
-        background-color: #f8f8f8 !important;
-        color: #222 !important;
-        position: sticky;
-        top: 0;
-        z-index: 3;
-    }
-    </style>
-    <style>
-    .dataTables_filter {
-    display: none !important;
-    }
-    </style>
-    <div style="overflow:auto; border:1px solid #ccc;">
-    <style type="text/css">
-
-    #T_hotel-info thead tr:nth-child(1) th {
-    position: sticky;
-    background-color: inherit;
-    top: 0px;
-    z-index: 2;
-    }
-    </style>
-
-    </head>
-    <body>
-    <div style="margin-bottom: 10px;">
-    <label for="min-date">Start date:</label>
-    <input type="date" id="min-date">
-    <label for="max-date" style="margin-left:10px;">End date:</label>
-    <input type="date" id="max-date">
-    </div>
-    """
-
-    ## Set the table to scrollable
-    html_table = styled_table.to_html(index_names=False, escape=False, uuid="hotel-info")
-    scrollable_html = f"""
-    {header_style}
-    <div style="overflow:auto; border:1px solid #ccc;">
-    {html_table}
-    </div>
-    {bottom_of_html}
+    # styled_table = pivot_df.style.set_sticky(axis="columns")
+    styled_table = pivot_df.style.set_table_styles([
+        {'selector': 'th', 'props':
+        [('background-color', 'white'),
+        ('z-index', '10'),
+        ('position', 'sticky !important'),
+        ('top','50px')
+        ]}
+], overwrite=False)
+    table_html = styled_table.to_html(uuid="hotel-info")
+    total_html = f"""
+    {top_of_table_html}
+    {table_html}
+    {bottom_of_table_html}
     """
     with open(f"{data_folder}/hotel_info-{gather_date}.html", "w") as f:
-        f.write(scrollable_html) 
+        f.write(total_html) 
     
     index_html += f'<a href="hotel_info-{gather_date}.html">{gather_date}</a><br>\n'
 
-index_html += "</ul>\n</body></html>"
+index_html += "</ul>\n</body>\n</html>"
 # Write to index.html
 with open(index_file, "w") as f:
     f.write(index_html)
