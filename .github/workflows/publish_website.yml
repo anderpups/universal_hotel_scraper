@@ -29,10 +29,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r python_code/requirements.txt
 
-      # - name: Run process_universal_data.py
-      #   run: |
-      #     cd python_code
-      #     python3 get_universal_data.py
+      - name: Run process_universal_data.py
+        run: |
+          cd python_code
+          python3 get_universal_data.py
 
       - name: Run process_universal_data.py
         run: |
