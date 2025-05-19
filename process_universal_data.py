@@ -21,7 +21,7 @@ bottom_of_html = """
 <script>
 $(document).ready(function() {
     var table = $('#T_hotel-info').DataTable({
-        dom: 'Bfrtip',
+        dom: 'lBfrtip',
         buttons: [
             {
                 extend: 'colvis',
@@ -50,7 +50,8 @@ $(document).ready(function() {
                 ]
             }
         ],
-        pageLength: 30,
+        pageLength: 366,
+        lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
         columnDefs: [
             {
                 targets: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], // Target columns 2 through 13 (0-indexed)
@@ -79,7 +80,7 @@ $(document).ready(function() {
         ]
     });
 
-    // Date range filter (remains the same as your original code)
+    // Date range filter
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex) {
             var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
@@ -239,7 +240,7 @@ for file_path in json_files:
     display: none !important;
     }
     </style>
-    <div style="height:2000px; width:1400px; overflow:auto; border:1px solid #ccc;">
+    <div style="overflow:auto; border:1px solid #ccc;">
     <style type="text/css">
 
     #T_hotel-info thead tr:nth-child(1) th {
@@ -264,7 +265,7 @@ for file_path in json_files:
     html_table = styled_table.to_html(index_names=False, escape=False, uuid="hotel-info")
     scrollable_html = f"""
     {header_style}
-    <div style="height:2000px; width:1400px; overflow:auto; border:1px solid #ccc;">
+    <div style="overflow:auto; border:1px solid #ccc;">
     {html_table}
     </div>
     {bottom_of_html}
