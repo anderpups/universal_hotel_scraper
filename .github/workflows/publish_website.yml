@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout code
@@ -29,15 +29,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r python_code/requirements.txt
 
-      - name: Run process_universal_data.py
-        run: |
-          cd python_code
-          python3 get_universal_data.py
+      # - name: Run process_universal_data.py
+      #   run: |
+      #     cd python_code
+      #     python3 get_universal_data.py
 
       - name: Run process_universal_data.py
         run: |
           cd python_code
           python3 process_universal_data.py
+
+      - name: Run process_universal_data.py
+        run: |
+          cd python_code
+          git config user.name "github-actions"
+          git config user.email "github-actions@fake.com"
+          git remote set-url origin https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/anderpups/universal_hotel_scraper.git
+          git add .
+          git commit -m "Update data" --allow-empty
+          git push --verbose
 
       - name: Publish website
         if: github.ref == 'refs/heads/main'
