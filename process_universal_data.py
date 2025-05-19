@@ -39,7 +39,7 @@ $(document).ready(function() {
                         action: function ( e, dt, node, config ) {
                             // Keep the first two columns (date and day) visible, hide the rest
                             dt.columns().every(function(idx) {
-                                if(idx > 1) {
+                                if(idx > 1) { // Start hiding from the third column (index 2)
                                     this.visible(false, false);
                                 } else {
                                     this.visible(true, false);
@@ -50,31 +50,67 @@ $(document).ready(function() {
                 ]
             }
         ],
-        pageLength: 30
+        pageLength: 30,
+        columnDefs: [
+            {
+                targets: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], // Target columns 2 through 13 (0-indexed)
+                type: 'num', // Treat data in these columns as numbers for sorting
+                render: function (data, type, row) {
+                    // For sorting, extract the raw number
+                    if (type === 'sort' || type === 'type') {
+                        // Extract number from the div, handle N/A
+                        var number = $(data).text();
+                        return (number === 'N/A' || number === '') ? -Infinity : parseFloat(number); // Sort N/A as smallest
+                    }
+                    // For display, format with a dollar sign
+                    if (type === 'display') {
+                        var cellData = $(data).text();
+                        if (cellData === 'N/A' || cellData === '') {
+                            return data; // Keep N/A or empty as is, including the div
+                        }
+                        // Prepend dollar sign and keep the original div structure for styling
+                        var originalDiv = $(data).clone();
+                        originalDiv.text('$' + cellData);
+                        return originalDiv.prop('outerHTML');
+                    }
+                    return data; // Default return
+                }
+            }
+        ]
     });
 
-    // Date range filter (keep your existing code)
+    // Date range filter (remains the same as your original code)
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex) {
             var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
             if (!dateStr) return true;
             var parts = dateStr.split('/');
+            // Ensure the year is correctly parsed as 20xx
+            var year = parseInt(parts[2], 10);
+            if (year < 2000) { // Simple check if it's a two-digit year
+                year += 2000;
+            }
             var rowDate = new Date(
-                parseInt('20' + parts[2], 10),
-                parseInt(parts[0], 10) - 1,
+                year,
+                parseInt(parts[0], 10) - 1, // Month is 0-indexed
                 parseInt(parts[1], 10)
             );
+
             function parseInputDate(str) {
-                var parts = str.split('-');
-                return new Date(parts[0], parts[1] - 1, parts[2]);
+                if (!str) return null;
+                var dateParts = str.split('-');
+                return new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10));
             }
+
             var min = $('#min-date').val();
             var max = $('#max-date').val();
-            var minDate = min ? parseInputDate(min) : null;
-            var maxDate = max ? parseInputDate(max) : null;
+            var minDate = parseInputDate(min);
+            var maxDate = parseInputDate(max);
+
             rowDate.setHours(0,0,0,0);
             if (minDate) minDate.setHours(0,0,0,0);
             if (maxDate) maxDate.setHours(0,0,0,0);
+
             if ((!minDate || rowDate >= minDate) && (!maxDate || rowDate <= maxDate)) {
                 return true;
             }
@@ -97,7 +133,7 @@ json_files.sort()
 def format_price(price):
     """Format the price to include a dollar sign """
     try:
-        return f"${int(price)}"
+        return int(price)
     except ValueError:
         return "N/A"
 
