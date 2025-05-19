@@ -53,7 +53,7 @@ $(document).ready(function() {
         pageLength: 30,
         columnDefs: [
             {
-                targets: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], // Target columns 2 through 13 (0-indexed)
+                targets: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], // Target columns 2 through 13 (0-indexed)
                 type: 'num', // Treat data in these columns as numbers for sorting
                 render: function (data, type, row) {
                     // For sorting, extract the raw number
