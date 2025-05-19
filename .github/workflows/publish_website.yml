@@ -1,9 +1,8 @@
 name: Publish website
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: '8 0 * * *' # Every day at 8a UTC
 
 jobs:
   Publish:
@@ -12,8 +11,6 @@ jobs:
 
     permissions:
       contents: read
-      # To report GitHub Actions status checks
-      statuses: write
 
     steps:
       - name: Checkout code
@@ -32,10 +29,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r python_code/requirements.txt
 
-      # - name: Run process_universal_data.py
-      #   run: |
-      #     cd python_code
-      #     python3 get_universal_data.py
+      - name: Run process_universal_data.py
+        run: |
+          cd python_code
+          python3 get_universal_data.py
 
       - name: Run process_universal_data.py
         run: |
