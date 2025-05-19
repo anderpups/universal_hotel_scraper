@@ -93,7 +93,7 @@ all_data = []
 
 # Find all JSON files in the data folder
 json_files = glob.glob(os.path.join(data_folder, "hotel_info*.json"))
-
+json_files.sort()
 def format_price(price):
     """Format the price to include a dollar sign """
     try:
