@@ -58,15 +58,15 @@ $(document).ready(function() {
                 render: function (data, type, row) {
                     // For sorting, extract the raw number
                     if (type === 'sort' || type === 'type') {
-                        // Extract number from the div, handle N/A
+                        // Extract number from the div, handle unavailable
                         var number = $(data).text();
-                        return (number === 'N/A' || number === '') ? -Infinity : parseFloat(number); // Sort N/A as smallest
+                        return (number === 'unavailable' || number === '') ? -Infinity : parseFloat(number); // Sort unavailable as smallest
                     }
                     // For display, format with a dollar sign
                     if (type === 'display') {
                         var cellData = $(data).text();
-                        if (cellData === 'N/A' || cellData === '') {
-                            return data; // Keep N/A or empty as is, including the div
+                        if (cellData === 'unavailable' || cellData === '') {
+                            return data; // Keep unavailable or empty as is, including the div
                         }
                         // Prepend dollar sign and keep the original div structure for styling
                         var originalDiv = $(data).clone();
@@ -135,7 +135,7 @@ def format_price(price):
     try:
         return int(price)
     except ValueError:
-        return "N/A"
+        return "unavailable"
 
 def color_gradient(s, color_list=['#00ff00', '#ffff00', '#ff0000']):
     """
