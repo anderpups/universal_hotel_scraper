@@ -1,7 +1,7 @@
 name: Publish website
 on:
   schedule:
-    - cron: '8 0 * * *' # Every day at 8a UTC
+    - cron: '0 8 * * *' # Every day at 8a UTC
   workflow_dispatch:
     inputs:
       gatherData:
