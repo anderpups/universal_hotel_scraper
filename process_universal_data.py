@@ -4,151 +4,14 @@ import os
 import pandas
 import matplotlib
 import matplotlib.pyplot as plt
+from jinja2 import Environment, FileSystemLoader
 
 data_folder = "data"
 index_file = os.path.join(data_folder, "index.html")
-index_html = """
-<html>
-<head>
-<title>Universal Hotel Info</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<h1>Universal Hotel Info</h1>
-<body>
-"""
-
-top_of_table_html = """
-  <!doctype html>
-  <head>
-  <title>Universal Hotel Info for 20250519</title>
-  <!-- DataTables CSS -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <!-- DataTables JS -->
-  <script src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
-  <!-- DataTables ColVis extension for column hiding -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
-
-</head>
-<body>
-<label for="min-date">Start:</label>
-<input type="date" id="min-date">
-<label for="max-date" style="margin-left:10px;">End:</label>
-<input type="date" id="max-date">
-"""
-
-bottom_of_table_html = """
-<script>
-$(document).ready(function() {
-    var table = $('#T_hotel-info').DataTable({
-        dom: 'lBrtip',
-        buttons: [
-            {
-                extend: 'colvis',
-                collectionLayout: 'fixed two-column',
-                text: 'Columns',
-                postfixButtons: [
-                    {
-                        text: 'Select All',
-                        action: function ( e, dt, node, config ) {
-                            dt.columns().visible(true, false);
-                        }
-                    },
-                    {
-                        text: 'Deselect All',
-                        action: function ( e, dt, node, config ) {
-                            // Keep the first two columns (date and day) visible, hide the rest
-                            dt.columns().every(function(idx) {
-                                if(idx > 1) { // Start hiding from the third column (index 2)
-                                    this.visible(false, false);
-                                } else {
-                                    this.visible(true, false);
-                                }
-                            });
-                        }
-                    }
-                ]
-            }
-        ],
-        pageLength: 366,
-        lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
-        columnDefs: [
-            {
-                targets: [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], // Target columns 2 through 13 (0-indexed)
-                type: 'num', // Treat data in these columns as numbers for sorting
-                render: function (data, type, row) {
-                    // For sorting, extract the raw number
-                    if (type === 'sort' || type === 'type') {
-                        // Extract number from the div, handle unavailable
-                        var number = $(data).text();
-                        return (number === 'unavailable' || number === '') ? Infinity : parseFloat(number); // Sort unavailable as largest
-                    }
-                    // For display, format with a dollar sign
-                    if (type === 'display') {
-                        var cellData = $(data).text();
-                        if (cellData === 'unavailable' || cellData === '') {
-                            return data; // Keep unavailable or empty as is, including the div
-                        }
-                        // Prepend dollar sign and keep the original div structure for styling
-                        var originalDiv = $(data).clone();
-                        originalDiv.text('$' + cellData);
-                        return originalDiv.prop('outerHTML');
-                    }
-                    return data; // Default return
-                }
-            }
-        ]
-    });
-
-// Date range filter
-$.fn.dataTable.ext.search.push(
-    function(settings, data, dataIndex) {
-        var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
-        if (!dateStr) return true;
-        var parts = dateStr.split('/');
-        // Ensure the year is correctly parsed as 20xx
-        var year = parseInt(parts[2], 10);
-        if (year < 2000) { // Simple check if it's a two-digit year
-            year += 2000;
-        }
-        var rowDate = new Date(
-            year,
-            parseInt(parts[0], 10) - 1, // Month is 0-indexed
-            parseInt(parts[1], 10)
-        );
-
-        function parseInputDate(str) {
-            if (!str) return null;
-            var dateParts = str.split('-');
-            return new Date(parseInt(dateParts[0], 10), parseInt(dateParts[1], 10) - 1, parseInt(dateParts[2], 10));
-        }
-
-        var min = $('#min-date').val();
-        var max = $('#max-date').val();
-        var minDate = parseInputDate(min);
-        var maxDate = parseInputDate(max);
-
-        rowDate.setHours(0,0,0,0);
-        if (minDate) minDate.setHours(0,0,0,0);
-        if (maxDate) maxDate.setHours(0,0,0,0);
-
-        if ((!minDate || rowDate >= minDate) && (!maxDate || rowDate <= maxDate)) {
-            return true;
-        }
-        return false;
-    }
-    );
-    $('#min-date, #max-date').on('change', function() {
-        table.draw();
-    });
-});
-</script>
-</body>
-</html>
-"""
+environment = Environment(loader=FileSystemLoader("templates/"))
+hotel_info_template = environment.get_template("hotel-info.html.j2")
+index_template = environment.get_template("index.html.j2")
+index_html_content = ''
 
 all_data = []
 
@@ -243,19 +106,19 @@ for file_path in json_files:
         ('position', 'sticky !important'),
         ('top','50px')
         ]}
-], overwrite=False)
+    ], overwrite=False)
+
     table_html = styled_table.to_html(uuid="hotel-info")
-    total_html = f"""
-    {top_of_table_html}
-    {table_html}
-    {bottom_of_table_html}
-    """
+
+    total_html = hotel_info_template.render(table_html=table_html)
+
     with open(f"{data_folder}/hotel_info-{gather_date}.html", "w") as f:
         f.write(total_html) 
     
-    index_html += f'<a href="hotel_info-{gather_date}.html">{gather_date}</a><br>\n'
+    index_html_content += f'<a href="hotel_info-{gather_date}.html">{gather_date}</a><br>\n'
 
-index_html += "</ul>\n</body>\n</html>"
+index_html = index_template.render(index_html_content=index_html_content)
+
 # Write to index.html
 with open(index_file, "w") as f:
     f.write(index_html)
