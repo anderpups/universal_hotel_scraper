@@ -1,9 +1,12 @@
 import glob
 import json
 import os
+import time
+import pprint
 import pandas
 import matplotlib
 import matplotlib.pyplot as plt
+from itertools import groupby
 from jinja2 import Environment, FileSystemLoader
 
 data_folder = "data"
@@ -11,13 +14,12 @@ index_file = os.path.join(data_folder, "index.html")
 environment = Environment(loader=FileSystemLoader("templates/"))
 hotel_info_template = environment.get_template("hotel-info.html.j2")
 index_template = environment.get_template("index.html.j2")
-index_html_content = ''
+index_html_by_gather_date = '<h2>Info by Gather Date</h2>'
+index_html_by_hotel = '<h2>Info by Hotel</h2>'
 
 all_data = []
+info_by_hotel = []
 
-# Find all JSON files in the data folder
-json_files = glob.glob(os.path.join(data_folder, "hotel_info*.json"))
-json_files.sort(reverse=True)
 def format_price(price):
     """Format the price to include a dollar sign """
     try:
@@ -48,11 +50,22 @@ def color_gradient(s, color_list=['#00ff00', '#ffff00', '#ff0000']):
 
     return normalized.apply(get_color)
 
-for file_path in json_files:
+## Find all JSON files in the data folder
+json_files = glob.glob(os.path.join(data_folder, "hotel_info*.json"))
+json_files.sort(reverse=True)
+info_by_gather_date = {}
+
+## Loop through json files
+for index, file_path in enumerate(json_files):
     with open(file_path, "r") as f:
         data = json.load(f)
-        filename = os.path.basename(file_path)
-        gather_date = filename.split("-")[1].split(".")[0]
+    filename = os.path.basename(file_path)
+    gather_date = filename.split("-")[1].split(".")[0]
+    for info in data:
+        if info_by_gather_date.get(info['name']) is None:
+            info_by_gather_date[info['name']] = []
+        info_by_gather_date[info['name']] = info_by_gather_date[info['name']] + [{"date": info['date'], "price": info['price'], "gather_date": gather_date}]
+
     df = pandas.DataFrame(data)
     pivot_df = df.pivot_table(index='date', columns='name', values='price')
     
@@ -114,11 +127,55 @@ for file_path in json_files:
 
     with open(f"{data_folder}/hotel_info-{gather_date}.html", "w") as f:
         f.write(total_html) 
-    
-    index_html_content += f'<a href="hotel_info-{gather_date}.html">{gather_date}</a><br>\n'
 
-index_html = index_template.render(index_html_content=index_html_content)
+    if index < 21:
+        index_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{gather_date}</a><br>\n'
+
+for name, data in info_by_gather_date.items():
+    print(name)
+    df = pandas.DataFrame(data)
+    pivot_df = df.pivot_table(index='date', columns='gather_date', values='price')
+
+    # Apply color gradient and format each cell that is a price
+    for col in pivot_df.columns:
+        styles = color_gradient(pivot_df[col])
+        pivot_df[col] = [
+            f'<div style="{style}">{format_price(val)}</div>'
+            for style, val in zip(styles, pivot_df[col])
+        ]
+    ## Format the index to be the date in the format of mm/dd/yy
+    # pivot_df.columns = pandas.to_datetime(pivot_df.columns, format='%m/%d/%y').strftime('%m/%d/%y')
+    # pivot_df.index = pandas.to_datetime(pivot_df.index, format='%m/%d/%y')
+    # pivot_df = pivot_df.sort_index()
+
+    ## Remove the index and columns names
+    pivot_df.index.name = None
+    pivot_df.columns.name = None
+
+    styled_table = pivot_df.style.set_sticky(axis="columns")
+    styled_table = pivot_df.style.set_table_styles([
+        {'selector': 'th', 'props':
+        [('background-color', 'white'),
+        ('z-index', '10'),
+        ('position', 'sticky !important'),
+        ('top','50px')
+        ]}
+    ], overwrite=False)
+
+    table_html = styled_table.to_html(uuid="hotel-info")
+    
+    total_html = hotel_info_template.render(table_html=table_html)
+
+    index_html_by_hotel += f'<a href="hotel_info-{(name.replace(" ","_")).lower()}.html">{name}</a><br>\n'
+
+    with open(f"{data_folder}/hotel_info-{(name.replace(" ","_")).lower()}.html", "w") as f:
+        f.write(total_html) 
+
+index_html = index_template.render(index_html_by_gather_date=index_html_by_gather_date, index_html_by_hotel=index_html_by_hotel)
 
 # Write to index.html
 with open(index_file, "w") as f:
     f.write(index_html)
+
+with open(f"{data_folder}/info_by_gather_date.json", "w") as file:
+  json.dump(info_by_gather_date, file, indent=2)
