@@ -175,7 +175,7 @@ for name, data in info_by_gather_date.items():
         format_start_column=1
         )
 
-    with open(f"{data_folder}/hotel_info-{(name.replace(" ","_")).lower()}.html", "w") as f:
+    with open(f'{data_folder}/hotel_info-{(name.replace(" ","_")).lower()}.html', "w") as f:
         f.write(total_html) 
 
     index_html_by_hotel += f'<a href="hotel_info-{(name.replace(" ","_")).lower()}.html">{name}</a><br>\n'
