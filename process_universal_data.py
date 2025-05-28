@@ -7,7 +7,7 @@ import pandas
 import matplotlib
 import matplotlib.pyplot as plt
 from itertools import groupby
-from datetime import datetime
+from datetime import datetime, timedelta
 from jinja2 import Environment, FileSystemLoader
 
 data_folder = "data"
@@ -19,6 +19,12 @@ index_template = environment.get_template("index.html.j2")
 index_html_by_gather_date = '<h2>Info by Gather Date</h2>'
 index_html_by_hotel = '<h2>Info by Hotel</h2>'
 historical_html_by_gather_date = '<link rel="stylesheet" href="style.css">\n<h2>Historical Info by Gather Date</h2>'
+
+## Get todday
+today = datetime.now()
+
+## Get tomorrow
+tomorrow = today + timedelta(days=1)
 
 all_data = []
 info_by_hotel = []
@@ -158,7 +164,7 @@ for name, data in info_by_gather_date.items():
         ]
     # Format the index to be the date in the format of mm/dd/yy
     pivot_df.columns = pandas.to_datetime(pivot_df.columns, format='%Y%m%d').strftime('%m/%d/%y')
-    pivot_df = pivot_df.sort_index()
+    pivot_df = pivot_df.sort_index(axis=1, ascending=False)
 
     ## Remove the index and columns names
     pivot_df.index.name = None
@@ -180,6 +186,7 @@ for name, data in info_by_gather_date.items():
         table_html=table_html,
         number_of_columns=number_of_columns,
         format_start_column=1,
+        tomorrow = tomorrow.strftime("%Y-%m-%d"),
         by_hotel_html = True
         )
 
