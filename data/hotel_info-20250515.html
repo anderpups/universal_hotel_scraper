@@ -5953,6 +5953,7 @@ $(document).ready(function() {
     });
 
 // Date range filter
+
 $.fn.dataTable.ext.search.push(
     function(settings, data, dataIndex) {
         var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
@@ -5990,6 +5991,7 @@ $.fn.dataTable.ext.search.push(
         return false;
     }
     );
+    table.draw();
     $('#min-date, #max-date').on('change', function() {
         table.draw();
     });
