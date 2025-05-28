@@ -6880,7 +6880,6 @@ $(document).ready(function() {
         buttons: [
             {
                 extend: 'colvis',
-
                 text: 'Gather Dates',
                 columns: 'nothing',
                 postfixButtons: [
@@ -6927,14 +6926,13 @@ $(document).ready(function() {
                         }
                     }
                 ]
-
             }
         ],
         pageLength: 366,
         lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
         columnDefs: [
             {
-                targets: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                targets: [1, 2, 3, 4, 5, 6, 7],
                 type: 'num', // Treat data in these columns as numbers for sorting
                 render: function (data, type, row) {
                     // For sorting, extract the raw number
@@ -6956,10 +6954,6 @@ $(document).ready(function() {
                     }
                     return data; // Default return
                 }
-            },
-            {
-              targets: [8, 9, 10, 11, 12, 13, 14, 15],
-              visible: false
             }
         ]
     });

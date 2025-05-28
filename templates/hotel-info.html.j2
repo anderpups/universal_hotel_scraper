@@ -26,8 +26,8 @@ $(document).ready(function() {
         buttons: [
             {
                 extend: 'colvis',
-                collectionLayout: 'fixed two-column',
-                text: 'Columns',
+{%if not by_hotel_html %}
+                text: 'Hotels',
                 postfixButtons: [
                     {
                         text: 'Select All',
@@ -49,6 +49,54 @@ $(document).ready(function() {
                         }
                     }
                 ]
+{% else %}
+                text: 'Gather Dates',
+                columns: 'nothing',
+                postfixButtons: [
+                {
+                        text: 'Last 7 Days',
+                        action: function ( e, dt, node, config ) {
+                            dt.columns().every(function(idx) {
+                                if(idx > 7) {
+                                    this.visible(false, false);
+                                } else {
+                                    this.visible(true, false);
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: 'Last 15 Days',
+                        action: function ( e, dt, node, config ) {
+                            dt.columns().every(function(idx) {
+                                if(idx > 15) {
+                                    this.visible(false, false);
+                                } else {
+                                    this.visible(true, false);
+                                }
+                            });
+                        }
+                    },
+                     {
+                        text: 'Last 30 Days',
+                        action: function ( e, dt, node, config ) {
+                            dt.columns().every(function(idx) {
+                                if(idx > 30) {
+                                    this.visible(false, false);
+                                } else {
+                                    this.visible(true, false);
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: 'All Dates',
+                        action: function ( e, dt, node, config ) {
+                            dt.columns().visible(true, false);
+                        }
+                    }
+                ]
+{% endif %}
             }
         ],
         pageLength: 366,
@@ -77,7 +125,11 @@ $(document).ready(function() {
                     }
                     return data; // Default return
                 }
-            }
+            }{%if by_hotel_html %},
+            {
+              targets: [{% for item in range(8, number_of_columns) -%}{{ item }}{% if not loop.last %}, {% endif %}{%- endfor %}],
+              visible: false
+            }{% endif %}
         ]
     });
 

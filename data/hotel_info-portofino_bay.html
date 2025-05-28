@@ -30,21 +30,21 @@
   <thead>
     <tr>
       <th class="blank level0" >&nbsp;</th>
-      <th id="T_hotel-info_level0_col0" class="col_heading level0 col0" >20250514</th>
-      <th id="T_hotel-info_level0_col1" class="col_heading level0 col1" >20250515</th>
-      <th id="T_hotel-info_level0_col2" class="col_heading level0 col2" >20250516</th>
-      <th id="T_hotel-info_level0_col3" class="col_heading level0 col3" >20250517</th>
-      <th id="T_hotel-info_level0_col4" class="col_heading level0 col4" >20250518</th>
-      <th id="T_hotel-info_level0_col5" class="col_heading level0 col5" >20250519</th>
-      <th id="T_hotel-info_level0_col6" class="col_heading level0 col6" >20250520</th>
-      <th id="T_hotel-info_level0_col7" class="col_heading level0 col7" >20250521</th>
-      <th id="T_hotel-info_level0_col8" class="col_heading level0 col8" >20250522</th>
-      <th id="T_hotel-info_level0_col9" class="col_heading level0 col9" >20250523</th>
-      <th id="T_hotel-info_level0_col10" class="col_heading level0 col10" >20250524</th>
-      <th id="T_hotel-info_level0_col11" class="col_heading level0 col11" >20250525</th>
-      <th id="T_hotel-info_level0_col12" class="col_heading level0 col12" >20250526</th>
-      <th id="T_hotel-info_level0_col13" class="col_heading level0 col13" >20250527</th>
-      <th id="T_hotel-info_level0_col14" class="col_heading level0 col14" >20250528</th>
+      <th id="T_hotel-info_level0_col0" class="col_heading level0 col0" >05/14/25</th>
+      <th id="T_hotel-info_level0_col1" class="col_heading level0 col1" >05/15/25</th>
+      <th id="T_hotel-info_level0_col2" class="col_heading level0 col2" >05/16/25</th>
+      <th id="T_hotel-info_level0_col3" class="col_heading level0 col3" >05/17/25</th>
+      <th id="T_hotel-info_level0_col4" class="col_heading level0 col4" >05/18/25</th>
+      <th id="T_hotel-info_level0_col5" class="col_heading level0 col5" >05/19/25</th>
+      <th id="T_hotel-info_level0_col6" class="col_heading level0 col6" >05/20/25</th>
+      <th id="T_hotel-info_level0_col7" class="col_heading level0 col7" >05/21/25</th>
+      <th id="T_hotel-info_level0_col8" class="col_heading level0 col8" >05/22/25</th>
+      <th id="T_hotel-info_level0_col9" class="col_heading level0 col9" >05/23/25</th>
+      <th id="T_hotel-info_level0_col10" class="col_heading level0 col10" >05/24/25</th>
+      <th id="T_hotel-info_level0_col11" class="col_heading level0 col11" >05/25/25</th>
+      <th id="T_hotel-info_level0_col12" class="col_heading level0 col12" >05/26/25</th>
+      <th id="T_hotel-info_level0_col13" class="col_heading level0 col13" >05/27/25</th>
+      <th id="T_hotel-info_level0_col14" class="col_heading level0 col14" >05/28/25</th>
     </tr>
   </thead>
   <tbody>
@@ -6880,29 +6880,54 @@ $(document).ready(function() {
         buttons: [
             {
                 extend: 'colvis',
-                collectionLayout: 'fixed two-column',
-                text: 'Columns',
+
+                text: 'Gather Dates',
+                columns: 'nothing',
                 postfixButtons: [
-                    {
-                        text: 'Select All',
+                {
+                        text: 'Last 7 Days',
                         action: function ( e, dt, node, config ) {
-                            dt.columns().visible(true, false);
-                        }
-                    },
-                    {
-                        text: 'Deselect All',
-                        action: function ( e, dt, node, config ) {
-                            // Keep the first two columns (date and day) visible, hide the rest
                             dt.columns().every(function(idx) {
-                                if(idx > 1) { // Start hiding from the third column (index 2)
+                                if(idx > 7) {
                                     this.visible(false, false);
                                 } else {
                                     this.visible(true, false);
                                 }
                             });
                         }
+                    },
+                    {
+                        text: 'Last 15 Days',
+                        action: function ( e, dt, node, config ) {
+                            dt.columns().every(function(idx) {
+                                if(idx > 15) {
+                                    this.visible(false, false);
+                                } else {
+                                    this.visible(true, false);
+                                }
+                            });
+                        }
+                    },
+                     {
+                        text: 'Last 30 Days',
+                        action: function ( e, dt, node, config ) {
+                            dt.columns().every(function(idx) {
+                                if(idx > 30) {
+                                    this.visible(false, false);
+                                } else {
+                                    this.visible(true, false);
+                                }
+                            });
+                        }
+                    },
+                    {
+                        text: 'All Dates',
+                        action: function ( e, dt, node, config ) {
+                            dt.columns().visible(true, false);
+                        }
                     }
                 ]
+
             }
         ],
         pageLength: 366,
@@ -6931,6 +6956,10 @@ $(document).ready(function() {
                     }
                     return data; // Default return
                 }
+            },
+            {
+              targets: [8, 9, 10, 11, 12, 13, 14, 15],
+              visible: false
             }
         ]
     });

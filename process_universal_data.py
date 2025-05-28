@@ -7,15 +7,18 @@ import pandas
 import matplotlib
 import matplotlib.pyplot as plt
 from itertools import groupby
+from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 
 data_folder = "data"
-index_file = os.path.join(data_folder, "index.html")
+index_html_file_path = os.path.join(data_folder, "index.html")
+historical_info_html_file_path = os.path.join(data_folder, "historical_info.html")
 environment = Environment(loader=FileSystemLoader("templates/"))
 hotel_info_template = environment.get_template("hotel-info.html.j2")
 index_template = environment.get_template("index.html.j2")
 index_html_by_gather_date = '<h2>Info by Gather Date</h2>'
 index_html_by_hotel = '<h2>Info by Hotel</h2>'
+historical_html_by_gather_date = '<link rel="stylesheet" href="style.css">\n<h2>Historical Info by Gather Date</h2>'
 
 all_data = []
 info_by_hotel = []
@@ -127,14 +130,19 @@ for index, file_path in enumerate(json_files):
     total_html = hotel_info_template.render(
         table_html=table_html,
         number_of_columns=number_of_columns,
-        format_start_column=3
+        format_start_column=3,
+        by_hotel_html = False
         )
 
     with open(f"{data_folder}/hotel_info-{gather_date}.html", "w") as f:
         f.write(total_html) 
 
-    if index < 21:
-        index_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{gather_date}</a><br>\n'
+    if index < 10:
+        index_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a><br>\n'
+    elif index == 11:
+      index_html_by_gather_date += f'<a href="historical_info.html">Historical Info</a><br>\n'
+    else:
+        historical_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a><br>\n'
 
 for name, data in info_by_gather_date.items():
 
@@ -148,10 +156,9 @@ for name, data in info_by_gather_date.items():
             f'<div style="{style}">{format_price(val)}</div>'
             for style, val in zip(styles, pivot_df[col])
         ]
-    ## Format the index to be the date in the format of mm/dd/yy
-    # pivot_df.columns = pandas.to_datetime(pivot_df.columns, format='%m/%d/%y').strftime('%m/%d/%y')
-    # pivot_df.index = pandas.to_datetime(pivot_df.index, format='%m/%d/%y')
-    # pivot_df = pivot_df.sort_index()
+    # Format the index to be the date in the format of mm/dd/yy
+    pivot_df.columns = pandas.to_datetime(pivot_df.columns, format='%Y%m%d').strftime('%m/%d/%y')
+    pivot_df = pivot_df.sort_index()
 
     ## Remove the index and columns names
     pivot_df.index.name = None
@@ -172,7 +179,8 @@ for name, data in info_by_gather_date.items():
     total_html = hotel_info_template.render(
         table_html=table_html,
         number_of_columns=number_of_columns,
-        format_start_column=1
+        format_start_column=1,
+        by_hotel_html = True
         )
 
     with open(f'{data_folder}/hotel_info-{(name.replace(" ","_")).lower()}.html', "w") as f:
@@ -186,8 +194,12 @@ index_html = index_template.render(
     )
 
 # Write to index.html
-with open(index_file, "w") as f:
+with open(index_html_file_path, "w") as f:
     f.write(index_html)
+
+# Write to historical file.html
+with open(historical_info_html_file_path, "w") as f:
+    f.write(historical_html_by_gather_date)
 
 with open(f"{data_folder}/info_by_gather_date.json", "w") as file:
   json.dump(info_by_gather_date, file, indent=2)
