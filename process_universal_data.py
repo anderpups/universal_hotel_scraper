@@ -10,15 +10,17 @@ from itertools import groupby
 from datetime import datetime, timedelta
 from jinja2 import Environment, FileSystemLoader
 
-data_folder = "data"
-index_html_file_path = os.path.join(data_folder, "index.html")
-historical_info_html_file_path = os.path.join(data_folder, "historical_info.html")
+html_folder = 'html'
+data_folder = f'{html_folder}/data'
+index_html_file_path = os.path.join(html_folder, "index.html")
+historical_info_html_file_path = os.path.join(html_folder, "historical_info.html")
 environment = Environment(loader=FileSystemLoader("templates/"))
 hotel_info_template = environment.get_template("hotel-info.html.j2")
 index_template = environment.get_template("index.html.j2")
 index_html_by_gather_date = '<h2>Info by Gather Date</h2>'
 index_html_by_hotel = '<h2>Info by Hotel</h2>'
 historical_html_by_gather_date = '<link rel="stylesheet" href="style.css">\n<h2>Historical Info by Gather Date</h2>'
+data_html = '<link rel="stylesheet" href="style.css">\n<h2>JSON Data</h2>'
 
 ## Get todday
 today = datetime.now()
@@ -60,12 +62,12 @@ def color_gradient(s, color_list=['#00ff00', '#ffff00', '#ff0000']):
     return normalized.apply(get_color)
 
 ## Find all JSON files in the data folder
-json_files = glob.glob(os.path.join(data_folder, "hotel_info*.json"))
-json_files.sort(reverse=True)
+hotel_info_json_files = glob.glob(os.path.join(data_folder, "hotel_info*.json"))
+hotel_info_json_files.sort(reverse=True)
 info_by_gather_date = {}
 
-## Loop through json files
-for index, file_path in enumerate(json_files):
+## Loop through hotel info json files
+for index, file_path in enumerate(hotel_info_json_files):
     with open(file_path, "r") as f:
         data = json.load(f)
     filename = os.path.basename(file_path)
@@ -139,7 +141,7 @@ for index, file_path in enumerate(json_files):
         by_hotel_html = False
         )
 
-    with open(f"{data_folder}/hotel_info-{gather_date}.html", "w") as f:
+    with open(f"{html_folder}/hotel_info-{gather_date}.html", "w") as f:
         f.write(total_html) 
 
     if index < 10:
@@ -198,7 +200,7 @@ for name, data in info_by_gather_date.items():
         by_hotel_html = True
         )
 
-    with open(f'{data_folder}/hotel_info-{(name.replace(" ","_")).lower()}.html', "w") as f:
+    with open(f'{html_folder}/hotel_info-{(name.replace(" ","_")).lower()}.html', "w") as f:
         f.write(total_html) 
 
     index_html_by_hotel += f'<a href="hotel_info-{(name.replace(" ","_")).lower()}.html">{name}</a><br>\n'
@@ -218,3 +220,10 @@ with open(historical_info_html_file_path, "w") as f:
 
 with open(f"{data_folder}/info_by_gather_date.json", "w") as file:
   json.dump(info_by_gather_date, file, indent=2)
+all_json_files = glob.glob(os.path.join(data_folder, "*.json"))
+all_json_files = sorted(all_json_files)
+for json_file in all_json_files:
+    data_html += f'<a href="{os.path.basename(json_file)}">{os.path.basename(json_file)}</a><br>\n'
+
+with open(f'{data_folder}/index.html', "w") as f:
+    f.write(data_html)

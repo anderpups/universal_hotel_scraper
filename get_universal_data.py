@@ -32,6 +32,8 @@ random.shuffle(date_range)
 
 hotel_info = []
 
+data_folder = 'html/data'
+
 ## Words we want to remove from the Hotel names
 words_to_remove = ["Loews", "Hotel", "Universal", "Inn and Suites", "Resort", ", a", "Endless Summer - ", "Beach", "Grand"]
 
@@ -169,8 +171,8 @@ crowd_info = get_crowd_info_dates(crowd_info, date_range)
 filename = f"{today.strftime('%Y%m%d')}.json"
 
 ## Write the data to a JSON file
-with open(f"data/hotel_info-{filename}", "w") as file:
+with open(f"{data_folder}/hotel_info-{filename}", "w") as file:
   json.dump(hotel_info, file, indent=2)
 
-with open(f"data/crowd_info-{filename}", "w") as file:
+with open(f"{data_folder}/crowd_info-{filename}", "w") as file:
   json.dump(crowd_info, file, indent=2)

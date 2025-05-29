@@ -1,0 +1,65 @@
+body {
+    background: linear-gradient(120deg, #e0eafc, #cfdef3);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #222;
+    display: flex; /* Added for flexbox layout */
+    flex-direction: column; /* Stacks children vertically by default */
+    align-items: center; /* Centers items horizontally */
+}
+h1 {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 2.5em;
+    color: #2a5298;
+    letter-spacing: 2px;
+    width: 100%; /* Ensures heading takes full width */
+}
+a {
+    display: inline-block;
+    margin: 12px 0;
+    padding: 12px 24px;
+    background: #2a5298;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 2px 8px rgba(42,82,152,0.08);
+}
+a:hover {
+    background: #1e3c72;
+    transform: translateY(-2px) scale(1.03);
+}
+/* New styles to arrange sections side-by-side */
+.content-wrapper {
+    display: flex;
+    justify-content: center; /* Centers the two sections */
+    gap: 50px; /* Space between the two columns */
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+}
+.list-section {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(42,82,152,0.10);
+    padding: 20px;
+    margin-top: 20px;
+    max-width: 400px; /* Adjust as needed */
+    text-align: center;
+}
+.list-section h2 {
+    color: #2a5298;
+    margin-top: 0;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto; /* Center the list within its container */
+}
+li {
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
