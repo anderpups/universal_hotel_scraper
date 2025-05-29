@@ -87,11 +87,11 @@ for index, file_path in enumerate(json_files):
         [item['crowd_info'] for item in crowd_info],
         index=[item['date'] for item in crowd_info]
     )
+    ## Format the crowd info series index to be datetime
     crowd_info_series.index = pandas.to_datetime(crowd_info_series.index, format='%m/%d/%y')
     ## Add the crowd info to the pivot_df
     pivot_df.insert(0, 'Crowd', crowd_info_series)
 
-    # pivot_df['crowd_info'] = crowd_info_series
     ## Get the Day from the date and add it to the pivot_df
     day = pandas.to_datetime(pivot_df.index, format='%m/%d/%y').strftime('%a')
     
@@ -100,7 +100,7 @@ for index, file_path in enumerate(json_files):
     ## Format the index to be the date in the format of mm/dd/yy
     pivot_df.index = pandas.to_datetime(pivot_df.index, format='%m/%d/%y').strftime('%m/%d/%y')
 
-    # Apply color gradient and format each cell that is a price
+    ## Apply color gradient and format each cell that is a price
     for col in pivot_df.columns:
         if col not in ['Day', 'Crowd']:
             styles = color_gradient(pivot_df[col])
@@ -109,7 +109,7 @@ for index, file_path in enumerate(json_files):
                 for style, val in zip(styles, pivot_df[col])
             ]
 
-    # Setting gradient color for the 'Crowd' column
+    ## Apply gradient color for the 'Crowd' column
     styles = color_gradient(pivot_df['Crowd'])
     pivot_df['Crowd'] = [
         f'<div style="{style}">{val}</div>'
@@ -120,7 +120,6 @@ for index, file_path in enumerate(json_files):
     pivot_df.index.name = None
     pivot_df.columns.name = None
 
-    # styled_table = pivot_df.style.set_sticky(axis="columns")
     styled_table = pivot_df.style.set_table_styles([
         {'selector': 'th', 'props':
         [('background-color', 'white'),
@@ -150,16 +149,19 @@ for index, file_path in enumerate(json_files):
     else:
         historical_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a><br>\n'
 
-# info_by_gather_date=sorted(info_by_gather_date.keys(), key=lambda x:x.lower())
-
+# Sort dictionary by hotel name
 info_by_gather_date = {k:v for k,v in sorted(info_by_gather_date.items(), key=lambda item: item[0])}
 
-# for name, data in sorted(info_by_gather_date.items(), key=lambda kv: (kv[1], kv[0])):
+## Loop through the info_by_gather_date dictionary to create individual hotel info pages
 for name, data in info_by_gather_date.items():
 
+    ## Create DataFrame and pivot table
     df = pandas.DataFrame(data)
     pivot_df = df.pivot_table(index='date', columns='gather_date', values='price')
+    
+    ## Get number of columns for the table
     number_of_columns = (len(pivot_df.columns)+ 1)
+
     # Apply color gradient and format each cell that is a price
     for col in pivot_df.columns:
         styles = color_gradient(pivot_df[col])
@@ -174,7 +176,8 @@ for name, data in info_by_gather_date.items():
     ## Remove the index and columns names
     pivot_df.index.name = None
     pivot_df.columns.name = None
-
+    
+    ## Set style of table
     styled_table = pivot_df.style.set_sticky(axis="columns")
     styled_table = pivot_df.style.set_table_styles([
         {'selector': 'th', 'props':
