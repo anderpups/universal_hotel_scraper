@@ -218,12 +218,18 @@ with open(index_html_file_path, "w") as f:
 with open(historical_info_html_file_path, "w") as f:
     f.write(historical_html_by_gather_date)
 
+data_location_list = ''
+
 with open(f"{data_folder}/info_by_gather_date.json", "w") as file:
   json.dump(info_by_gather_date, file, indent=2)
 all_json_files = glob.glob(os.path.join(data_folder, "*.json"))
 all_json_files = sorted(all_json_files)
 for json_file in all_json_files:
     data_html += f'<a href="{os.path.basename(json_file)}">{os.path.basename(json_file)}</a><br>\n'
+    data_location_list += f'https://anderpups.github.io/data/{os.path.basename(json_file)}\n'
 
 with open(f'{data_folder}/index.html', "w") as f:
     f.write(data_html)
+
+with open(f'{data_folder}/data_location_list.txt', "w") as f:
+    f.write(data_location_list)
