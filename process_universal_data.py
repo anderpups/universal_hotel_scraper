@@ -150,6 +150,11 @@ for index, file_path in enumerate(json_files):
     else:
         historical_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a><br>\n'
 
+# info_by_gather_date=sorted(info_by_gather_date.keys(), key=lambda x:x.lower())
+
+info_by_gather_date = {k:v for k,v in sorted(info_by_gather_date.items(), key=lambda item: item[0])}
+
+# for name, data in sorted(info_by_gather_date.items(), key=lambda kv: (kv[1], kv[0])):
 for name, data in info_by_gather_date.items():
 
     df = pandas.DataFrame(data)
