@@ -61,6 +61,17 @@ jobs:
           cd python_code
           python3 process_universal_data.py
 
+      - name: Update repo
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.publishData) || github.event_name == 'schedule' }}
+        run: |
+          cd python_code
+          git config user.name "github-actions"
+          git config user.email "github-actions@fake.com"
+          git remote set-url origin https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/anderpups/universal_hotel_scraper.git
+          git add .
+          git commit -m "Update data" --allow-empty
+          git push --verbose
+
       - name: Publish website
         if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publishData) || github.event_name == 'schedule' }}
         run: |
@@ -72,15 +83,4 @@ jobs:
           git remote set-url origin https://github-actions:${{ secrets.ANDERPUPS_GITHUB_IO_PAT }}@github.com/anderpups/anderpups.github.io.git
           git add .
           git commit -m "Update website" --allow-empty
-          git push --verbose
-
-      - name: Update repo
-        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.publishData) || github.event_name == 'schedule' }}
-        run: |
-          cd python_code
-          git config user.name "github-actions"
-          git config user.email "github-actions@fake.com"
-          git remote set-url origin https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/anderpups/universal_hotel_scraper.git
-          git add .
-          git commit -m "Update data" --allow-empty
           git push --verbose
