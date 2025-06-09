@@ -1,0 +1,42 @@
+<html>
+    <head></head>
+    <body>
+    <h1>Universal Hotel Price Alert</h1><br>
+    An alert has been triggered for {%- if 'hotel' in price_alert %} the {{ price_alert.hotel }}{% else %} any{% endif %} hotel
+    {%- if 'price' in price_alert %} with a price below ${{ price_alert.price }}
+    {%- elif  'date' in price_alert %}to send today's price for booking {{ price_alert.date }}
+    {%- else %} for the lowest price in the next year
+    {%- endif %}
+    {%- if 'date' in price_alert and 'price' in price_alert %} on {{ price_alert.date }}{%- endif %}.<br><br>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+    <thead>
+        <tr>
+        <th style="padding: 12px; border: 1px solid #cccccc; text-align: left; background-color: #eeeeee; color: #333333;">
+            Date
+        </th>
+        <th style="padding: 12px; border: 1px solid #cccccc; text-align: left; background-color: #eeeeee; color: #333333;">
+            Price
+        </th>
+        <th style="padding: 12px; border: 1px solid #cccccc; text-align: left; background-color: #eeeeee; color: #333333;">
+            Hotel
+        </th>
+        </tr>
+    </thead>
+    <tbody>
+{% for hit in filtered_hotel_info %} 
+        <tr>
+        <td style="padding: 12px; border: 1px solid #cccccc; text-align: left;">
+            {{ hit.date }}
+        </td>
+        <td style="padding: 12px; border: 1px solid #cccccc; text-align: left;">
+            ${{ hit.price }}
+        </td>
+        <td style="padding: 12px; border: 1px solid #cccccc; text-align: left;">
+            {{ hit.name }}
+        </td>
+        </tr>
+       {% endfor %}
+    </tbody>
+    </table>
+    </body>
+</html>

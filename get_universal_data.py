@@ -1,11 +1,17 @@
 import requests
 import json
+import yaml
+import os
 import pandas
 import time
 import random
 import re
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
+import smtplib
+from jinja2 import Environment, FileSystemLoader
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 lookahead_period = 365
 
@@ -33,6 +39,9 @@ random.shuffle(date_range)
 hotel_info = []
 
 data_folder = 'html/data'
+
+environment = Environment(loader=FileSystemLoader("templates/"))
+price_alert_email_template = environment.get_template("price-alert-email.html.j2")
 
 ## Words we want to remove from the Hotel names
 words_to_remove = ["Loews", "Hotel", "Universal", "Inn and Suites", "Resort", ", a", "Endless Summer - ", "Beach", "Grand"]
@@ -148,6 +157,52 @@ def get_crowd_info_dates(crowd_info, date_range):
         ## If it is, append the crowd info to the matching_crowd_info list
         matching_crowd_info.append(crowd_item)
   return matching_crowd_info
+
+def send_html_email(filtered_hotel_info, price_alert):
+    ## Define vars
+    if 'emails' in price_alert:
+      recipients_email = ", ".join(price_alert['emails'])
+    else:
+       recipients_email = 'anderpups@gmail.com'
+    sender_email = "universal.hotel.price.alert@gmail.com"  # Your Gmail address
+    app_password = (os.environ['GMAIL_APP_PASSWORD'])
+    ## This is dumb, should make better
+    if 'hotel' in price_alert:
+      subject = f'Universal Hotel Price Alert for {price_alert["hotel"]}'
+    elif 'date' in price_alert:
+      subject = f'Universal Hotel Price Alert for {price_alert["date"]}'
+    elif 'price' in price_alert:
+      subject = f'Universal Hotel Price Alert for {price_alert["price"]}'
+    else:
+      subject = f'Universal Hotel Price Alert for lowest price'   
+    # Create the root message and set the headers
+    # Using 'alternative' is important for HTML emails
+    msg = MIMEMultipart('alternative')
+    msg['From'] = sender_email
+    msg['To'] = sender_email
+    msg['Bcc'] = recipients_email 
+    msg['Subject'] = subject
+
+    html_content = price_alert_email_template.render(
+    filtered_hotel_info=filtered_hotel_info,
+    price_alert=price_alert)
+
+    # According to RFC 2046, the last part of a multipart message, in this case
+    # the HTML message, is best and preferred.
+    msg.attach(MIMEText(html_content, 'html'))
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.login(sender_email, app_password)
+        server.sendmail(sender_email, recipients_email, msg.as_string())
+        
+    except smtplib.SMTPAuthenticationError:
+        print("Authentication failed. Please check your email and app password.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        if 'server' in locals() and server:
+            server.quit()
+
 crowd_info = []
 
 ## Loop through the years and fetch crowd data
@@ -167,7 +222,7 @@ for date in date_range:
 
 crowd_info = get_crowd_info_dates(crowd_info, date_range)
 
-## create filename with today's date
+# create filename with today's date
 filename = f"{today.strftime('%Y%m%d')}.json"
 
 ## Write the data to a JSON file
@@ -176,3 +231,21 @@ with open(f"{data_folder}/hotel_info-{filename}", "w") as file:
 
 with open(f"{data_folder}/crowd_info-{filename}", "w") as file:
   json.dump(crowd_info, file, indent=2)
+
+## Get price alerts
+with open('price_alerts.yaml', 'r') as file:
+  price_alerts = yaml.safe_load(file)
+
+for price_alert in price_alerts:  
+  filtered_hotel_info = hotel_info
+  if 'hotel' in price_alert:
+      filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['name'] == price_alert['hotel']]
+  if 'date' in price_alert:
+    filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['date'] == price_alert['date']]
+  if 'price' in price_alert:
+    filtered_hotel_info = [hotel for hotel in filtered_hotel_info if int(hotel['price']) <= int(price_alert['price'])]
+  else:
+    lowest_price = min(int(hotel['price']) for hotel in filtered_hotel_info)
+    filtered_hotel_info = [hotel for hotel in filtered_hotel_info if int(hotel['price']) == int(lowest_price)]
+  if filtered_hotel_info:
+    send_html_email(filtered_hotel_info, price_alert)
