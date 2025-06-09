@@ -8,8 +8,8 @@
     - "11/09/25"
 - hotel: "Royal Pacific"
 - hotel: "Aventura"
+  price: any
   dates:
     - "11/10/25"
     - "11/11/25"
-  price: "120"
 - any
