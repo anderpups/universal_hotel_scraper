@@ -4,12 +4,17 @@
 ## If you put any character or only specify emails it will send the lowest price in the next year
 
 - hotel: "Royal Pacific"
+  price: 300
   dates:
     - "11/09/25"
-- hotel: "Royal Pacific"
+    - "11/10/25"
+    - "11/11/25"
 - hotel: "Aventura"
-  price: any
+  price: 120
   dates:
     - "11/10/25"
     - "11/11/25"
+- hotel: "Royal Pacific"
+- dates:
+    - "11/09/25"
 - any
