@@ -53,8 +53,7 @@ jobs:
           cd python_code
           python3 get_universal_data.py
         env:
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
 
       - name: Run process_universal_data.py
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.processData) || github.event_name == 'schedule' }}
