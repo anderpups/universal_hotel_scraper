@@ -239,9 +239,9 @@ with open('price_alerts.yaml', 'r') as file:
 for price_alert in price_alerts:  
   filtered_hotel_info = hotel_info
   if 'hotel' in price_alert:
-      filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['name'] == price_alert['hotel']]
-  if 'date' in price_alert:
-    filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['date'] == price_alert['date']]
+    filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['name'] == price_alert['hotel']]
+  if 'dates' in price_alert:
+    filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['date'] in price_alert['dates']]
   if 'price' in price_alert:
     filtered_hotel_info = [hotel for hotel in filtered_hotel_info if int(hotel['price']) <= int(price_alert['price'])]
   else:
