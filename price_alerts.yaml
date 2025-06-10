@@ -3,19 +3,22 @@
 ## If you don't specify a price it will email you with the lowest price
 ## If you put any character or only specify emails it will send the lowest price in the next year
 
-- hotel: "Royal Pacific"
-  price: 300
-  dates:
-    - "11/09/25"
-    - "11/10/25"
-    - "11/11/25"
-- hotel: "Aventura"
-  price: 120
-  dates:
-    - "11/10/25"
-    - "11/11/25"
-- hotel: "Royal Pacific"
-- hotel: "Helios"
-- dates:
-    - "11/09/25"
-- any
+# - hotel: "Royal Pacific"
+#   price: 300
+#   dates:
+#     - "11/09/25"
+#     - "11/10/25"
+#     - "11/11/25"
+# - hotel: "Aventura"
+#   price: 120
+#   dates:
+#     - "11/10/25"
+#     - "11/11/25"
+# - hotel: "Helios"
+# - dates:
+#     - "11/09/25"
+# - any
+- hotels:
+  - "Royal Pacific"
+  - "Portofino Bay"
+  - "Hard Rock"

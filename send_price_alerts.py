@@ -6,6 +6,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 from jinja2 import Environment, FileSystemLoader
+import time
+
 data_folder = 'html/data'
 
 environment = Environment(loader=FileSystemLoader("templates/"))
@@ -22,6 +24,8 @@ def send_html_email(filtered_hotel_info, price_alert):
     ## This is dumb, should make better
     if 'hotel' in price_alert:
       subject = f'Universal Hotel Price Alert for {price_alert["hotel"]}'
+    if 'hotels' in price_alert:
+       subject = f'Universal Hotel Price Alert for {" ".join(price_alert["hotels"])}'
     elif 'dates' in price_alert:
       subject = f'Universal Hotel Price Alert for {" ".join(price_alert["dates"])}'
     elif 'price' in price_alert:
@@ -69,6 +73,8 @@ with open('price_alerts.yaml', 'r') as file:
 
 for price_alert in price_alerts:  
   filtered_hotel_info = hotel_info
+  if 'hotels' in price_alert:
+    filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['name'] in price_alert['hotels']]
   if 'hotel' in price_alert:
     filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['name'] == price_alert['hotel']]
   if 'dates' in price_alert:
