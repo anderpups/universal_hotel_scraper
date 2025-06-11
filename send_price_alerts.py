@@ -25,7 +25,7 @@ def send_html_email(filtered_hotel_info, price_alert):
     if 'hotel' in price_alert:
       subject = f'Universal Hotel Price Alert for {price_alert["hotel"]}'
     if 'hotels' in price_alert:
-       subject = f'Universal Hotel Price Alert for {" ".join(price_alert["hotels"])}'
+       subject = f'Universal Hotel Price Alert for {", ".join(price_alert["hotels"])}'
     elif 'dates' in price_alert:
       subject = f'Universal Hotel Price Alert for {" ".join(price_alert["dates"])}'
     elif 'price' in price_alert:
