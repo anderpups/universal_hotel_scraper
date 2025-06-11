@@ -14,8 +14,11 @@
   dates:
     - "11/10/25"
     - "11/11/25"
-- hotel: "Royal Pacific"
 - hotel: "Helios"
 - dates:
     - "11/09/25"
+- hotels:
+    - "Royal Pacific"
+    - "Portofino Bay"
+    - "Hard Rock"
 - any

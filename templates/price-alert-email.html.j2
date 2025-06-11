@@ -2,7 +2,7 @@
     <head></head>
     <body>
     <h1>Universal Hotel Price Alert</h1><br>
-    An alert has been triggered for {%- if 'hotel' in price_alert %} the {{ price_alert.hotel }}{% else %} any{% endif %} hotel
+    An alert has been triggered for {%- if 'hotels' in price_alert%}{{ price_alert.hotels | join(',') }} hotels{%- elif 'hotel' in price_alert %} the {{ price_alert.hotel }}  hotel{% else %} any  hotel{% endif %}
     {%- if 'price' in price_alert %} with a price below ${{ price_alert.price }}
     {%- elif  'dates' in price_alert %}to send today's price for booking {{ price_alert.dates | join(',') }}
     {%- else %} for the lowest price in the next year

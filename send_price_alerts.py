@@ -6,6 +6,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 from jinja2 import Environment, FileSystemLoader
+
 data_folder = 'html/data'
 
 environment = Environment(loader=FileSystemLoader("templates/"))
@@ -16,12 +17,14 @@ def send_html_email(filtered_hotel_info, price_alert):
     if 'emails' in price_alert:
       recipients_email = ", ".join(price_alert['emails'])
     else:
-       recipients_email = 'anderpups@gmail.com'
+       recipients_email = 'anderpups@gmail.com, heatherschorah@yahoo.com'
     sender_email = "universal.hotel.price.alert@gmail.com"  # Your Gmail address
     app_password = (os.environ['GMAIL_APP_PASSWORD'])
     ## This is dumb, should make better
     if 'hotel' in price_alert:
       subject = f'Universal Hotel Price Alert for {price_alert["hotel"]}'
+    if 'hotels' in price_alert:
+       subject = f'Universal Hotel Price Alert for {", ".join(price_alert["hotels"])}'
     elif 'dates' in price_alert:
       subject = f'Universal Hotel Price Alert for {" ".join(price_alert["dates"])}'
     elif 'price' in price_alert:
@@ -69,6 +72,8 @@ with open('price_alerts.yaml', 'r') as file:
 
 for price_alert in price_alerts:  
   filtered_hotel_info = hotel_info
+  if 'hotels' in price_alert:
+    filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['name'] in price_alert['hotels']]
   if 'hotel' in price_alert:
     filtered_hotel_info = [hotel for hotel in filtered_hotel_info if hotel['name'] == price_alert['hotel']]
   if 'dates' in price_alert:

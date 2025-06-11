@@ -40,14 +40,14 @@ jobs:
           path: python_code
 
       - name: Setup python
-        if: ${{ (github.event_name == 'workflow_dispatch' && (inputs.gatherData || inputs.processData)) || github.event_name == 'schedule' }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && (inputs.gatherData || inputs.processData || inputs.sendPriceAlerts)) || github.event_name == 'schedule' }}
         uses: actions/setup-python@v4
         with:
           python-version: "3.11.2"
           cache: "pip"
 
       - name: Install dependencies
-        if: ${{ (github.event_name == 'workflow_dispatch' && (inputs.gatherData || inputs.processData)) || github.event_name == 'schedule' }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && (inputs.gatherData || inputs.processData || inputs.sendPriceAlerts)) || github.event_name == 'schedule' }}
         run: |
           python -m pip install --upgrade pip
           pip install -r python_code/requirements.txt
@@ -76,7 +76,7 @@ jobs:
           git push --verbose
 
       - name: Publish website
-        if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.publishData) || github.event_name == 'schedule' }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.publishData) || github.event_name == 'schedule' }}
         run: |
           git clone https://github.com/anderpups/anderpups.github.io.git
           cd anderpups.github.io
@@ -89,7 +89,7 @@ jobs:
           git push --verbose
 
       - name: Send Price Alerts
-        if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.sendPriceAlerts) || github.event_name == 'schedule' }}
+        if: ${{ (github.event_name == 'workflow_dispatch' && inputs.sendPriceAlerts) || github.event_name == 'schedule' }}
         run: |
           cd python_code
           python3 send_price_alerts.py
