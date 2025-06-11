@@ -18,7 +18,7 @@ def send_html_email(filtered_hotel_info, price_alert):
     if 'emails' in price_alert:
       recipients_email = ", ".join(price_alert['emails'])
     else:
-       recipients_email = 'anderpups@gmail.com'
+       recipients_email = 'anderpups@gmail.com, heatherschorah@yahoo.com'
     sender_email = "universal.hotel.price.alert@gmail.com"  # Your Gmail address
     app_password = (os.environ['GMAIL_APP_PASSWORD'])
     ## This is dumb, should make better
