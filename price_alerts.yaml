@@ -14,6 +14,14 @@
   dates:
     - "11/10/25"
     - "11/11/25"
+- hotel: "Aventura"
+  price: 160
+  dates:
+    - "08/23/25"
+- hotel: "Aventura"
+  price: 120
+  dates:
+    - "08/24/25"
 - hotel: "Helios"
 - dates:
     - "11/09/25"
