@@ -15,9 +15,9 @@ price_alert_email_template = environment.get_template("price-alert-email.html.j2
 def send_html_email(filtered_hotel_info, price_alert):
     ## Define vars
     if 'emails' in price_alert:
-      recipients_email = ", ".join(price_alert['emails'])
+      recipients_email = price_alert['emails']
     else:
-       recipients_email = 'anderpups@gmail.com, heatherschorah@yahoo.com'
+       recipients_email = ["anderpups@gmail.com", "heatherschorah@yahoo.com"]
     sender_email = "universal.hotel.price.alert@gmail.com"  # Your Gmail address
     app_password = (os.environ['GMAIL_APP_PASSWORD'])
     ## This is dumb, should make better
@@ -35,8 +35,8 @@ def send_html_email(filtered_hotel_info, price_alert):
     # Using 'alternative' is important for HTML emails
     msg = MIMEMultipart('alternative')
     msg['From'] = sender_email
-    msg['To'] = sender_email
-    msg['Bcc'] = recipients_email 
+    msg['To'] = "undisclosed-recipients:;"
+    msg['Bcc'] = "undisclosed-recipients:;"
     msg['Subject'] = subject
 
     html_content = price_alert_email_template.render(
