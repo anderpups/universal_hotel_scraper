@@ -25,8 +25,12 @@
 - hotel: "Helios"
 - dates:
     - "11/09/25"
-- hotels:
+  hotels:
     - "Royal Pacific"
     - "Portofino Bay"
     - "Hard Rock"
+- dates:
+    - "03/22/26"
+  hotel: "Helios"
+  price: 350
 - any
