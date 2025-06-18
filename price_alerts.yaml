@@ -9,6 +9,13 @@
     - "11/09/25"
     - "11/10/25"
     - "11/11/25"
+- hotels:
+    - "Royal Pacific"
+    - "Portofino Bay"
+    - "Hard Rock"
+  dates:
+    - "01/29/26"
+    - "01/30/26"
 - hotel: "Aventura"
   price: 120
   dates:
