@@ -138,6 +138,7 @@ for index, file_path in enumerate(hotel_info_json_files):
         table_html=table_html,
         number_of_columns=number_of_columns,
         format_start_column=3,
+        gather_date=gather_date,
         by_hotel_html = False
         )
 
@@ -197,7 +198,8 @@ for name, data in info_by_gather_date.items():
         number_of_columns=number_of_columns,
         format_start_column=1,
         tomorrow = tomorrow.strftime("%Y-%m-%d"),
-        by_hotel_html = True
+        by_hotel_html = True,
+        name=name
         )
 
     with open(f'{html_folder}/hotel_info-{(name.replace(" ","_")).lower()}.html', "w") as f:
