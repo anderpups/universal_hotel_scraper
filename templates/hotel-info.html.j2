@@ -1,7 +1,7 @@
 <!doctype html>
 <link rel="stylesheet" href="style.css">
 <head>
-    <title>{%if not by_hotel_html %}{{ gather_date}}{% else %}{{ name }}{% fi %}</title>
+    <title>{%if by_hotel_html %}{{ name }}{% else %}{{ gather_date }}{% endif %}</title>
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
     <!-- jQuery -->
