@@ -42,6 +42,7 @@ https://anderpups.github.io/data/crowd_info-20250623.json
 https://anderpups.github.io/data/crowd_info-20250624.json
 https://anderpups.github.io/data/crowd_info-20250625.json
 https://anderpups.github.io/data/crowd_info-20250626.json
+https://anderpups.github.io/data/crowd_info-20250627.json
 https://anderpups.github.io/data/hotel_info-20250514.json
 https://anderpups.github.io/data/hotel_info-20250515.json
 https://anderpups.github.io/data/hotel_info-20250516.json
@@ -86,4 +87,5 @@ https://anderpups.github.io/data/hotel_info-20250623.json
 https://anderpups.github.io/data/hotel_info-20250624.json
 https://anderpups.github.io/data/hotel_info-20250625.json
 https://anderpups.github.io/data/hotel_info-20250626.json
+https://anderpups.github.io/data/hotel_info-20250627.json
 https://anderpups.github.io/data/info_by_gather_date.json
