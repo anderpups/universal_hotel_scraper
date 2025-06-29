@@ -19,6 +19,7 @@
   dates:
     - "01/29/26"
     - "01/30/26"
+  price: 400
 - hotel: "Stella Nova"
   price: 100
   dates:
