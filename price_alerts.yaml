@@ -2,7 +2,6 @@
 ## Date must be in the format mm/dd/yy
 ## If you don't specify a price it will email you with the lowest price
 ## If you put any character or only specify emails it will send the lowest price in the next year
-
 - hotels:
     - "Royal Pacific"
     - "Portofino Bay"
@@ -40,4 +39,7 @@
     - "08/24/25"
 - hotel: "Helios"
   price: 290
-- any
+- hotels:
+    - "Royal Pacific"
+    - "Portofino Bay"
+    - "Hard Rock"
