@@ -29,12 +29,12 @@
   dates:
     - "11/10/25"
     - "11/11/25"
-- hotel: "Aventura"
-  price: 160
+- hotel: "Sapphire Falls"
+  price: 200
   dates:
     - "08/23/25"
-- hotel: "Aventura"
-  price: 120
+- hotel: "Sapphire Falls"
+  price: 160
   dates:
     - "08/24/25"
 - hotel: "Helios"
@@ -42,7 +42,3 @@
 - price: 250
   dates:
     - "10/17/25"
-- hotels:
-    - "Royal Pacific"
-    - "Portofino Bay"
-    - "Hard Rock"
