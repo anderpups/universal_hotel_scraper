@@ -38,7 +38,12 @@
   dates:
     - "08/24/25"
 - hotel: "Helios"
-  price: 270
+  price: 255
 - price: 250
+  hotels:
+    - "Sapphire Falls"
+    - "Aventura"
+    - "Royal Pacific"
+    - "Portofino Bay"
   dates:
     - "10/17/25"
