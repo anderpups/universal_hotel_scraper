@@ -61,7 +61,7 @@ def get_hotel_data_for_date(date):
     'langID': 1,
     'checkin': date,
     'nights': 1,
-    'adults': 4,
+    'adults': 2,
     'children': 0,
     'promo': 'aph',
     'iata': '',
