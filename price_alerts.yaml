@@ -1,30 +1,20 @@
-- price: 260
-  hotels:
-    - Sapphire Falls
-    - Aventura
-  dates:
-    - 10/17/25
-- price: 300
-  hotels:
-    - Royal Pacific
-    - Portofino Bay
-    - Hard Rock
-  dates:
-    - 10/17/25
 - hotels:
     - Royal Pacific
     - Portofino Bay
     - Hard Rock
   price: 300
   dates:
-    - 11/09/25
-    - 11/10/25
     - 11/11/25
 - hotel: Aventura
   price: 100
   dates:
+    - 11/09/25
     - 11/10/25
-    - 11/11/25
+- hotel: Stella Nova
+  price: 100
+  dates:
+    - 01/29/26
+    - 01/30/26
 - hotels:
     - Royal Pacific
     - Portofino Bay
@@ -32,11 +22,6 @@
   dates:
     - 01/31/26
   price: 360
-- hotel: Stella Nova
-  price: 100
-  dates:
-    - 01/29/26
-    - 01/30/26
 - price: 145
   hotels:
     - Stella Nova
