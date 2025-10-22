@@ -10,6 +10,8 @@ from itertools import groupby
 from datetime import datetime, timedelta
 from jinja2 import Environment, FileSystemLoader
 
+next_trip_date = 'Nov 9, 2025 16:39:00'
+
 html_folder = 'html'
 data_folder = f'{html_folder}/data'
 index_html_file_path = os.path.join(html_folder, "index.html")
@@ -209,7 +211,8 @@ for name, data in info_by_gather_date.items():
 
 index_html = index_template.render(
     index_html_by_gather_date=index_html_by_gather_date,
-    index_html_by_hotel=index_html_by_hotel
+    index_html_by_hotel=index_html_by_hotel,
+    next_trip_date=next_trip_date
     )
 
 # Write to index.html
