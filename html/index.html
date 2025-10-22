@@ -36,6 +36,52 @@
 </div>
 </div>
 <a href="universal-game.html">Universal Game</a>
-<iframe width="300" height="154" src="https://w2.countingdownto.com/6518409" frameborder="0"></iframe>
+    <h1>Countdown to Universal</h1>
+    <div id="countdown"></div>
+<script>
+function startCountdown(targetDate) {
+    // Set the date we're counting down to (e.g., December 31, 2025 23:59:59)
+    // You must format the targetDate string correctly for the Date object.
+    const countdownDate = new Date(targetDate).getTime();
+
+    // Update the count down every 1 second
+    const x = setInterval(function() {
+
+        // Get today's date and time
+        const now = new Date().getTime();
+
+        // Find the distance between now and the count down date
+        const distance = countdownDate - now;
+
+        // Time calculations for weeks, days, hours, minutes and seconds
+        const _second = 1000;
+        const _minute = _second * 60;
+        const _hour = _minute * 60;
+        const _day = _hour * 24;
+        const _week = _day * 7; // New unit for weeks
+
+        // Calculate weeks and remainder
+        const weeks = Math.floor(distance / _week);
+        const days = Math.floor((distance % _week) / _day); // Use remainder of weeks calculation
+        const hours = Math.floor((distance % _day) / _hour); // Use remainder of days calculation
+        const minutes = Math.floor((distance % _hour) / _minute); // Use remainder of hours calculation
+        const seconds = Math.floor((distance % _minute) / _second); // Use remainder of minutes calculation
+
+        // Display the result in the element with id="countdown"
+        // You'll need an HTML element like: <div id="countdown"></div>
+        document.getElementById("countdown").innerHTML = weeks + "w " + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+
+        // If the count down is finished, write some text and stop the interval
+        if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("countdown").innerHTML = "COUNTDOWN FINISHED! 🎉";
+        }
+    }, 1000);
+}
+
+// Replace the date string with your desired end date and time
+const myTargetDate = "Nov 9, 2025 16:39:00";
+startCountdown(myTargetDate);
+</script>
 </body>
 </html>
