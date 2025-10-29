@@ -70,6 +70,7 @@ info_by_gather_date = {}
 
 ## Loop through hotel info json files
 for index, file_path in enumerate(hotel_info_json_files):
+    print(f"Processing file {file_path}")
     with open(file_path, "r") as f:
         data = json.load(f)
     filename = os.path.basename(file_path)
@@ -145,7 +146,9 @@ for index, file_path in enumerate(hotel_info_json_files):
         )
 
     with open(f"{html_folder}/hotel_info-{gather_date}.html", "w") as f:
-        f.write(total_html) 
+        f.write(total_html)
+    print(f"Generated HTML for gather date {gather_date}")
+    print(f"Dates left to process: {len(hotel_info_json_files) - index - 1}")
 
     if index < 10:
         index_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a><br>\n'

@@ -109,26 +109,25 @@ def crowd_info():
     response = requests.get(f'https://oi-nest-prod-ff3c6f88c478.herokuapp.com/crowd/levels', timeout=15)
     response.raise_for_status()
     response_json = response.json()
-    return(response_json["responseObject"])
+    # Parse the input string into a datetime object
+
+# Format the datetime object into the desired output string
+    crowd_info = [{"date": datetime.strptime(item["date"], "%Y-%m-%d").strftime("%m/%d/%y"), "crowd_info": int(item["crowd"]["crowdScore"] * 100)} for item in response_json["responseObject"]]
+    return(crowd_info)
   except Exception as e:
-    return []
+    print(f"Error fetching crowd info: {e}")
+    sys.exit(1)
 
 crowd_info = crowd_info()
 
 ## Loop through the date range and fetch hotel data
 for date in date_range:
-  year = date.strftime('%Y')
-  month = date.strftime('%m')
-  day = date.strftime('%d')
-  single_day_crowd_info = crowd_info
-  date_str = f"{month}/{day}/{year}"
-  print(date_str)
-  sys.exit(1)
-
+  date_str = date.strftime('%m/%d/%Y')
   ## get the hotel data for the date
   date_info = get_hotel_data_for_date(date_str)
   hotel_info.extend(date_info)
   print(f"Found {len(date_info)} hotels available for {date_str}")
+  print(f'Dates left to process: {len(date_range) - date_range.index(date) - 1}')
   sleep_seconds = random.uniform(1, 2)
   time.sleep(sleep_seconds)
 
