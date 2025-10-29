@@ -6,6 +6,7 @@ import random
 import re
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
+import sys
 
 lookahead_period = 365
 
@@ -102,59 +103,22 @@ def get_hotel_data_for_date(date):
     return []
 
 ## Function to get the crowd info for a year
-def get_crowd_info(year):
+def crowd_info():
   try:
     ## Make the web request to thrill-data website
-    response = requests.get(f'https://www.thrill-data.com/trip-planning/crowd-calendar/islands-of-adventure/calendar/{year}', timeout=15)
+    response = requests.get(f'https://oi-nest-prod-ff3c6f88c478.herokuapp.com/crowd/levels', timeout=15)
     response.raise_for_status()
-    ## Parse the response content using BeautifulSoup
-    soup = BeautifulSoup(response.text, 'html.parser')
-    ## Find the html division containing the calendar table
-    calendar_table = soup.find('table', class_='calendar-table')
-    ## Initialize an empty list to store the crowd data
-    data = []
-    ## Get the table rows
-    rows = calendar_table.find_all('td')  # Get all the data cells
-    ## Loop through the table rows and extract the date and wait time
-    for row in rows:
-        ## Get the link inside the row
-        link = row.find('a')
-        ## If the link is not None, extract the date and wait time
-        if link:
-            date_div = link.find('div', class_='button-set-label')
-            crowd_info_div = link.find('div', class_='calendar-box')
-            if date_div and crowd_info_div:
-                date = date_div.text.strip()
-                ## Add the year to the date
-                date = (f'{date} {year}')
-                ## Convert the date to a datetime object
-                date = datetime.strptime(date, "%b %d %Y")
-                crowd_info = crowd_info_div.text.strip()
-                ## Append the date and wait time to the data list
-                data.append({'date': date.strftime("%m/%d/%y"), 'crowd_info': int(crowd_info)})
-    return(data)
+    response_json = response.json()
+    # Parse the input string into a datetime object
+
+# Format the datetime object into the desired output string
+    crowd_info = [{"date": datetime.strptime(item["date"], "%Y-%m-%d").strftime("%m/%d/%y"), "crowd_info": int(item["crowd"]["crowdScore"] * 100)} for item in response_json["responseObject"]]
+    return(crowd_info)
   except Exception as e:
-    return []
+    print(f"Error fetching crowd info: {e}")
+    sys.exit(1)
 
-## Function to get the crowd info for the date range
-def get_crowd_info_dates(crowd_info, date_range):
-  matching_crowd_info = []
-  ## Loop through the crowd info
-  for crowd_item in crowd_info:
-    ## Loop through the date range
-    for date in date_range:
-      ## Check if the date in the crowd info is in the date range
-      if crowd_item['date'] == date.strftime('%m/%d/%y'):
-        ## If it is, append the crowd info to the matching_crowd_info list
-        matching_crowd_info.append(crowd_item)
-  return matching_crowd_info
-
-crowd_info = []
-
-## Loop through the years and fetch crowd data
-for year in years:
-  print(f"Fetching crowd data for {year}")
-  crowd_info = (crowd_info + get_crowd_info(year))
+crowd_info = crowd_info()
 
 ## Loop through the date range and fetch hotel data
 for date in date_range:
@@ -163,10 +127,9 @@ for date in date_range:
   date_info = get_hotel_data_for_date(date_str)
   hotel_info.extend(date_info)
   print(f"Found {len(date_info)} hotels available for {date_str}")
+  print(f'Dates left to process: {len(date_range) - date_range.index(date) - 1}')
   sleep_seconds = random.uniform(1, 2)
   time.sleep(sleep_seconds)
-
-crowd_info = get_crowd_info_dates(crowd_info, date_range)
 
 # create filename with today's date
 filename = f"{today.strftime('%Y%m%d')}.json"
