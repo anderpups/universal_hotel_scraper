@@ -1,15 +1,8 @@
 - hotels:
     - Royal Pacific
-    - Portofino Bay
-    - Hard Rock
-  price: 300
+  price: 500
   dates:
-    - 11/11/25
-- hotel: Aventura
-  price: 100
-  dates:
-    - 11/09/25
-    - 11/10/25
+    - 12/12/25
 - hotel: Stella Nova
   price: 100
   dates:
