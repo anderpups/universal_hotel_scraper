@@ -1,5 +1,7 @@
 - hotels:
     - Royal Pacific
+    - Portofino Bay
+    - Hard Rock
   price: 500
   dates:
     - 12/12/25
