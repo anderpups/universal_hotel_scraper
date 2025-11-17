@@ -4,9 +4,7 @@ body {
     margin: 0;
     padding: 0;
     color: #222;
-    display: flex; /* Added for flexbox layout */
-    flex-direction: column; /* Stacks children vertically by default */
-    align-items: center; /* Centers items horizontally */
+    box-sizing: border-box; 
 }
 h1 {
     text-align: center;
@@ -14,11 +12,11 @@ h1 {
     font-size: 2.5em;
     color: #2a5298;
     letter-spacing: 2px;
-    width: 100%; /* Ensures heading takes full width */
+    padding: 0 10px;
 }
 a {
-    display: inline-block;
-    margin: 12px 0;
+    display: block;
+    margin: 20px auto 30px auto; 
     padding: 12px 24px;
     background: #2a5298;
     color: #fff;
@@ -27,39 +25,162 @@ a {
     font-weight: 500;
     transition: background 0.2s, transform 0.2s;
     box-shadow: 0 2px 8px rgba(42,82,152,0.08);
+    width: fit-content;
 }
 a:hover {
     background: #1e3c72;
     transform: translateY(-2px) scale(1.03);
 }
-/* New styles to arrange sections side-by-side */
+
+/* Base layout for desktop: centered flex row */
 .content-wrapper {
     display: flex;
-    justify-content: center; /* Centers the two sections */
-    gap: 50px; /* Space between the two columns */
-    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    justify-content: center;
+    gap: 50px;
+    flex-wrap: wrap; 
+    padding: 0 20px 40px 20px; 
+    margin: 0 auto;
+    max-width: 1200px;
 }
-.list-section {
+
+/* Styling for the two main columns */
+#map-section, .list-section {
+    flex: 1 1 400px; /* Allows flexibility and a minimum width of 400px */
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 24px rgba(42,82,152,0.10);
     padding: 20px;
     margin-top: 20px;
-    max-width: 400px; /* Adjust as needed */
-    text-align: center;
-}
-.list-section h2 {
-    color: #2a5298;
-    margin-top: 0;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
-ul {
-    list-style: none;
-    padding: 0;
-    margin: 0 auto; /* Center the list within its container */
+/* CRITICAL FIXES FOR MOBILE OVERFLOW */
+
+/* 1. Force the #map-section (DataTables container) to strictly take 100% of the space on small screens */
+@media (max-width: 900px) {
+    .content-wrapper {
+        flex-direction: column; /* Stack sections vertically */
+        align-items: center; 
+        gap: 20px;
+    }
+    #map-section {
+        /* This is the key change to override any inline width set by DataTables */
+        width: 100% !important;
+        flex-basis: auto;
+    }
+    .list-section {
+        width: 100%;
+        flex-basis: auto;
+    }
 }
-li {
+
+/* 2. Ensure DataTables Wrapper enables scrolling */
+.dataTables_wrapper {
+    /* Ensures the container respects the 100% width of its parent (#map-section) */
+    width: 100%; 
+    overflow-x: auto; /* Allows horizontal scrolling for the table */
+    -webkit-overflow-scrolling: touch; 
+}
+
+/* 3. Ensure the actual <table> element is forced to be wide enough to require scrolling */
+table {
+    /* If the table's content is wider than 450px (e.g., 5 columns of 90px), it will overflow its 100% container, */
+    /* triggering the overflow-x: auto on the wrapper. */
+    min-width: 450px; 
+    width: 100% !important; /* Forces the table to use 100% of its container (if container is wide enough) */
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.list-section a {
+    /* Use a very small top/bottom margin */
+    margin: 5px auto; 
+    padding: 8px 24px; /* Maybe reduce padding a bit too */
+}
+/* Additional table/list styling */
+.list-section h2 { color: #2a5298; margin-top: 0; }
+ul { list-style: none; padding: 0; margin: 0 auto; }
+li { text-align: center; margin: 0; padding: 0; }
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap; /* Prevents column header text from wrapping */
+}
+th {
+    background-color: #f4f7f6;
+    color: #2a5298;
+    font-weight: 600;
+}
+tr:hover {
+    background-color: #eef1f6;
+}
+
+/* Also, clean up the top margin of the select box if it's too high */
+#day-select {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+/* Countdown Wrapper Styling */
+.countdown-wrapper {
     text-align: center;
-    margin: 0;
-    padding: 0;
+    margin: 40px auto;
+    padding: 20px;
+    /* Similar to links: box shadow and theme colors */
+    background: #f0f6ff;
+    border: 1px solid #cfdef3; 
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(42,82,152,0.1);
+    width: fit-content;
+    max-width: 90%;
+}
+
+.countdown-wrapper h2 {
+    color: #2a5298;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    letter-spacing: 1px;
+}
+
+/* Flexbox container for the units */
+#countdown {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Space between units */
+    font-weight: bold;
+}
+
+/* Individual Unit (Block) Styling */
+.countdown-unit {
+    display: flex;
+    flex-direction: column; /* Stack number over label */
+    align-items: center;
+    min-width: 50px;
+    padding: 10px 5px;
+    /* Use the primary theme color for high contrast */
+    background: #2a5298; 
+    color: white; 
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.countdown-unit:hover {
+    transform: scale(1.05); /* Subtle hover effect */
+}
+
+/* Number Styling */
+.countdown-unit .number {
+    font-size: 1.8em; /* Make the number larger and prominent */
+    line-height: 1;
+}
+
+/* Label Styling (w, d, h, m, s) */
+.countdown-unit .label {
+    font-size: 0.6em; /* Keep the label small */
+    font-weight: normal;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-top: 5px;
 }

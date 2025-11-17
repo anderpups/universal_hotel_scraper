@@ -19,9 +19,9 @@ historical_info_html_file_path = os.path.join(html_folder, "historical_info.html
 environment = Environment(loader=FileSystemLoader("templates/"))
 hotel_info_template = environment.get_template("hotel-info.html.j2")
 index_template = environment.get_template("index.html.j2")
-index_html_by_gather_date = '<h2>Info by Gather Date</h2>'
-index_html_by_hotel = '<h2>Info by Hotel</h2>'
-historical_html_by_gather_date = '<link rel="stylesheet" href="style.css">\n<h2>Historical Info by Gather Date</h2>'
+index_html_by_gather_date = '<h2><center>Info by Gather Date</center></h2>\n'
+index_html_by_hotel = '<h2><center>Info by Hotel</center></h2>\n'
+historical_html_by_gather_date = '<link rel="stylesheet" href="style.css">\n<div class="list-section">\n<h2><center>Historical Info by Gather Date</center></h2>\n'
 data_html = '<link rel="stylesheet" href="style.css">\n<h2>JSON Data</h2>'
 
 ## Get todday
@@ -70,11 +70,25 @@ info_by_gather_date = {}
 
 ## Loop through hotel info json files
 for index, file_path in enumerate(hotel_info_json_files):
-    print(f"Processing file {file_path}")
     with open(file_path, "r") as f:
         data = json.load(f)
     filename = os.path.basename(file_path)
     gather_date = filename.split("-")[1].split(".")[0]
+    def add_suffix(day):
+        """Adds the appropriate ordinal suffix to a day number."""
+        # Check for the exceptions: 11th, 12th, 13th
+        if 11 <= day % 100 <= 13:
+            suffix = 'th'
+        # Use .get() with a default 'th' to avoid index errors
+        else:
+            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+        return f"{day}{suffix}"
+
+    # ... rest of your code ...
+    input_format = "%Y%m%d"
+    date_obj = datetime.strptime(gather_date, input_format)
+
+    formatted_date = f"{date_obj.strftime('%b')} {add_suffix(date_obj.day)}, {date_obj.strftime('%Y')}"
     for info in data:
         if info_by_gather_date.get(info['name']) is None:
             info_by_gather_date[info['name']] = []
@@ -142,20 +156,21 @@ for index, file_path in enumerate(hotel_info_json_files):
         number_of_columns=number_of_columns,
         format_start_column=3,
         gather_date=gather_date,
+        formatted_date=formatted_date,
         by_hotel_html = False
         )
 
     with open(f"{html_folder}/hotel_info-{gather_date}.html", "w") as f:
         f.write(total_html)
-    print(f"Generated HTML for gather date {gather_date}")
+    print(f"Generated HTML for gather date {formatted_date}")
     print(f"Dates left to process: {len(hotel_info_json_files) - index - 1}")
 
     if index < 10:
-        index_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a><br>\n'
+        index_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a>\n'
     elif index == 11:
-      index_html_by_gather_date += f'<a href="historical_info.html">Historical Info</a><br>\n'
+      index_html_by_gather_date += f'<a href="historical_info.html">Historical Info</a>\n'
     else:
-        historical_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a><br>\n'
+        historical_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a>\n'
 
 # Sort dictionary by hotel name
 info_by_gather_date = {k:v for k,v in sorted(info_by_gather_date.items(), key=lambda item: item[0])}
@@ -209,8 +224,8 @@ for name, data in info_by_gather_date.items():
 
     with open(f'{html_folder}/hotel_info-{(name.replace(" ","_")).lower()}.html', "w") as f:
         f.write(total_html) 
-
-    index_html_by_hotel += f'<a href="hotel_info-{(name.replace(" ","_")).lower()}.html">{name}</a><br>\n'
+    print(f"Generated HTML for {name}")
+    index_html_by_hotel += f'<a href="hotel_info-{(name.replace(" ","_")).lower()}.html">{name}</a>\n'
 
 index_html = index_template.render(
     index_html_by_gather_date=index_html_by_gather_date,
