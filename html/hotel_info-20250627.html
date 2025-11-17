@@ -14,10 +14,20 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
 </head>
 <body>
+    <h1>Prices on Jun 27th, 2025</h1></h1>
     <label for="min-date">Start:</label>
     <input type="date" id="min-date">
     <label for="max-date" style="margin-left:10px;">End:</label>
-    <input type="date" id="max-date">
+    <input type="date" id="max-date"><br>
+    <select multiple id="day-select" style="vertical-align: top; height: 100px;">
+        <option value="Mon">Monday</option>
+        <option value="Tue">Tuesday</option>
+        <option value="Wed">Wednesday</option>
+        <option value="Thu">Thursday</option>
+        <option value="Fri">Friday</option>
+        <option value="Sat">Saturday</option>
+        <option value="Sun">Sunday</option>
+    </select>
     <style type="text/css">
 #T_hotel-info th {
   background-color: white;
@@ -5959,16 +5969,9 @@
             var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
             if (!dateStr) return true;
             var parts = dateStr.split('/');
-            // Ensure the year is correctly parsed as 20xx
             var year = parseInt(parts[2], 10);
-            if (year < 2000) { // Simple check if it's a two-digit year
-                year += 2000;
-            }
-            var rowDate = new Date(
-                year,
-                parseInt(parts[0], 10) - 1, // Month is 0-indexed
-                parseInt(parts[1], 10)
-            );
+            if (year < 2000) { year += 2000; }
+            var rowDate = new Date(year, parseInt(parts[0], 10) - 1, parseInt(parts[1], 10));
 
             function parseInputDate(str) {
                 if (!str) return null;
@@ -5985,16 +5988,36 @@
             if (minDate) minDate.setHours(0,0,0,0);
             if (maxDate) maxDate.setHours(0,0,0,0);
 
+            var dateMatch = false;
             if ((!minDate || rowDate >= minDate) && (!maxDate || rowDate <= maxDate)) {
-                return true;
+                dateMatch = true;
             }
-            return false;
+            var selectedDays = $('#day-select').val(); // Gets an array of selected values, e.g., ["Mon", "Fri"]
+            // Get the day text (e.g., 'Tue') from the first <td> in the row
+            var rowDay = $(settings.aoData[dataIndex].nTr).find('td').eq(0).text().trim(); 
+
+            var dayMatch = false;
+            if (!selectedDays || selectedDays.length === 0) {
+                // If no days are selected, show all (match)
+                dayMatch = true;
+            } else {
+                // Check if the row's day is in the selected array
+                if (selectedDays.includes(rowDay)) {
+                    dayMatch = true;
+                }
+            }
+
+            // --- 3. Combine Filters ---
+            // The row is shown only if it matches BOTH filters
+            return dateMatch && dayMatch;
         }
-        );
+    );
+    
+    table.draw();
+
+    $('#min-date, #max-date, #day-select').on('change', function() {
         table.draw();
-        $('#min-date, #max-date').on('change', function() {
-            table.draw();
-        });
+    });
     });
     </script>
     </body>
