@@ -145,6 +145,7 @@ tr:hover {
 
 /* Flexbox container for the units */
 #countdown {
+    color: #2a5298;
     display: flex;
     justify-content: center;
     gap: 15px; /* Space between units */
