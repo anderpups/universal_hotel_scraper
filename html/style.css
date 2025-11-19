@@ -213,12 +213,7 @@ input:focus, select:focus {
     max-width: 100%;
     height: auto;
     border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(42,82,152,0.15);
     transition: transform 0.3s ease;
-}
-
-.side-image img:hover {
-    transform: scale(1.05);
 }
 
 /* Responsive behavior for side images */
