@@ -14,7 +14,7 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
 </head>
 <body>
-    <h1>Prices on Nov 7th, 2025</h1></h1>
+    <h1><img src="universal_logo.png" alt="Universal" class="universal-logo">Prices on Nov 7th, 2025</h1>
     <label for="min-date">Start:</label>
     <input type="date" id="min-date">
     <label for="max-date" style="margin-left:10px;">End:</label>
@@ -5906,7 +5906,6 @@
             buttons: [
                 {
                     extend: 'colvis',
-    
                     text: 'Hotels',
                     postfixButtons: [
                         {
@@ -5929,7 +5928,6 @@
                             }
                         }
                     ]
-    
                 }
             ],
             pageLength: 366,
@@ -5963,7 +5961,6 @@
         });
 
     // Date range filter
-    
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex) {
             var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();

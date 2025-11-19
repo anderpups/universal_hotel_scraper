@@ -3,10 +3,9 @@
 <title>Universal Hotel Info</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<h1>Universal Hotel Info</h1>
+<h1><img src="universal_logo.png" alt="Universal" class="universal-logo">Universal Hotel Info</h1>
 <body>
-<div class="content-wrapper">
-<div class="list-section">
+<div class="countdown-wrapper">
 <h2><center>Info by Gather Date</center></h2>
 <a href="hotel_info-20251118.html">11/18/2025 </a>
 <a href="hotel_info-20251117.html">11/17/2025 </a>
@@ -21,25 +20,14 @@
 <a href="historical_info.html">Historical Info</a>
 
 </div>
-<div class="list-section">
-<h2><center>Info by Hotel</center></h2>
-<a href="hotel_info-aventura.html">Aventura</a>
-<a href="hotel_info-cabana_bay.html">Cabana Bay</a>
-<a href="hotel_info-dockside.html">Dockside</a>
-<a href="hotel_info-hard_rock.html">Hard Rock</a>
-<a href="hotel_info-helios.html">Helios</a>
-<a href="hotel_info-portofino_bay.html">Portofino Bay</a>
-<a href="hotel_info-royal_pacific.html">Royal Pacific</a>
-<a href="hotel_info-sapphire_falls.html">Sapphire Falls</a>
-<a href="hotel_info-stella_nova.html">Stella Nova</a>
-<a href="hotel_info-surfside.html">Surfside</a>
-<a href="hotel_info-terra_luna.html">Terra Luna</a>
-
-</div>
+<div class="countdown-wrapper">
+<h2><center>Analytics</center></h2>
+<a href="price_chart.html">Price Trends</a>
+<a href="historical_info.html">Historical Info</a>
 </div>
 <div class="countdown-wrapper">
-    <h1>Countdown to Universal</h1>
-    <h2><div id="countdown"></div></h2><br><br>
+    <h2>Time Until Next Trip</h2>
+    <h3><div id="countdown"></div></h3>
 </div>
 <script>
 function startCountdown(targetDate) {
@@ -77,7 +65,7 @@ function startCountdown(targetDate) {
         // If the count down is finished, write some text and stop the interval
         if (distance < 0) {
             clearInterval(x);
-            document.getElementById("countdown").innerHTML = "COUNTDOWN FINISHED! 🎉";
+            document.getElementById("countdown").innerHTML = "We are in Universal!";
         }
     }, 1000);
 }
@@ -86,6 +74,8 @@ function startCountdown(targetDate) {
 const myTargetDate = "Dec 12, 2025 20:00:00";
 startCountdown(myTargetDate);
 </script>
+<div class="countdown-wrapper">
 <a href="universal-game.html">Universal Game</a>
+</div>
 </body>
 </html>
