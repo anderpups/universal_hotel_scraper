@@ -1,18 +1,29 @@
 body {
-    background: linear-gradient(120deg, #e0eafc, #cfdef3);
+    background: #0368d9;
     font-family: 'Segoe UI', Arial, sans-serif;
     margin: 0;
     padding: 0;
-    color: #222;
+    color: #fff;
     box-sizing: border-box; 
 }
 h1 {
     text-align: center;
     margin-top: 40px;
     font-size: 2.5em;
-    color: #2a5298;
+    color: #ffffff;
     letter-spacing: 2px;
     padding: 0 10px;
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.universal-logo {
+    height: 60px;
+    width: auto;
 }
 a {
     display: block;
@@ -106,10 +117,12 @@ th, td {
     text-align: left;
     border-bottom: 1px solid #ddd;
     white-space: nowrap; /* Prevents column header text from wrapping */
+    background-color: white;
+    color: #222;
 }
 th {
     background-color: #f4f7f6;
-    color: #2a5298;
+    color: #0368d9;
     font-weight: 600;
 }
 tr:hover {
@@ -121,14 +134,48 @@ tr:hover {
     margin-top: 15px;
     margin-bottom: 15px;
 }
+
+/* Form styling for inputs and selects */
+input, select {
+    background-color: white !important;
+    color: #222 !important;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+select option {
+    background-color: white !important;
+    color: #222 !important;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #2a5298;
+}
+
+/* DataTables dropdown styling */
+.dt-button-collection {
+    background-color: white !important;
+}
+
+.dt-button-collection .dt-button {
+    background-color: white !important;
+    color: #222 !important;
+}
+
+.dt-button-collection .dt-button:hover {
+    background-color: #f0f0f0 !important;
+    color: #222 !important;
+}
 /* Countdown Wrapper Styling */
 .countdown-wrapper {
     text-align: center;
     margin: 40px auto;
     padding: 20px;
     /* Similar to links: box shadow and theme colors */
-    background: #f0f6ff;
-    border: 1px solid #cfdef3; 
+    background: white;
+    border: 1px solid #cfdef3;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(42,82,152,0.1);
     width: fit-content;
@@ -138,9 +185,15 @@ tr:hover {
 .countdown-wrapper h2 {
     color: #2a5298;
     margin-top: 0;
-    margin-bottom: 20px;
     font-size: 1.5em;
     letter-spacing: 1px;
+}
+
+.countdown-wrapper h1 {
+    color: #2a5298;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 2em;
 }
 
 /* Flexbox container for the units */

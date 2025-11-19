@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Price Trends</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        .controls {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(42,82,152,0.10);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+            color: #2a5298;
+            font-size: 14px;
+        }
+        
+        .time-period-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .time-btn {
+            padding: 8px 16px;
+            border: 2px solid #2a5298;
+            background: white;
+            color: #2a5298;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .time-btn.active, .time-btn:hover {
+            background: #2a5298;
+            color: white;
+        }
+        
+        .hotel-selector {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            background: white;
+        }
+        
+        .hotel-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .hotel-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .color-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .chart-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(42,82,152,0.10);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            height: 600px;
+        }
+        
+        .stay-date-selector {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            background: white;
+        }
+        
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .bulk-btn {
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .bulk-btn:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <h1><img src="universal_logo.png" alt="Universal" class="universal-logo">Hotel Price Trends</h1>
+    
+    <div style="text-align: center; margin: 10px 0; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px; color: #856404; font-weight: 600; max-width: 1200px; margin: 10px auto;">
+        📝 Note: Prices from 6/19/25 to 8/25/25 are for four people
+    </div>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label>Time Period:</label>
+            <div class="time-period-buttons">
+                <button class="time-btn active" data-days="7">7 Days</button>
+                <button class="time-btn" data-days="14">14 Days</button>
+                <button class="time-btn" data-days="30">30 Days</button>
+                <button class="time-btn" data-days="90">90 Days</button>
+                <button class="time-btn" data-days="365">365 Days</button>
+                <button class="time-btn" data-days="999999">All</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Select Hotels:</label>
+            <div class="hotel-selector" id="hotelSelector">
+                <!-- Hotels will be populated by JavaScript -->
+            </div>
+            <div class="bulk-actions">
+                <button class="bulk-btn" onclick="selectAllHotels()">Select All</button>
+                <button class="bulk-btn" onclick="deselectAllHotels()">Deselect All</button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Stay Date:</label>
+            <div class="stay-date-selector" id="stayDateSelector">
+                <!-- Stay dates will be populated by JavaScript -->
+            </div>
+            <div class="bulk-actions">
+                <button class="bulk-btn" onclick="selectAllDates()">Select All</button>
+                <button class="bulk-btn" onclick="deselectAllDates()">Deselect All</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+    </div>
+    
+    <script>
+        // Data from Python
+        const chartData = {{ chart_data_json | safe }};
+        const allGatherDates = {{ all_gather_dates | tojson }};
+        
+        let chart = null;
+        let selectedDays = 7;
+        
+        // Get all unique stay dates (only future dates)
+        function getAllStayDates() {
+            const dates = new Set();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to start of day
+            
+            chartData.forEach(hotel => {
+                Object.keys(hotel.stay_dates).forEach(date => {
+                    // Parse the date in MM/DD/YY format
+                    const [month, day, year] = date.split('/').map(num => parseInt(num));
+                    const fullYear = year < 50 ? 2000 + year : 1900 + year;
+                    const stayDate = new Date(fullYear, month - 1, day);
+                    
+                    // Only include dates that are in the future
+                    if (stayDate > today) {
+                        dates.add(date);
+                    }
+                });
+            });
+            
+            return Array.from(dates).sort((a, b) => {
+                // Sort dates in MM/DD/YY format
+                const [monthA, dayA, yearA] = a.split('/').map(num => parseInt(num));
+                const [monthB, dayB, yearB] = b.split('/').map(num => parseInt(num));
+                const fullYearA = yearA < 50 ? 2000 + yearA : 1900 + yearA;
+                const fullYearB = yearB < 50 ? 2000 + yearB : 1900 + yearB;
+                const dateA = new Date(fullYearA, monthA - 1, dayA);
+                const dateB = new Date(fullYearB, monthB - 1, dayB);
+                return dateA - dateB;
+            });
+        }
+        
+        // Initialize hotel selector
+        function initializeHotelSelector() {
+            const selector = document.getElementById('hotelSelector');
+            selector.innerHTML = '';
+            
+            // Define which hotels should be selected by default
+            const defaultSelectedHotels = ['Royal Pacific', 'Hard Rock', 'Portofino Bay'];
+            
+            chartData.forEach((hotel, index) => {
+                const isDefaultSelected = defaultSelectedHotels.includes(hotel.hotel_name);
+                const checkbox = document.createElement('div');
+                checkbox.className = 'hotel-checkbox';
+                checkbox.innerHTML = `
+                    <input type="checkbox" id="hotel-${index}" ${isDefaultSelected ? 'checked' : ''} 
+                           onchange="updateChart()">
+                    <span class="color-indicator" style="background-color: ${hotel.color}"></span>
+                    <label for="hotel-${index}">${hotel.hotel_name}</label>
+                `;
+                selector.appendChild(checkbox);
+            });
+        }
+        
+        // Initialize stay date selector
+        function initializeStayDateSelector() {
+            const selector = document.getElementById('stayDateSelector');
+            const allDates = getAllStayDates();
+            selector.innerHTML = '';
+            
+            allDates.forEach((date, index) => {
+                const checkbox = document.createElement('div');
+                checkbox.className = 'hotel-checkbox';
+                checkbox.innerHTML = `
+                    <input type="checkbox" id="date-${index}" ${index === 0 ? 'checked' : ''} 
+                           onchange="updateChart()">
+                    <label for="date-${index}">${date}</label>
+                `;
+                selector.appendChild(checkbox);
+            });
+        }
+        
+        // Get selected hotels
+        function getSelectedHotels() {
+            const selected = [];
+            chartData.forEach((hotel, index) => {
+                const checkbox = document.getElementById(`hotel-${index}`);
+                if (checkbox && checkbox.checked) {
+                    selected.push(hotel);
+                }
+            });
+            return selected;
+        }
+        
+        // Get selected stay dates
+        function getSelectedStayDates() {
+            const selected = [];
+            const allDates = getAllStayDates();
+            allDates.forEach((date, index) => {
+                const checkbox = document.getElementById(`date-${index}`);
+                if (checkbox && checkbox.checked) {
+                    selected.push(date);
+                }
+            });
+            return selected;
+        }
+        
+        // Filter data by time period
+        function filterByTimePeriod(data, days) {
+            // If days is very large (999999), show all data
+            if (days >= 999999) {
+                return data;
+            }
+            
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - days);
+            
+            return data.map(hotel => {
+                const filteredStayDates = {};
+                Object.keys(hotel.stay_dates).forEach(stayDate => {
+                    const filteredHistory = hotel.stay_dates[stayDate].filter(entry => {
+                        const gatherDate = new Date(entry.gather_date);
+                        return gatherDate >= cutoffDate;
+                    });
+                    if (filteredHistory.length > 0) {
+                        filteredStayDates[stayDate] = filteredHistory;
+                    }
+                });
+                return {
+                    ...hotel,
+                    stay_dates: filteredStayDates
+                };
+            });
+        }
+        
+        // Update chart
+        function updateChart() {
+            console.log('updateChart called');
+            const selectedHotels = getSelectedHotels();
+            const selectedStayDates = getSelectedStayDates();
+            console.log('Selected hotels:', selectedHotels.length);
+            console.log('Selected stay dates:', selectedStayDates.length);
+            
+            const filteredData = filterByTimePeriod(selectedHotels, selectedDays);
+            
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const datasets = [];
+            
+            filteredData.forEach(hotel => {
+                selectedStayDates.forEach(stayDate => {
+                    if (hotel.stay_dates[stayDate]) {
+                        const data = hotel.stay_dates[stayDate].map(entry => ({
+                            x: entry.gather_date,
+                            y: entry.price
+                        }));
+                        
+                        datasets.push({
+                            label: `${hotel.hotel_name} - ${stayDate}`,
+                            data: data,
+                            borderColor: hotel.color,
+                            backgroundColor: hotel.color + '20',
+                            fill: false,
+                            tension: 0.1,
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        });
+                    }
+                });
+            });
+            
+            console.log('Datasets:', datasets.length);
+            console.log('First dataset sample:', datasets[0]);
+            
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date Data Gathered'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Price ($)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Hotel Price Trends Over Time'
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                pointStyle: 'line'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y;
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'nearest'
+                    }
+                }
+            });
+        }
+        
+        // Time period button handlers
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedDays = parseInt(this.dataset.days);
+                updateChart();
+            });
+        });
+        
+        // Bulk selection functions
+        function selectAllHotels() {
+            chartData.forEach((_, index) => {
+                const checkbox = document.getElementById(`hotel-${index}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            updateChart();
+        }
+        
+        function deselectAllHotels() {
+            chartData.forEach((_, index) => {
+                const checkbox = document.getElementById(`hotel-${index}`);
+                if (checkbox) checkbox.checked = false;
+            });
+            updateChart();
+        }
+        
+        function selectAllDates() {
+            const allDates = getAllStayDates();
+            allDates.forEach((_, index) => {
+                const checkbox = document.getElementById(`date-${index}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            updateChart();
+        }
+        
+        function deselectAllDates() {
+            const allDates = getAllStayDates();
+            allDates.forEach((_, index) => {
+                const checkbox = document.getElementById(`date-${index}`);
+                if (checkbox) checkbox.checked = false;
+            });
+            updateChart();
+        }
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeHotelSelector();
+            initializeStayDateSelector();
+            updateChart();
+        });
+    </script>
+</body>
+</html>

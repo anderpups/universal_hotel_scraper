@@ -20,7 +20,6 @@ environment = Environment(loader=FileSystemLoader("templates/"))
 hotel_info_template = environment.get_template("hotel-info.html.j2")
 index_template = environment.get_template("index.html.j2")
 index_html_by_gather_date = '<h2><center>Info by Gather Date</center></h2>\n'
-index_html_by_hotel = '<h2><center>Info by Hotel</center></h2>\n'
 historical_html_by_gather_date = '<link rel="stylesheet" href="style.css">\n<div class="list-section">\n<h2><center>Historical Info by Gather Date</center></h2>\n'
 data_html = '<link rel="stylesheet" href="style.css">\n<h2>JSON Data</h2>'
 
@@ -172,64 +171,8 @@ for index, file_path in enumerate(hotel_info_json_files):
     else:
         historical_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a>\n'
 
-# Sort dictionary by hotel name
-info_by_gather_date = {k:v for k,v in sorted(info_by_gather_date.items(), key=lambda item: item[0])}
-
-## Loop through the info_by_gather_date dictionary to create individual hotel info pages
-for name, data in info_by_gather_date.items():
-
-    ## Create DataFrame and pivot table
-    df = pandas.DataFrame(data)
-    pivot_df = df.pivot_table(index='date', columns='gather_date', values='price')
-    
-    ## Get number of columns for the table
-    number_of_columns = (len(pivot_df.columns)+ 1)
-
-    # Apply color gradient and format each cell that is a price
-    for col in pivot_df.columns:
-        styles = color_gradient(pivot_df[col])
-        pivot_df[col] = [
-            f'<div style="{style}">{format_price(val)}</div>'
-            for style, val in zip(styles, pivot_df[col])
-        ]
-    # Format the index to be the date in the format of mm/dd/yy
-    pivot_df.columns = pandas.to_datetime(pivot_df.columns, format='%Y%m%d').strftime('%m/%d/%y')
-    pivot_df = pivot_df.sort_index(axis=1, ascending=False)
-
-    ## Remove the index and columns names
-    pivot_df.index.name = None
-    pivot_df.columns.name = None
-    
-    ## Set style of table
-    styled_table = pivot_df.style.set_sticky(axis="columns")
-    styled_table = pivot_df.style.set_table_styles([
-        {'selector': 'th', 'props':
-        [('background-color', 'white'),
-        ('z-index', '10'),
-        ('position', 'sticky !important'),
-        ('top','50px')
-        ]}
-    ], overwrite=False)
-
-    table_html = styled_table.to_html(uuid="hotel-info")
-    
-    total_html = hotel_info_template.render(
-        table_html=table_html,
-        number_of_columns=number_of_columns,
-        format_start_column=1,
-        tomorrow = tomorrow.strftime("%Y-%m-%d"),
-        by_hotel_html = True,
-        name=name
-        )
-
-    with open(f'{html_folder}/hotel_info-{(name.replace(" ","_")).lower()}.html', "w") as f:
-        f.write(total_html) 
-    print(f"Generated HTML for {name}")
-    index_html_by_hotel += f'<a href="hotel_info-{(name.replace(" ","_")).lower()}.html">{name}</a>\n'
-
 index_html = index_template.render(
     index_html_by_gather_date=index_html_by_gather_date,
-    index_html_by_hotel=index_html_by_hotel,
     next_trip_date=next_trip_date
     )
 
@@ -256,3 +199,10 @@ with open(f'{data_folder}/index.html', "w") as f:
 
 with open(f'{data_folder}/data_location_list.txt', "w") as f:
     f.write(data_location_list)
+
+# Generate price chart page
+from generate_price_chart import generate_price_chart_page
+try:
+    generate_price_chart_page()
+except Exception as e:
+    print(f"Error generating price chart: {e}")

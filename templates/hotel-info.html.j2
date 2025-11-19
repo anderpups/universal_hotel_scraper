@@ -1,7 +1,7 @@
 <!doctype html>
 <link rel="stylesheet" href="style.css">
 <head>
-    <title>{%if by_hotel_html %}{{ name }}{% else %}{{ gather_date }}{% endif %}</title>
+    <title>{{ gather_date }}</title>
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
     <!-- jQuery -->
@@ -14,12 +14,12 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
 </head>
 <body>
-    <h1>Prices {%if by_hotel_html %}for {{ name }}{% else %}on {{ formatted_date }}</h1>{% endif %}</h1>
+    <h1><img src="universal_logo.png" alt="Universal" class="universal-logo">Prices on {{ formatted_date }}</h1>
     <label for="min-date">Start:</label>
     <input type="date" id="min-date">
     <label for="max-date" style="margin-left:10px;">End:</label>
     <input type="date" id="max-date"><br>
-    {%if not by_hotel_html %}<select multiple id="day-select" style="vertical-align: top; height: 100px;">
+    <select multiple id="day-select" style="vertical-align: top; height: 100px;">
         <option value="Mon">Monday</option>
         <option value="Tue">Tuesday</option>
         <option value="Wed">Wednesday</option>
@@ -27,7 +27,7 @@
         <option value="Fri">Friday</option>
         <option value="Sat">Saturday</option>
         <option value="Sun">Sunday</option>
-    </select>{% endif %}
+    </select>
     {{ table_html }}
     <script>
     $(document).ready(function() {
@@ -36,7 +36,6 @@
             buttons: [
                 {
                     extend: 'colvis',
-    {%if not by_hotel_html %}
                     text: 'Hotels',
                     postfixButtons: [
                         {
@@ -59,54 +58,6 @@
                             }
                         }
                     ]
-    {% else %}
-                    text: 'Gather Dates',
-                    columns: 'nothing',
-                    postfixButtons: [
-                    {
-                            text: 'Last 7 Days',
-                            action: function ( e, dt, node, config ) {
-                                dt.columns().every(function(idx) {
-                                    if(idx > 7) {
-                                        this.visible(false, false);
-                                    } else {
-                                        this.visible(true, false);
-                                    }
-                                });
-                            }
-                        },
-                        {
-                            text: 'Last 15 Days',
-                            action: function ( e, dt, node, config ) {
-                                dt.columns().every(function(idx) {
-                                    if(idx > 15) {
-                                        this.visible(false, false);
-                                    } else {
-                                        this.visible(true, false);
-                                    }
-                                });
-                            }
-                        },
-                        {
-                            text: 'Last 30 Days',
-                            action: function ( e, dt, node, config ) {
-                                dt.columns().every(function(idx) {
-                                    if(idx > 30) {
-                                        this.visible(false, false);
-                                    } else {
-                                        this.visible(true, false);
-                                    }
-                                });
-                            }
-                        },
-                        {
-                            text: 'All Dates',
-                            action: function ( e, dt, node, config ) {
-                                dt.columns().visible(true, false);
-                            }
-                        }
-                    ]
-    {% endif %}
                 }
             ],
             pageLength: 366,
@@ -135,18 +86,11 @@
                         }
                         return data; // Default return
                     }
-                }{%if by_hotel_html %},
-                {
-                targets: [{% for item in range(8, number_of_columns) -%}{{ item }}{% if not loop.last %}, {% endif %}{%- endfor %}],
-                visible: false
-                }{% endif %}
+                }
             ]
         });
 
     // Date range filter
-    {%if by_hotel_html %}
-    document.getElementById('min-date').value = '{{ tomorrow }}';
-    {% endif %}
     $.fn.dataTable.ext.search.push(
         function(settings, data, dataIndex) {
             var dateStr = $(settings.aoData[dataIndex].nTr).find('th').text();
@@ -175,7 +119,7 @@
             if ((!minDate || rowDate >= minDate) && (!maxDate || rowDate <= maxDate)) {
                 dateMatch = true;
             }
-            {%if not by_hotel_html %}var selectedDays = $('#day-select').val(); // Gets an array of selected values, e.g., ["Mon", "Fri"]{% endif %}
+            var selectedDays = $('#day-select').val(); // Gets an array of selected values, e.g., ["Mon", "Fri"]
             // Get the day text (e.g., 'Tue') from the first <td> in the row
             var rowDay = $(settings.aoData[dataIndex].nTr).find('td').eq(0).text().trim(); 
 
@@ -198,7 +142,7 @@
     
     table.draw();
 
-    $('#min-date, #max-date{%if not by_hotel_html %}, #day-select{%endif %}').on('change', function() {
+    $('#min-date, #max-date, #day-select').on('change', function() {
         table.draw();
     });
     });
