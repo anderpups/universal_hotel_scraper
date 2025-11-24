@@ -164,10 +164,8 @@ for index, file_path in enumerate(hotel_info_json_files):
     print(f"Generated HTML for gather date {formatted_date}")
     print(f"Dates left to process: {len(hotel_info_json_files) - index - 1}")
 
-    if index < 10:
+    if index <= 5:
         index_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a>\n'
-    elif index == 11:
-      index_html_by_gather_date += f'<a href="historical_info.html">Historical Info</a>\n'
     else:
         historical_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a>\n'
 
@@ -179,10 +177,12 @@ index_html = index_template.render(
 # Write to index.html
 with open(index_html_file_path, "w") as f:
     f.write(index_html)
+print(f"Generated HTML for index.html")
 
 # Write to historical file.html
 with open(historical_info_html_file_path, "w") as f:
     f.write(historical_html_by_gather_date)
+print(f"Generated HTML for historical data")
 
 data_location_list = ''
 
