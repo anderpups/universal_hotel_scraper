@@ -17,6 +17,11 @@
   dates:
     - 01/31/26
   price: 360
+- price: 180
+  hotels:
+    - Stella Nova
+  dates:
+    - 03/20/26
 - price: 145
   hotels:
     - Stella Nova
