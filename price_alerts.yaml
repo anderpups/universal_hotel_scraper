@@ -5,6 +5,14 @@
   price: 470
   dates:
     - 12/12/25
+- hotel: Sapphire Fals
+  price: 190
+  dates:
+    - 01/09/26
+- hotel: Sapphire Fals
+  price: 200
+  dates:
+    - 01/10/26
 - hotel: Stella Nova
   price: 100
   dates:
@@ -17,6 +25,10 @@
   dates:
     - 01/31/26
   price: 360
+- hotel: Sapphire Fals
+  price: 125
+  dates:
+    - 02/22/26
 - price: 180
   hotels:
     - Stella Nova
@@ -31,5 +43,6 @@
   price: 250
   dates:
     - 03/21/26
+    - 03/22/26
 - hotel: Helios
   price: 255
