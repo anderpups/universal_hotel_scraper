@@ -53,3 +53,10 @@
     - 03/22/26
 - hotel: Helios
   price: 255
+- dates:
+  - 08/08/26
+  hotels:
+    - Royal Pacific
+    - Portofino Bay
+    - Hard Rock
+    - Sapphire Falls
