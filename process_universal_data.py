@@ -10,7 +10,7 @@ from itertools import groupby
 from datetime import datetime, timedelta
 from jinja2 import Environment, FileSystemLoader
 
-next_trip_date = 'Dec 12, 2025 20:00:00'
+next_trip_date = 'Jan 29, 2025 09:00:00'
 
 html_folder = 'html'
 data_folder = f'{html_folder}/data'
