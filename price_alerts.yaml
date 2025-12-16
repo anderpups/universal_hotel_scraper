@@ -1,10 +1,4 @@
-- hotels:
-    - Royal Pacific
-    - Portofino Bay
-    - Hard Rock
-  price: 470
-  dates:
-    - 12/12/25
+---
 - hotel: Sapphire Falls
   price: 190
   dates:
@@ -17,9 +11,10 @@
     - Royal Pacific
     - Portofino Bay
     - Hard Rock
-  price: 300
+  price: 400
   dates:
     - 01/10/26
+    - 01/09/26
 - hotel: Stella Nova
   price: 100
   dates:
@@ -54,6 +49,7 @@
 - hotel: Helios
   price: 255
 - dates:
-  - 08/08/26
+    - 08/08/26
+  price: 500
   hotels:
     - Portofino Bay
