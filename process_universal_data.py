@@ -65,7 +65,7 @@ def color_gradient(s, color_list=['#00ff00', '#ffff00', '#ff0000']):
 hotel_info_json_files = glob.glob(os.path.join(data_folder, "hotel_info*.json"))
 hotel_info_json_files.sort(reverse=True)
 if os.environ.get("_DEVELOPING"):
-    hotel_info_json_files = hotel_info_json_files[:3]
+    hotel_info_json_files = hotel_info_json_files[:30]
 info_by_gather_date = {}
 
 ## Loop through hotel info json files
