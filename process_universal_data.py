@@ -10,7 +10,7 @@ from itertools import groupby
 from datetime import datetime, timedelta
 from jinja2 import Environment, FileSystemLoader
 
-next_trip_date = 'Jan 29, 2026 09:00:00'
+next_trip_date = 'Jan 09, 2026 09:00:00'
 
 html_folder = 'html'
 data_folder = f'{html_folder}/data'
@@ -19,7 +19,6 @@ historical_info_html_file_path = os.path.join(html_folder, "historical_info.html
 environment = Environment(loader=FileSystemLoader("templates/"))
 hotel_info_template = environment.get_template("hotel-info.html.j2")
 index_template = environment.get_template("index.html.j2")
-index_html_by_gather_date = '<h2><center>Info by Gather Date</center></h2>\n'
 historical_html_by_gather_date = '<link rel="stylesheet" href="style.css">\n<div class="list-section">\n<h2><center>Historical Info by Gather Date</center></h2>\n'
 data_html = '<link rel="stylesheet" href="style.css">\n<h2>JSON Data</h2>'
 
@@ -65,6 +64,8 @@ def color_gradient(s, color_list=['#00ff00', '#ffff00', '#ff0000']):
 ## Find all JSON files in the data folder
 hotel_info_json_files = glob.glob(os.path.join(data_folder, "hotel_info*.json"))
 hotel_info_json_files.sort(reverse=True)
+if os.environ.get("_DEVELOPING"):
+    hotel_info_json_files = hotel_info_json_files[:3]
 info_by_gather_date = {}
 
 ## Loop through hotel info json files
@@ -164,13 +165,13 @@ for index, file_path in enumerate(hotel_info_json_files):
     print(f"Generated HTML for gather date {formatted_date}")
     print(f"Dates left to process: {len(hotel_info_json_files) - index - 1}")
 
-    if index <= 5:
-        index_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a>\n'
+    if index == 0:
+        index_html_today = f'<a href="hotel_info-{gather_date}.html">Today\'s Hotel Prices</a>'
     else:
         historical_html_by_gather_date += f'<a href="hotel_info-{gather_date}.html">{datetime.strptime(gather_date, "%Y%m%d").strftime("%m/%d/%Y ")}</a>\n'
 
 index_html = index_template.render(
-    index_html_by_gather_date=index_html_by_gather_date,
+    index_html_today=index_html_today,
     next_trip_date=next_trip_date
     )
 
