@@ -1,38 +1,44 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>Universal Hotel Info</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Universal Hotel Info</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <h1>
-    <img src="universal_logo.png" alt="Universal Logo Left" style="height: 50px; float: left; margin-right: 20px;">
-    Universal Hotel Info
-    <img src="universal_logo.png" alt="Universal Logo Right" style="height: 50px; float: right; margin-left: 20px;">
+        <img src="universal_logo.png" alt="Universal Logo Left" class="universal-logo">
+        Universal Hotel Info
+        <img src="universal_logo.png" alt="Universal Logo Right" class="universal-logo">
 </h1>
+
 <div class="main-layout">
-    <div class="side-image left-image">
+    <div class="side-image left-side">
         <img src="velocicoaster.png" alt="VelociCoaster">
     </div>
-    <div class="main-content">
-    <div class="countdown-wrapper">
-<h2><center>Info by Gather Date</center></h2>
-<a href="hotel_info-20251229.html">12/29/2025 </a>
-<a href="hotel_info-20251228.html">12/28/2025 </a>
-<a href="hotel_info-20251227.html">12/27/2025 </a>
-<a href="hotel_info-20251226.html">12/26/2025 </a>
-<a href="hotel_info-20251225.html">12/25/2025 </a>
-<a href="hotel_info-20251224.html">12/24/2025 </a>
 
-</div>
-<div class="countdown-wrapper">
-<h2><center>Analytics</center></h2>
-<a href="price_chart.html">Price Trends</a>
-<a href="historical_info.html">Historical Info</a>
-</div>
-<div class="countdown-wrapper">
-    <h2>Time Until Our Next Trip</h2>
-    <h3><div id="countdown"></div></h3>
-</div>
+    <div class="main-content">
+        <div class="countdown-wrapper">
+            <a href="hotel_info-20251229.html">Today's Hotel Prices</a>
+            <a href="price_chart.html">Price Trends</a>
+            <a href="historical_info.html">Historical Info</a>
+        </div>
+
+        <div class="countdown-wrapper">
+            <h2>Time Until Our Next Trip</h2>
+            <div id="countdown"></div>
+        </div>
+
+            <div class="countdown-wrapper">
+                <a href="universal-game.html">Universal Studios: Escape from the Gift Shop</a>    
+            </div>
+        </div>
+
+        <div class="side-image right-side">
+            <img src="hagrids.png" alt="Hagrid's">
+        </div>
+    </div>
+
 <script>
 function startCountdown(targetDate) {
     // Set the date we're counting down to (e.g., December 31, 2025 23:59:59)
@@ -62,11 +68,13 @@ function startCountdown(targetDate) {
         const minutes = Math.floor((distance % _hour) / _minute); // Use remainder of hours calculation
         const seconds = Math.floor((distance % _minute) / _second); // Use remainder of minutes calculation
 
-        // Display the result in the element with id="countdown"
-        // You'll need an HTML element like: <div id="countdown"></div>
-        document.getElementById("countdown").innerHTML = weeks + "w " + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+            document.getElementById("countdown").innerHTML = 
+                `<div class="countdown-unit"><span class="number">${weeks}</span><span class="label">w</span></div>` +
+                `<div class="countdown-unit"><span class="number">${days}</span><span class="label">d</span></div>` +
+                `<div class="countdown-unit"><span class="number">${hours}</span><span class="label">h</span></div>` +
+                `<div class="countdown-unit"><span class="number">${minutes}</span><span class="label">m</span></div>` +
+                `<div class="countdown-unit"><span class="number">${seconds}</span><span class="label">s</span></div>`;
 
-        // If the count down is finished, write some text and stop the interval
         if (distance < 0) {
             clearInterval(x);
             document.getElementById("countdown").innerHTML = "We are in Universal!";
@@ -74,17 +82,8 @@ function startCountdown(targetDate) {
     }, 1000);
 }
 
-// Replace the date string with your desired end date and time
-const myTargetDate = "Jan 29, 2026 09:00:00";
-startCountdown(myTargetDate);
-</script>
-<div class="countdown-wrapper">
-<a href="universal-game.html">Universal Game</a>
-       </div>
-    </div>
-    <div class="side-image right-image">
-        <img src="hagrids.png" alt="Hagrid's Magical Creatures Motorbike Adventure">
-    </div>
-</div>
+    const myTargetDate = "Jan 09, 2026 09:00:00";
+    startCountdown(myTargetDate);
+    </script>
 </body>
 </html>
