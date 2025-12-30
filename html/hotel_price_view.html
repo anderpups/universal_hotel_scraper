@@ -1,7 +1,7 @@
 <!doctype html>
 <link rel="stylesheet" href="style.css">
 <head>
-    <title>20251229</title>
+    <title>Hotel Price Data</title>
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
     <!-- jQuery -->
@@ -78,7 +78,6 @@
 
     <div class="universal-header">
         <i class="fas fa-globe"></i>
-        <span id="header-title">Universal Prices</span>
         <i class="fas fa-globe"></i>
     </div>
 
@@ -86,9 +85,7 @@
         <div class="control-group" style="padding-right: 15px; border-right: 2px solid #eee;">
             <label><i class="fas fa-calendar-alt"></i> Data Observed On:</label>
             <input type="date" id="snapshotDate">
-            <button class="btn btn-primary btn-sm ms-2" onclick="fetchData()">Load</button>
         </div>
-
         <div class="control-group">
             <label>Trip Start:</label>
             <input type="date" id="tripStart">
@@ -141,19 +138,28 @@
         let hotelStats = {}; 
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. Default "Snapshot Date" to Today
-            const today = new Date('2025-12-29').toISOString().split('T')[0];
-            document.getElementById('snapshotDate').value = today;
-            
-            // 2. Default "Trip Start" to Today
-            document.getElementById('tripStart').value = today;
+                    // 1. Default "Snapshot Date" to Today
+                    const today = new Date('2025-12-29').toISOString().split('T')[0];
+                    document.getElementById('snapshotDate').value = today;
+                    
+                    // 2. Default "Trip Start" to Today
+                    document.getElementById('tripStart').value = today;
 
-            fetchData();
+                    fetchData();
 
-            // Listeners for filters
-            document.getElementById('tripStart').addEventListener('change', renderTable);
-            document.getElementById('tripEnd').addEventListener('change', renderTable);
-        });
+                    // Listeners for filters
+                    document.getElementById('tripStart').addEventListener('change', renderTable);
+                    document.getElementById('tripEnd').addEventListener('change', renderTable);
+
+                    // NEW: Listener for Snapshot Date
+                    document.getElementById('snapshotDate').addEventListener('change', () => {
+                        // 1. Update Trip Start to match the selected Snapshot Date
+                        document.getElementById('tripStart').value = document.getElementById('snapshotDate').value;
+                        
+                        // 2. Load the new data
+                        fetchData();
+                    });
+                });
 
         async function fetchData() {
             const snapshotInput = document.getElementById('snapshotDate').value;
@@ -185,9 +191,7 @@
                 processData(hotelData, crowdData);
                 
                 statusDiv.innerHTML = '';
-                table.style.display = 'table';
-                document.getElementById('header-title').innerText = `Prices on ${new Date(snapshotInput).toLocaleDateString(undefined, {dateStyle:'medium'})}`;
-                
+                table.style.display = 'table';                
                 renderTable();
 
             } catch (error) {
