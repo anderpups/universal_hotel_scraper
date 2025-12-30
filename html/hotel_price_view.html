@@ -72,7 +72,7 @@
 <body>
     <h1>
         <img src="universal_logo.png" alt="Universal Logo Left" style="height: 50px; float: left; margin-right: 20px;">
-        Prices on Dec 29th, 2025
+        UOAP Hotel Prices
         <img src="universal_logo.png" alt="Universal Logo Right" style="height: 50px; float: right; margin-left: 20px;">
     </h1>
 
@@ -83,7 +83,7 @@
 
     <div class="controls-bar">
         <div class="control-group" style="padding-right: 15px; border-right: 2px solid #eee;">
-            <label><i class="fas fa-calendar-alt"></i> Data Observed On:</label>
+            <label><i class="fas fa-calendar-alt"></i> Prices On:</label>
             <input type="date" id="snapshotDate">
         </div>
         <div class="control-group">
@@ -191,7 +191,7 @@
                 processData(hotelData, crowdData);
                 
                 statusDiv.innerHTML = '';
-                table.style.display = 'table';                
+                table.style.display = 'table';
                 renderTable();
 
             } catch (error) {
