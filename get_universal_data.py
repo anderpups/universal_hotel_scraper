@@ -103,23 +103,37 @@ def get_hotel_data_for_date(date):
     print(f"Error fetching data for {date}: {e}")
     return []
 
-## Function to get the crowd info for a year
-def crowd_info():
+## Function to get the crowd info
+def crowd_info(start_date_str, end_date_str):
   try:
+    start_date = datetime.strptime(start_date_str, "%m/%d/%y")
+    end_date = datetime.strptime(end_date_str, "%m/%d/%y")
+
     ## Make the web request to thrill-data website
     response = requests.get(f'https://oi-nest-prod-ff3c6f88c478.herokuapp.com/crowd/levels', timeout=15)
     response.raise_for_status()
     response_json = response.json()
-    # Parse the input string into a datetime object
+    
+    filtered_data = []
 
-# Format the datetime object into the desired output string
-    crowd_info = [{"date": datetime.strptime(item["date"], "%Y-%m-%d").strftime("%m/%d/%y"), "crowd_info": int(item["crowd"]["crowdScore"] * 100)} for item in response_json["responseObject"]]
-    return(crowd_info)
+    for item in response_json["responseObject"]:
+        # Parse the API date (Format is usually YYYY-MM-DD from this API)
+        item_date_obj = datetime.strptime(item["date"], "%Y-%m-%d")
+
+        # Check if the date falls within the range (Inclusive)
+        if start_date <= item_date_obj <= end_date:
+            filtered_data.append({
+                "date": item_date_obj.strftime("%m/%d/%y"),
+                "crowd_info": int(item["crowd"]["crowdScore"] * 100)
+            })
+
+    return filtered_data
+
   except Exception as e:
     print(f"Error fetching crowd info: {e}")
     sys.exit(1)
 
-crowd_info = crowd_info()
+crowd_data = crowd_info(today.strftime('%m/%d/%y'), end_date.strftime('%m/%d/%y'))
 
 ## Loop through the date range and fetch hotel data
 for date in date_range:
@@ -140,4 +154,4 @@ with open(f"{data_folder}/hotel_info-{filename}", "w") as file:
   json.dump(hotel_info, file, indent=2)
 
 with open(f"{data_folder}/crowd_info-{filename}", "w") as file:
-  json.dump(crowd_info, file, indent=2)
+  json.dump(crowd_data, file, indent=2)
