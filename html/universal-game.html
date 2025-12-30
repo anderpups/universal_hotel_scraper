@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Studios: Escape from the Gift Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Dark background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #e2e8f0; /* Light text */
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .game-container {
+            background-color: #2d3748; /* Slightly lighter dark background for container */
+            border: 4px solid #4a5568;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 800px; /* Limit container width */
+            position: relative; /* Needed for absolute positioning of message box */
+        }
+        canvas {
+            background-color: #000; /* Game world background */
+            border: 2px solid #63b3ed; /* Blue border for canvas */
+            border-radius: 8px;
+            display: block;
+            width: 100%; /* Make canvas responsive */
+            max-width: 700px; /* Max width for canvas */
+            height: auto; /* Maintain aspect ratio */
+            aspect-ratio: 1.5 / 1; /* Wider aspect ratio for larger map */
+        }
+        .game-info {
+            width: 100%;
+            max-width: 700px;
+            background-color: #4a5568;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .controls-info {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #cbd5e0;
+        }
+        .message-box {
+            background-color: #2b6cb0; /* Blue for messages */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            display: none; /* Hidden by default */
+            position: absolute; /* Absolute positioning */
+            top: 70px; /* Adjusted to be below the title and world display */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust for true horizontal centering */
+            width: 90%; /* Max width relative to parent */
+            max-width: 400px; /* Absolute max width */
+            z-index: 10; /* Ensure it's on top */
+            text-align: center;
+        }
+        .win-message, .lose-message {
+            background-color: #48bb78; /* Green for win message */
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+            display: none; /* Hidden by default */
+            position: absolute; /* Position over canvas */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        .lose-message {
+            background-color: #e53e3e; /* Red for lose message */
+        }
+        .health-bar-container {
+            width: 100%;
+            max-width: 200px;
+            height: 20px;
+            background-color: #e53e3e; /* Red background for empty health */
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 5px auto;
+        }
+        .health-bar-fill {
+            height: 100%;
+            background-color: #48bb78; /* Green fill for health */
+            width: 100%; /* Will be adjusted by JS */
+            border-radius: 5px;
+            transition: width 0.2s ease-out;
+        }
+        #worldDisplay {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #a0aec0; /* Lighter gray for world name */
+            margin-bottom: 5px;
+        }
+        #startScreen {
+            background-color: #2d3748;
+            border: 4px solid #4a5568;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 20px;
+            width: 90%;
+            max-width: 600px;
+            min-height: 400px;
+        }
+        #startScreen h2 {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #63b3ed;
+            margin-bottom: 10px;
+        }
+        #startScreen p {
+            font-size: 1.1em;
+            color: #cbd5e0;
+            line-height: 1.6;
+        }
+        #startScreen button {
+            padding: 15px 30px;
+            background-color: #ecc94b; /* Yellow */
+            color: #2d3748; /* Dark text */
+            font-size: 1.4em;
+            font-weight: bold;
+            border-radius: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: none;
+        }
+        #startScreen button:hover {
+            background-color: #f6e05e; /* Lighter yellow */
+            transform: translateY(-2px);
+            box-shadow: 0 7px 12px rgba(0, 0, 0, 0.4);
+        }
+        #gameScreen {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 flex flex-col items-center justify-center min-h-screen p-5">
+    <div class="game-container">
+        <div id="startScreen">
+            <h2>Universal Studios: Escape from the Gift Shop</h2>
+            <p>Welcome, adventurer! Your mission is to ride all the major attractions across Universal Studios Florida, Islands of Adventure, and Epic Universe.</p>
+            <p class="text-lg font-semibold">Controls:</p>
+            <p>Use <span class="font-bold text-yellow-300">Arrow Keys</span> to Move.</p>
+            <p>Press <span class="font-bold text-yellow-300">'E'</span> or <span class="font-bold text-yellow-300">Tap</span> to Interact with items, rides, and attack enemies.</p>
+            <button id="startButton">Start Game</button>
+        </div>
+
+        <div id="gameScreen">
+            <h1 class="text-3xl font-bold text-blue-400 mb-2">Universal Studios: Escape from the Gift Shop</h1>
+            <p id="worldDisplay" class="text-center"></p>
+            <canvas id="gameCanvas"></canvas>
+            <div id="messageBox" class="message-box"></div>
+            <div id="winMessage" class="win-message"></div>
+            <div id="loseMessage" class="lose-message"></div>
+            <div class="game-info">
+                <p id="healthDisplay" class="font-semibold mb-2">Health: <span id="currentHealth">100</span> / 100</p>
+                <div class="health-bar-container">
+                    <div id="healthBarFill" class="health-bar-fill"></div>
+                </div>
+                <p id="inventoryDisplay" class="font-semibold">Inventory: None</p>
+                <p class="controls-info">Use <span class="font-bold text-yellow-300">Arrow Keys</span> to Move. Press <span class="font-bold text-yellow-300">'E'</span> to Interact/Attack.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get the canvas and its 2D rendering context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game settings
+        const tileSize = 32; // Size of each tile in pixels
+        const mapWidth = 25; // Map width in tiles
+        const mapHeight = 15; // Map height in tiles
+        const enemyMoveInterval = 500; // Milliseconds between enemy moves
+        const swipeThreshold = 30; // Minimum pixels for a swipe to register
+
+        // Set canvas dimensions based on tile size and map dimensions
+        canvas.width = mapWidth * tileSize;
+        canvas.height = mapHeight * tileSize;
+
+        // Player object
+        const player = {
+            x: 2, // Player's starting X position (in tiles)
+            y: 2, // Player's starting Y position (in tiles)
+            width: tileSize,
+            height: tileSize,
+            color: '#63b3ed', // Player color (blue)
+            icon: '🧑‍🤝‍🧑', // Combined icon for male with baseball cap and blonde woman
+            maxHealth: 100,
+            health: 100,
+            attackDamage: 25 // Base damage without sword
+        };
+
+        // Game state variables
+        let inventory = []; // Array to hold collected items
+        let messageQueue = []; // Queue for messages
+        let currentMessageTimeout = null; // To manage message display time
+        let gameActive = true; // To pause game after win/lose
+        let lastEnemyMoveTime = 0; // For enemy movement timing
+        let currentWorld = 'phl_airport'; // Start at PHL Airport
+
+        // Touch input variables
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        // Ride tracking for win condition - ALL RIDES MUST BE LISTED HERE
+        const ridesActivated = {
+            'The Simpsons Ride': false,
+            'Revenge of the Mummy': false,
+            'Harry Potter and the Escape from Gringots': false,
+            'Hagrid\'s Magical Creatures Motorbike Adventure': false,
+            'The Incredible Hulk Coaster': false,
+            'Velocicoaster': false,
+            'Hiccup\'s Wing Gliders': false,
+            'Monsters Unchained': false,
+            'Mario Kart: Bowser\'s Challenge': false
+        };
+
+        // --- Map Definitions (Global Scope - This section was the source of the error. All data is now correctly scoped.) ---
+
+        // Helper function to create a 2D array with explicit initialization
+        function create2DArray(rows, cols, defaultValue) {
+            const arr = [];
+            for (let y = 0; y < rows; y++) {
+                const row = [];
+                for (let x = 0; x < cols; x++) {
+                    row.push(defaultValue);
+                }
+                arr.push(row);
+            }
+            return arr;
+        }
+
+        // PHL Airport Data
+        const phlAirportItemsData = [
+            { x: 5, y: 7, type: 'Spirit Ticket', icon: '🎟️', collected: false },
+            { x: 18, y: 12, type: 'Wooden Sword', icon: '🗡️', collected: false } // Starting weapon in airport
+        ];
+
+        const phlAirportObjectsData = [
+            { x: 10, y: 7, type: 'Spirit Airlines Gate', icon: '✈️', isPortal: true, targetWorld: 'universal_studios', requiredItem: 'Spirit Ticket', message: "Welcome to your Spirit flight! Just need to scan your ticket...", activatedMessage: "Flight departed! Enjoy the... experience." }
+        ];
+
+        const phlAirportEnemiesData = [
+            { x: 3, y: 3, type: 'Grumpy TSA Agent', icon: '👮', health: 40, maxHealth: 40, damage: 8 },
+            { x: 12, y: 10, type: 'Gate Agent', icon: '👩‍✈️', health: 35, maxHealth: 35, damage: 7 }
+        ];
+
+
+        const universalStudiosItemsData = [
+            { x: 20, y: 3, type: 'Park Pass', icon: '🎫', collected: false }, // For Simpsons
+            { x: 2, y: 10, type: 'Donut', icon: '🍩', collected: false }, // For Simpsons
+            { x: 15, y: 8, type: 'Scarab Amulet', icon: '🪲', collected: false }, // For Mummy
+            { x: 7, y: 12, type: 'Gringotts Key', icon: '🗝️', collected: false } // For Gringots
+        ];
+
+        const universalStudiosObjectsData = [
+            { x: 3, y: 4, type: 'The Simpsons Ride', icon: '🍩', activated: false, requiredItem: 'Park Pass', message: "Welcome to Krustyland! Get ready for a wild ride with the Simpsons!", activatedMessage: "You've already experienced The Simpsons Ride! D'oh!" },
+            { x: 18, y: 10, type: 'Revenge of the Mummy', icon: '🏺', activated: false, requiredItem: 'Scarab Amulet', message: "Dare to face the Mummy's curse!", activatedMessage: "You've already escaped the Mummy!" },
+            { x: 5, y: 10, type: 'Harry Potter and the Escape from Gringots', icon: '🏦', activated: false, requiredItem: 'Gringotts Key', message: "Break into Gringotts Bank and escape with the gold!", activatedMessage: "You've already escaped Gringotts!" },
+            { x: 18, y: 2, type: 'Hogwarts Express (to Islands of Adventure)', icon: '🚂', isPortal: true, targetWorld: 'islands_of_adventure', message: "The Hogwarts Express awaits! Journey to Islands of Adventure!", activatedMessage: "The Hogwarts Express is ready for another trip." },
+            { x: 12, y: 13, type: 'Portal to Epic Universe', icon: '🌌', isPortal: true, targetWorld: 'epic_universe', message: "A swirling portal to Epic Universe! Step through to explore a new world." }
+        ];
+
+        const universalStudiosEnemiesData = [
+            { x: 8, y: 3, type: 'Rogue Minion', icon: '😈', health: 50, maxHealth: 50, damage: 10 },
+            { x: 16, y: 5, type: 'Mummy Guard', icon: '🧟', health: 70, maxHealth: 70, damage: 15 },
+            { x: 10, y: 11, type: 'Rogue Minion', icon: '😈', health: 50, maxHealth: 50, damage: 10 }
+        ];
+
+        const islandsOfAdventureItemsData = [
+            { x: 5, y: 13, type: 'Dragon Egg', icon: '🥚', collected: false }, // For Hagrid's
+            { x: 2, y: 2, type: 'Gamma Potion', icon: '🧪', collected: false }, // For Hulk
+            { x: 18, y: 7, type: 'Raptor Claw', icon: '🦖', collected: false } // For Velocicoaster
+        ];
+
+        const islandsOfAdventureObjectsData = [
+            { x: 12, y: 1, type: 'Hogwarts Express (to Universal Studios Florida)', icon: '🚂', isPortal: true, targetWorld: 'universal_studios', message: "The Hogwarts Express awaits! Journey back to Universal Studios Florida!", activatedMessage: "The Hogwarts Express is ready for another trip." },
+            { x: 3, y: 4, type: 'The Incredible Hulk Coaster', icon: '�', activated: false, requiredItem: 'Gamma Potion', message: "Feel the gamma-powered rush of the Hulk Coaster!", activatedMessage: "You've already been smashed by the Hulk!" },
+            { x: 10, y: 3, type: 'Hagrid\'s Magical Creatures Motorbike Adventure', icon: '🏍️', activated: false, requiredItem: 'Dragon Egg', message: "Embark on a thrilling journey through the Forbidden Forest!", activatedMessage: "You've already ridden with Hagrid!" },
+            { x: 20, y: 10, type: 'Velocicoaster', icon: '🎢', activated: false, requiredItem: 'Raptor Claw', message: "Feel the rush! The Velocicoaster roars to life!", activatedMessage: "You've already braved the Velocicoaster! What a thrill!" },
+            { x: 22, y: 13, type: 'Portal to Epic Universe', icon: '🌌', isPortal: true, targetWorld: 'epic_universe', message: "A shimmering portal to Epic Universe! Step through to explore a new world." }
+        ];
+
+        const islandsOfAdventureEnemiesData = [
+            { x: 8, y: 3, type: 'Rogue Minion', icon: '😈', health: 50, maxHealth: 50, damage: 10 },
+            { x: 16, y: 5, type: 'Mummy Guard', icon: '🧟', health: 70, maxHealth: 70, damage: 15 },
+            { x: 10, y: 11, type: 'Rogue Minion', icon: '😈', health: 50, maxHealth: 50, damage: 10 }
+        ];
+
+        const epicUniverseItemsData = [
+            { x: 12, y: 2, type: 'Viking Helmet', icon: '🪖', collected: false }, // For Hiccup's
+            { x: 5, y: 5, type: 'Monster Serum', icon: '🧪', collected: false }, // For Monsters Unchained
+            { x: 10, y: 13, type: 'Golden Mushroom', icon: '🍄', collected: false } // For Mario Kart
+        ];
+
+        const epicUniverseObjectsData = [
+            { x: 7, y: 3, type: 'Hiccup\'s Wing Gliders', icon: '🐉', activated: false, requiredItem: 'Viking Helmet', message: "Soar through the skies on Hiccup's Wing Gliders!", activatedMessage: "You've already flown with the dragons!" },
+            { x: 17, y: 3, type: 'Monsters Unchained', icon: '🧪', activated: false, requiredItem: 'Monster Serum', message: "Enter the Dark Universe... if you dare!", activatedMessage: "You've already faced the monsters!" },
+            { x: 12, y: 11, type: 'Mario Kart: Bowser\'s Challenge', icon: '🍄', activated: false, requiredItem: 'Golden Mushroom', message: "Race to victory in Mario Kart: Bowser's Challenge!", activatedMessage: "You've already raced Bowser!" },
+            { x: 12, y: 1, type: 'Portal to Universal Studios Florida', icon: '🌍', isPortal: true, targetWorld: 'universal_studios', message: "A portal back to Universal Studios Florida." },
+            { x: 2, y: 1, type: 'Portal to Islands of Adventure', icon: '🏝️', isPortal: true, targetWorld: 'islands_of_adventure', message: "A portal to Universal's Islands of Adventure! Ready for more thrills?" }
+        ];
+
+
+        const epicUniverseEnemiesData = [
+            { x: 8, y: 3, type: 'Cursed Merman', icon: '🧜‍♂️', health: 60, maxHealth: 60, damage: 12 },
+            { x: 16, y: 5, type: 'Superstar Goomba', icon: '🍄', health: 45, maxHealth: 45, damage: 9 },
+            { x: 10, y: 11, type: 'Minion Guard', icon: '😈', health: 55, maxHealth: 55, damage: 11 }
+        ];
+
+
+        // Current active game elements
+        let gameMap; // Will be set in transitionToWorld
+        let items; // Will be set in transitionToWorld
+        let interactiveObjects; // Will be set in transitionToWorld
+        let enemies; // Will be set in transitionToWorld
+
+        // Get DOM elements
+        const inventoryDisplay = document.getElementById('inventoryDisplay');
+        const messageBox = document.getElementById('messageBox');
+        const winMessage = document.getElementById('winMessage');
+        const loseMessage = document.getElementById('loseMessage');
+        const healthDisplay = document.getElementById('currentHealth');
+        const healthBarFill = document.getElementById('healthBarFill');
+        const worldDisplay = document.getElementById('worldDisplay');
+        const startScreen = document.getElementById('startScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const startButton = document.getElementById('startButton');
+
+        // Function to display a message in the message box
+        function showMessage(text, duration = 3000) {
+            if (currentMessageTimeout) {
+                clearTimeout(currentMessageTimeout);
+            }
+            messageBox.textContent = text;
+            messageBox.style.display = 'block';
+            currentMessageTimeout = setTimeout(() => {
+                messageBox.style.display = 'none';
+                messageBox.textContent = '';
+                currentMessageTimeout = null;
+            }, duration);
+        }
+
+        // Function to update the inventory display
+        function updateInventoryDisplay() {
+            if (inventory.length === 0) {
+                inventoryDisplay.textContent = 'Inventory: None';
+            } else {
+                inventoryDisplay.textContent = 'Inventory: ' + inventory.map(item => item.type).join(', ');
+            }
+        }
+
+        // Function to update player health display
+        function updateHealthDisplay() {
+            healthDisplay.textContent = player.health;
+            healthBarFill.style.width = `${(player.health / player.maxHealth) * 100}%`;
+            if (player.health <= 0) {
+                player.health = 0; // Ensure it doesn't go negative
+                gameOver(false); // Player defeated
+            }
+        }
+
+        // Function to draw the game world
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the map
+            for (let y = 0; y < mapHeight; y++) {
+                for (let x = 0; x < mapWidth; x++) {
+                    // Ensure gameMap is initialized before drawing
+                    if (!gameMap || !gameMap[y] || gameMap[y][x] === undefined) {
+                        ctx.fillStyle = '#333'; // Draw a default dark tile to avoid blank space
+                        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                        continue;
+                    }
+
+                    const tileType = gameMap[y][x];
+                    if (tileType === 1) { // Wall
+                        ctx.fillStyle = '#1a202c'; // Darker color for walls
+                    } else { // Walkable path or opened barrier
+                        ctx.fillStyle = '#3f4c5c'; // Lighter color for walkable paths
+                    }
+                    ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
+
+            // Draw items
+            items.forEach(item => {
+                if (!item.collected) {
+                    ctx.font = `${tileSize * 0.7}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(item.icon, item.x * tileSize + tileSize / 2, item.y * tileSize + tileSize / 2);
+                }
+            });
+
+            // Draw interactive objects
+            interactiveObjects.forEach(obj => {
+                if (obj.isPortal) {
+                    ctx.fillStyle = '#a0aec0';
+                    ctx.fillRect(obj.x * tileSize, obj.y * tileSize, tileSize, tileSize);
+                    ctx.font = `${tileSize * 0.6}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(obj.icon, obj.x * tileSize + tileSize / 2, obj.y * tileSize + tileSize / 2);
+                    ctx.font = '8px Inter';
+                    ctx.fillText(obj.type, obj.x * tileSize + tileSize / 2, obj.y * tileSize + tileSize * 0.95);
+                } else if (obj.activated) {
+                    ctx.fillStyle = '#48bb78'; // Green background for activated ride
+                    ctx.fillRect(obj.x * tileSize, obj.y * tileSize, tileSize, tileSize);
+                    ctx.font = `${tileSize * 0.7}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText('✅', obj.x * tileSize + tileSize / 2, obj.y * tileSize + tileSize / 2); // Checkmark icon
+                    ctx.font = '8px Inter';
+                    ctx.fillText(obj.type, obj.x * tileSize + tileSize / 2, obj.y * tileSize + tileSize * 0.95);
+                } else {
+                    ctx.fillStyle = '#a0aec0';
+                    ctx.fillRect(obj.x * tileSize, obj.y * tileSize, tileSize, tileSize);
+                    ctx.font = `${tileSize * 0.6}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(obj.icon, obj.x * tileSize + tileSize / 2, obj.y * tileSize + tileSize / 2);
+                    ctx.font = '8px Inter';
+                    ctx.fillText(obj.type, obj.x * tileSize + tileSize / 2, obj.y * tileSize + tileSize * 0.95);
+                }
+            });
+
+            // Draw enemies
+            enemies.forEach(enemy => {
+                ctx.font = `${tileSize * 0.8}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(enemy.icon, enemy.x * tileSize + tileSize / 2, enemy.y * tileSize + tileSize / 2);
+
+                // Draw enemy name below the icon
+                ctx.font = `bold ${tileSize * 0.25}px Inter`;
+                ctx.fillStyle = '#e2e8f0';
+                ctx.fillText(enemy.type, enemy.x * tileSize + tileSize / 2, enemy.y * tileSize + tileSize * 0.95);
+
+                // Draw enemy health bar
+                const barWidth = tileSize * 0.8;
+                const barHeight = 4;
+                const barX = enemy.x * tileSize + (tileSize - barWidth) / 2;
+                const barY = enemy.y * tileSize - barHeight - 2;
+
+                ctx.fillStyle = '#e53e3e';
+                ctx.fillRect(barX, barY, barWidth, barHeight);
+
+                const currentEnemyHealthWidth = (enemy.health / enemy.maxHealth) * barWidth;
+                ctx.fillStyle = '#48bb78';
+                ctx.fillRect(barX, barY, currentEnemyHealthWidth, barHeight);
+            });
+
+            // Draw player
+            ctx.font = `${tileSize * 0.8}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(player.icon, player.x * tileSize + tileSize / 2, player.y * tileSize + tileSize / 2);
+        }
+
+        // Handle keyboard input
+        document.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+
+            let newPlayerX = player.x;
+            let newPlayerY = player.y;
+
+            switch (e.key) {
+                case 'ArrowUp':
+                    newPlayerY--;
+                    break;
+                case 'ArrowDown':
+                    newPlayerY++;
+                    break;
+                case 'ArrowLeft':
+                    newPlayerX--;
+                    break;
+                case 'ArrowRight':
+                    newPlayerX++;
+                    break;
+                case 'e':
+                case 'E':
+                    interact();
+                    break;
+            }
+
+            if (isValidMove(newPlayerX, newPlayerY)) {
+                player.x = newPlayerX;
+                player.y = newPlayerY;
+            }
+        });
+
+        // Touch event handlers
+        canvas.addEventListener('touchstart', (e) => {
+            if (!gameActive) return;
+            e.preventDefault();
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!gameActive) return;
+            e.preventDefault();
+            touchEndX = e.touches[0].clientX;
+            touchEndY = e.touches[0].clientY;
+
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+
+            if (Math.abs(dx) > swipeThreshold || Math.abs(dy) > swipeThreshold) {
+                let newPlayerX = player.x;
+                let newPlayerY = player.y;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    if (dx > 0) {
+                        newPlayerX++;
+                    } else {
+                        newPlayerX--;
+                    }
+                } else {
+                    if (dy > 0) {
+                        newPlayerY++;
+                    } else {
+                        newPlayerY--;
+                    }
+                }
+
+                if (isValidMove(newPlayerX, newPlayerY)) {
+                    player.x = newPlayerX;
+                    player.y = newPlayerY;
+                }
+
+                touchStartX = touchEndX;
+                touchStartY = touchEndY;
+            }
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            if (!gameActive) return;
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+
+            if (Math.abs(dx) < swipeThreshold && Math.abs(dy) < swipeThreshold) {
+                interact();
+            }
+            touchStartX = 0;
+            touchStartY = 0;
+            touchEndX = 0;
+            touchEndY = 0;
+        });
+
+        // Check if a move is valid
+        function isValidMove(x, y) {
+            if (x < 0 || x >= mapWidth || y < 0 || y >= mapHeight) {
+                return false;
+            }
+
+            if (!gameMap || !gameMap[y] || gameMap[y][x] === undefined || gameMap[y][x] === 1) {
+                return false;
+            }
+
+            for (const enemy of enemies) {
+                if (enemy.x === x && enemy.y === y) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Game over conditions
+        function gameOver(win) {
+            gameActive = false;
+
+            if (win) {
+                winMessage.innerHTML = `
+                    <p class="text-2xl mb-4">Congratulations!</p>
+                    <p class="text-xl mb-6">You've conquered all the rides at Universal Studios!</p>
+                    <p class="text-lg mb-8">You are the ultimate theme park adventurer!</p>
+                    <button id="restartButton" class="px-6 py-3 bg-yellow-500 text-gray-900 font-bold rounded-lg shadow-lg hover:bg-yellow-400 transition-colors duration-200">Play Again!</button>
+                `;
+                winMessage.style.display = 'block';
+                document.getElementById('restartButton').addEventListener('click', restartGame);
+            } else {
+                loseMessage.textContent = "Game Over! You ran out of health. The park remains in chaos!";
+                loseMessage.style.display = 'block';
+            }
+        }
+
+        function restartGame() {
+            player.x = 2;
+            player.y = 2;
+            player.health = player.maxHealth;
+            inventory = [];
+            Object.keys(ridesActivated).forEach(ride => ridesActivated[ride] = false);
+            gameActive = true;
+            winMessage.style.display = 'none';
+            loseMessage.style.display = 'none';
+            transitionToWorld('phl_airport');
+            updateInventoryDisplay();
+            updateHealthDisplay();
+            showMessage("Game restarted! Good luck, adventurer!", 4000);
+            requestAnimationFrame(gameLoop);
+        }
+
+        function checkWinCondition() {
+            const allRidesActivated = Object.values(ridesActivated).every(status => status === true);
+            if (allRidesActivated) {
+                gameOver(true);
+            }
+        }
+
+        function interact() {
+            if (!gameActive) return;
+
+            // Check for items
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (player.x === item.x && player.y === item.y && !item.collected) {
+                    inventory.push(item);
+                    item.collected = true;
+                    updateInventoryDisplay();
+                    showMessage(`You found the ${item.type}! ${item.icon}`, 4000);
+                    if (item.type === 'Wooden Sword') {
+                        player.attackDamage = 50;
+                    }
+                    return;
+                }
+            }
+
+            // Check for interactive objects
+            for (const obj of interactiveObjects) {
+                if (player.x === obj.x && player.y === obj.y) {
+                    if (obj.isPortal) {
+                        if (obj.requiredItem && !inventory.some(item => item.type === obj.requiredItem)) {
+                            showMessage(`You can't use the ${obj.type} yet. You need a ${obj.requiredItem}.`, 4000);
+                            return;
+                        }
+                        showMessage(obj.message, 3000);
+                        transitionToWorld(obj.targetWorld);
+                    } else if (!obj.activated) {
+                        if (inventory.some(item => item.type === obj.requiredItem)) {
+                            obj.activated = true;
+                            ridesActivated[obj.type] = true;
+                            showMessage(obj.message, 5000);
+                            checkWinCondition();
+                        } else {
+                            showMessage(`You can't ride the ${obj.type} yet. You need a ${obj.requiredItem}.`, 4000);
+                        }
+                    } else if (obj.activated) {
+                        showMessage(obj.activatedMessage, 3000);
+                    }
+                    return;
+                }
+            }
+
+            // Check for enemies
+            const adjacentPositions = [
+                { x: player.x, y: player.y - 1 },
+                { x: player.x, y: player.y + 1 },
+                { x: player.x - 1, y: player.y },
+                { x: player.x + 1, y: player.y }
+            ];
+
+            for (const pos of adjacentPositions) {
+                for (let i = 0; i < enemies.length; i++) {
+                    const enemy = enemies[i];
+                    if (pos.x === enemy.x && pos.y === enemy.y) {
+                        if (inventory.some(item => item.type === 'Wooden Sword')) {
+                            enemy.health -= player.attackDamage;
+                            showMessage(`You attacked the ${enemy.type} for ${player.attackDamage} damage!`, 2000);
+                            if (enemy.health <= 0) {
+                                showMessage(`You defeated the ${enemy.type}!`, 3000);
+                                enemies.splice(i, 1);
+                            }
+                        } else {
+                            showMessage(`You need a weapon to attack! Find the Wooden Sword.`, 3000);
+                        }
+                        return;
+                    }
+                }
+            }
+
+            showMessage("Nothing to interact with here.", 2000);
+        }
+
+        // Function to transition between worlds
+        function transitionToWorld(worldName) {
+            currentWorld = worldName;
+            let displayWorldName = '';
+
+            gameMap = create2DArray(mapHeight, mapWidth, 0);
+
+            for (let y = 0; y < mapHeight; y++) { gameMap[y][0] = 1; gameMap[y][mapWidth - 1] = 1; }
+            for (let x = 0; x < mapWidth; x++) { gameMap[0][x] = 1; gameMap[mapHeight - 1][x] = 1; }
+
+            let currentItemsData, currentObjectsData, currentEnemiesData;
+
+            switch (worldName) {
+                case 'phl_airport':
+                    displayWorldName = 'PHL Airport';
+                    for (let x = 1; x < mapWidth - 1; x++) { gameMap[4][x] = 1; }
+                    for (let y = 1; y < mapHeight - 1; y++) { gameMap[y][10] = 1; }
+                    gameMap[4][5] = 0;
+                    gameMap[7][10] = 0;
+
+                    currentItemsData = phlAirportItemsData;
+                    currentObjectsData = phlAirportObjectsData;
+                    currentEnemiesData = phlAirportEnemiesData;
+                    player.x = 2;
+                    player.y = 2;
+                    showMessage("Welcome to PHL Airport! Find your Spirit Ticket and fly to Universal!", 4000);
+                    break;
+                case 'universal_studios':
+                    displayWorldName = 'Universal Studios Florida';
+                    for (let x = 1; x < mapWidth - 1; x++) { gameMap[7][x] = 1; }
+                    for (let y = 1; y < mapHeight - 1; y++) { gameMap[y][12] = 1; }
+                    gameMap[7][5] = 0;
+                    gameMap[7][18] = 0;
+                    gameMap[5][12] = 0;
+                    gameMap[10][12] = 0;
+
+                    currentItemsData = universalStudiosItemsData;
+                    currentObjectsData = universalStudiosObjectsData;
+                    currentEnemiesData = universalStudiosEnemiesData;
+                    player.x = 18;
+                    player.y = 3;
+                    showMessage("You've arrived at Universal Studios Florida!", 3000);
+                    break;
+                case 'islands_of_adventure':
+                    displayWorldName = 'Universal\'s Islands of Adventure';
+                    for (let x = 1; x < mapWidth - 1; x++) { gameMap[7][x] = 1; }
+                    for (let y = 1; y < mapHeight - 1; y++) { gameMap[y][12] = 1; }
+                    gameMap[7][5] = 0;
+                    gameMap[7][18] = 0;
+                    gameMap[5][12] = 0;
+                    gameMap[10][12] = 0;
+
+                    currentItemsData = islandsOfAdventureItemsData;
+                    currentObjectsData = islandsOfAdventureObjectsData;
+                    currentEnemiesData = islandsOfAdventureEnemiesData;
+                    player.x = 12;
+                    player.y = 2;
+                    showMessage("Welcome to Universal's Islands of Adventure!", 3000);
+                    break;
+                case 'epic_universe':
+                    displayWorldName = 'Universal Epic Universe';
+                    gameMap[3][5] = 1; gameMap[3][6] = 1;
+                    gameMap[8][20] = 1; gameMap[9][20] = 1;
+                    gameMap[12][10] = 1; gameMap[12][11] = 1;
+
+                    currentItemsData = epicUniverseItemsData;
+                    currentObjectsData = epicUniverseObjectsData;
+                    currentEnemiesData = epicUniverseEnemiesData;
+                    player.x = 12;
+                    player.y = 2;
+                    showMessage("Welcome to Epic Universe! Explore new adventures!", 3000);
+                    break;
+                default:
+                    displayWorldName = 'Unknown World';
+            }
+
+            items = JSON.parse(JSON.stringify(currentItemsData));
+            interactiveObjects = JSON.parse(JSON.stringify(currentObjectsData));
+            enemies = JSON.parse(JSON.stringify(currentEnemiesData));
+
+            items.forEach(item => {
+                if (item.x !== undefined && item.y !== undefined) {
+                    gameMap[item.y][item.x] = 0;
+                }
+            });
+            interactiveObjects.forEach(obj => {
+                if (obj.x !== undefined && obj.y !== undefined) {
+                    gameMap[obj.y][obj.x] = 0;
+                }
+            });
+            enemies.forEach(enemy => {
+                if (enemy.x !== undefined && enemy.y !== undefined) {
+                    gameMap[enemy.y][enemy.x] = 0;
+                }
+            });
+
+            worldDisplay.textContent = `Current World: ${displayWorldName}`;
+            
+            player.health = player.maxHealth;
+            updateHealthDisplay();
+
+            inventory.forEach(collectedItem => {
+                const itemInNewWorld = items.find(item => item.type === collectedItem.type);
+                if (itemInNewWorld) {
+                    itemInNewWorld.collected = true;
+                }
+            });
+
+            interactiveObjects.forEach(obj => {
+                if (ridesActivated[obj.type]) {
+                    obj.activated = true;
+                }
+            });
+
+            draw();
+            updateInventoryDisplay();
+        }
+
+        function moveEnemies() {
+            enemies.forEach(enemy => {
+                const directions = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+                const randomDir = directions[Math.floor(Math.random() * directions.length)];
+                let newEnemyX = enemy.x + randomDir[0];
+                let newEnemyY = enemy.y + randomDir[1];
+
+                if (newEnemyX >= 0 && newEnemyX < mapWidth && newEnemyY >= 0 && newEnemyY < mapHeight &&
+                    gameMap[newEnemyY][newEnemyX] !== 1 &&
+                    !enemies.some(e => e !== enemy && e.x === newEnemyX && e.y === newEnemyY) &&
+                    !(player.x === newEnemyX && player.y === newEnemyY)) {
+                    enemy.x = newEnemyX;
+                    enemy.y = newEnemyY;
+                }
+            });
+        }
+
+        function checkEnemyAttacks() {
+            enemies.forEach(enemy => {
+                const dx = Math.abs(player.x - enemy.x);
+                const dy = Math.abs(player.y - enemy.y);
+                if ((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
+                    player.health -= enemy.damage;
+                    updateHealthDisplay();
+                    showMessage(`${enemy.type} attacked you for ${enemy.damage} damage!`, 2000);
+                }
+            });
+        }
+
+        function startGame() {
+            startScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
+
+            transitionToWorld('phl_airport');
+            updateInventoryDisplay();
+            updateHealthDisplay();
+            showMessage("Welcome to Universal Studios: Escape from the Gift Shop! Find your Spirit Ticket and fly to Universal!", 6000);
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop(timestamp) {
+            if (!gameActive) return;
+
+            if (timestamp - lastEnemyMoveTime > enemyMoveInterval) {
+                moveEnemies();
+                checkEnemyAttacks();
+                lastEnemyMoveTime = timestamp;
+            }
+
+            draw();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.onload = function() {
+            universalStudiosItemsData.forEach(item => item.collected = false);
+            islandsOfAdventureItemsData.forEach(item => item.collected = false);
+            epicUniverseItemsData.forEach(item => item.collected = false);
+            phlAirportItemsData.forEach(item => item.collected = false);
+
+            Object.keys(ridesActivated).forEach(ride => ridesActivated[ride] = false);
+
+            startButton.addEventListener('click', startGame);
+
+            const gameContainer = document.querySelector('.game-container');
+            const maxCanvasWidth = Math.min(700, gameContainer.offsetWidth - 40);
+            canvas.style.maxWidth = `${maxCanvasWidth}px`;
+            canvas.style.height = `${maxCanvasWidth * (mapHeight / mapWidth)}px`;
+        };
+
+        window.addEventListener('resize', () => {
+            const gameContainer = document.querySelector('.game-container');
+            const maxCanvasWidth = Math.min(700, gameContainer.offsetWidth - 40);
+            canvas.style.maxWidth = `${maxCanvasWidth}px`;
+            canvas.style.height = `${maxCanvasWidth * (mapHeight / mapWidth)}px`;
+        });
+    </script>
+</body>
+</html>
+�
