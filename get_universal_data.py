@@ -7,11 +7,12 @@ import re
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 import sys
+from zoneinfo import ZoneInfo
 
 lookahead_period = 365
 
 ## Get todday
-today = datetime.now()
+today = datetime.now(ZoneInfo("America/New_York"))
 
 ## Get tomorrow
 tomorrow = today + timedelta(days=1)
