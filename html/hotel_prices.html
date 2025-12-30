@@ -242,19 +242,6 @@
         </div>
 
         <div class="control-group">
-            <label>Days:</label>
-            <div id="days-dropdown" class="dropdown-check-list">
-                <span class="anchor" onclick="toggleDropdown('days')">All Days</span>
-                <div class="items" id="days-items">
-                    <div class="list-controls">
-                        <a onclick="setAll('days', true)">Select All</a>
-                        <a onclick="setAll('days', false)">Deselect All</a>
-                    </div>
-                    </div>
-            </div>
-        </div>
-
-        <div class="control-group">
             <label>Hotels:</label>
             <div id="hotels-dropdown" class="dropdown-check-list">
                 <span class="anchor" onclick="toggleDropdown('hotels')">All Hotels</span>
@@ -262,6 +249,19 @@
                     <div class="list-controls">
                         <a onclick="setAll('hotels', true)">Select All</a>
                         <a onclick="setAll('hotels', false)">Deselect All</a>
+                    </div>
+                    </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Days:</label>
+            <div id="days-dropdown" class="dropdown-check-list">
+                <span class="anchor" onclick="toggleDropdown('days')">All Days</span>
+                <div class="items" id="days-items">
+                    <div class="list-controls">
+                        <a onclick="setAll('days', true)">Select All</a>
+                        <a onclick="setAll('days', false)">Deselect All</a>
                     </div>
                     </div>
             </div>
@@ -321,10 +321,11 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             // 1. Initialize Dates
-            const today = new Date('2025-12-29').toISOString().split('T')[0];
+            const today = new Date('2025-12-30').toISOString().split('T')[0];
             document.getElementById('snapshotDate').value = today;
             document.getElementById('tripStart').value = today;
 
+            const endDate = new Date('2026-12-30').toISOString().split('T')[0];
             // 2. Initialize Dropdowns
             initDropdowns();
 
