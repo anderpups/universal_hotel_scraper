@@ -1,0 +1,322 @@
+<!doctype html>
+<link rel="stylesheet" href="style.css">
+<head>
+    <title>20251229</title>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
+    <!-- DataTables ColVis extension for column hiding -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.colVis.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0368d9; }
+
+        /* Universal Header */
+        .universal-header {
+            background-color: #0368d9;
+            color: white;
+            padding: 15px 0;
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+            font-size: 1.5rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Controls */
+        .controls-bar {
+            background-color: #ffffff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex; flex-wrap: wrap; align-items: center; gap: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .control-group label { font-weight: 600; font-size: 0.85rem; color: #555; margin-right: 5px; }
+        .control-group input, .control-group select {
+            border: 1px solid #ced4da; border-radius: 4px; padding: 4px 8px; font-size: 0.9rem;
+        }
+
+        /* Table */
+        .table-container { width: 100%; overflow-x: auto; background: white; }
+        .price-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: center; }
+
+        .price-table thead th {
+            background-color: #f1f3f5; color: #495057;
+            position: sticky; top: 0; z-index: 10;
+            padding: 12px 8px; border-bottom: 2px solid #dee2e6;
+            font-weight: 700; white-space: nowrap; cursor: pointer;
+        }
+        
+        .price-table tbody td {
+            padding: 8px 4px; border-bottom: 1px solid #e9ecef;
+            vertical-align: middle; color: #212529; font-weight: 500;
+        }
+
+        /* Columns */
+        .col-date { color: #0070d2; font-weight: 600; }
+        .col-day { color: #6c757d; font-size: 0.8rem; }
+
+        /* --- UNIFIED MUTED COLORS (Used for both Price and Crowd) --- */
+        .bg-low  { background-color: #d1e7dd; color: #0f5132; } /* Pastel Green */
+        .bg-med  { background-color: #fff3cd; color: #664d03; } /* Pastel Yellow */
+        .bg-high { background-color: #ffe5d0; color: #fd7e14; } /* Pastel Orange */
+        .bg-peak { background-color: #f8d7da; color: #842029; } /* Pastel Red */
+        .bg-unavailable { background-color: #f8f9fa; color: #adb5bd !important; font-style: italic; font-weight: normal; }
+
+        .loading-msg { text-align: center; padding: 40px; color: #6c757d; font-style: italic; }
+        .error-msg { text-align: center; padding: 20px; color: #dc3545; background: #ffe6e6; border: 1px solid #f5c6cb; margin: 20px; border-radius: 5px;}
+    </style>
+</head>
+<body>
+    <h1>
+        <img src="universal_logo.png" alt="Universal Logo Left" style="height: 50px; float: left; margin-right: 20px;">
+        Prices on Dec 29th, 2025
+        <img src="universal_logo.png" alt="Universal Logo Right" style="height: 50px; float: right; margin-left: 20px;">
+    </h1>
+
+    <div class="universal-header">
+        <i class="fas fa-globe"></i>
+        <span id="header-title">Universal Prices</span>
+        <i class="fas fa-globe"></i>
+    </div>
+
+    <div class="controls-bar">
+        <div class="control-group" style="padding-right: 15px; border-right: 2px solid #eee;">
+            <label><i class="fas fa-calendar-alt"></i> Data Observed On:</label>
+            <input type="date" id="snapshotDate">
+            <button class="btn btn-primary btn-sm ms-2" onclick="fetchData()">Load</button>
+        </div>
+
+        <div class="control-group">
+            <label>Trip Start:</label>
+            <input type="date" id="tripStart">
+        </div>
+        <div class="control-group">
+            <label>Trip End:</label>
+            <input type="date" id="tripEnd">
+        </div>
+        
+        <div class="ms-auto text-muted small" id="record-count"></div>
+    </div>
+
+    <div class="table-container">
+        <div id="status-message"></div>
+        
+        <table class="price-table" id="mainTable" style="display:none;">
+            <thead>
+                <tr>
+                    <th><i class="far fa-square"></i></th>
+                    <th>Date <i class="fas fa-sort text-muted opacity-25"></i></th>
+                    <th>Day</th>
+                    <th>Crowd</th>
+                    <th data-hotel="Aventura">Aventura</th>
+                    <th data-hotel="Cabana Bay">Cabana Bay</th>
+                    <th data-hotel="Dockside">Dockside</th>
+                    <th data-hotel="Hard Rock">Hard Rock</th>
+                    <th data-hotel="Helios">Helios</th>
+                    <th data-hotel="Portofino Bay">Portofino</th>
+                    <th data-hotel="Royal Pacific">Royal Pacific</th>
+                    <th data-hotel="Sapphire Falls">Sapphire</th>
+                    <th data-hotel="Stella Nova">Stella Nova</th>
+                    <th data-hotel="Surfside">Surfside</th>
+                    <th data-hotel="Terra Luna">Terra Luna</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // CONFIG
+        const HOTEL_COLUMNS = [
+            "Aventura", "Cabana Bay", "Dockside", "Hard Rock", "Helios", 
+            "Portofino Bay", "Royal Pacific", "Sapphire Falls", "Stella Nova", 
+            "Surfside", "Terra Luna"
+        ];
+
+        // State
+        let currentDataMap = {}; 
+        let hotelStats = {}; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Default "Snapshot Date" to Today
+            const today = new Date('2025-12-29').toISOString().split('T')[0];
+            document.getElementById('snapshotDate').value = today;
+            
+            // 2. Default "Trip Start" to Today
+            document.getElementById('tripStart').value = today;
+
+            fetchData();
+
+            // Listeners for filters
+            document.getElementById('tripStart').addEventListener('change', renderTable);
+            document.getElementById('tripEnd').addEventListener('change', renderTable);
+        });
+
+        async function fetchData() {
+            const snapshotInput = document.getElementById('snapshotDate').value;
+            if (!snapshotInput) return;
+
+            const cleanDate = snapshotInput.replace(/-/g, ''); 
+            const hotelFile = `data/hotel_info-${cleanDate}.json`;
+            const crowdFile = `data/crowd_info-${cleanDate}.json`;
+
+            const statusDiv = document.getElementById('status-message');
+            const table = document.getElementById('mainTable');
+            
+            statusDiv.innerHTML = `<div class="loading-msg"><div class="spinner-border text-primary spinner-border-sm me-2"></div>Loading data for ${snapshotInput}...</div>`;
+            table.style.display = 'none';
+            currentDataMap = {}; 
+
+            try {
+                // Fetch in parallel
+                const [hotelRes, crowdRes] = await Promise.all([
+                    fetch(hotelFile),
+                    fetch(crowdFile)
+                ]);
+
+                if (!hotelRes.ok) throw new Error(`Data file not found for ${snapshotInput}. (Try a different date)`);
+                
+                const hotelData = await hotelRes.json();
+                const crowdData = crowdRes.ok ? await crowdRes.json() : [];
+
+                processData(hotelData, crowdData);
+                
+                statusDiv.innerHTML = '';
+                table.style.display = 'table';
+                document.getElementById('header-title').innerText = `Prices on ${new Date(snapshotInput).toLocaleDateString(undefined, {dateStyle:'medium'})}`;
+                
+                renderTable();
+
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="error-msg"><strong>No Data Found</strong><br>We couldn't find a price file for ${snapshotInput}.<br><span class="small text-muted">${error.message}</span></div>`;
+            }
+        }
+
+        function processData(hotelList, crowdList) {
+            currentDataMap = {};
+            hotelStats = {}; 
+
+            // 1. Pivot Crowd Data
+            crowdList.forEach(item => {
+                const isoDate = parseDate(item.date);
+                if (!currentDataMap[isoDate]) currentDataMap[isoDate] = { date: isoDate, displayDate: item.date, prices: {} };
+                currentDataMap[isoDate].crowd = item.crowd_info;
+            });
+
+            // 2. Pivot Hotel Data & Calculate Min/Max per Hotel
+            hotelList.forEach(item => {
+                const isoDate = parseDate(item.date);
+                const hotelName = item.name;
+                const price = parseInt(item.price);
+
+                if (!currentDataMap[isoDate]) {
+                    currentDataMap[isoDate] = { date: isoDate, displayDate: item.date, prices: {}, crowd: '-' };
+                }
+
+                currentDataMap[isoDate].prices[hotelName] = price;
+
+                // Update Min/Max Stats for this Hotel
+                if (!isNaN(price)) {
+                    if (!hotelStats[hotelName]) {
+                        hotelStats[hotelName] = { min: price, max: price };
+                    } else {
+                        if (price < hotelStats[hotelName].min) hotelStats[hotelName].min = price;
+                        if (price > hotelStats[hotelName].max) hotelStats[hotelName].max = price;
+                    }
+                }
+            });
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            const startFilter = document.getElementById('tripStart').value;
+            const endFilter = document.getElementById('tripEnd').value;
+            const sortedDates = Object.keys(currentDataMap).sort();
+            let rowCount = 0;
+
+            sortedDates.forEach(dateKey => {
+                if (startFilter && dateKey < startFilter) return;
+                if (endFilter && dateKey > endFilter) return;
+
+                rowCount++;
+                const rowData = currentDataMap[dateKey];
+                const tr = document.createElement('tr');
+                
+                const d = new Date(dateKey + 'T12:00:00');
+                const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+
+                // Build Row
+                let html = `
+                    <td><input type="checkbox"></td>
+                    <td class="col-date">${rowData.displayDate}</td>
+                    <td class="col-day">${dayName}</td>
+                    <td class="${getCrowdColor(rowData.crowd)}">${rowData.crowd || '-'}</td>
+                `;
+
+                // Hotel Columns
+                HOTEL_COLUMNS.forEach(hotelName => {
+                    const price = rowData.prices[hotelName];
+                    let cellContent = 'unavailable';
+                    let cellClass = 'bg-unavailable';
+
+                    if (price) {
+                        cellContent = `$${price}`;
+                        cellClass = getDynamicPriceColor(price, hotelName);
+                    }
+
+                    html += `<td class="${cellClass}">${cellContent}</td>`;
+                });
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('record-count').innerText = `Showing ${rowCount} dates`;
+        }
+
+        // --- DYNAMIC COLOR LOGIC ---
+        function getDynamicPriceColor(price, hotelName) {
+            const stats = hotelStats[hotelName];
+            if (!stats) return ''; 
+            if (stats.max === stats.min) return 'bg-med';
+
+            const ratio = (price - stats.min) / (stats.max - stats.min);
+
+            if (ratio <= 0.25) return 'bg-low';   
+            if (ratio <= 0.50) return 'bg-med';   
+            if (ratio <= 0.75) return 'bg-high';  
+            return 'bg-peak';                     
+        }
+
+        // --- HELPERS ---
+        function parseDate(dateStr) {
+            if (!dateStr) return '9999-99-99';
+            if (dateStr.includes('-') && dateStr.length === 10) return dateStr; 
+            const parts = dateStr.split('/');
+            if (parts.length === 3) {
+                const m = parts[0].padStart(2, '0');
+                const d = parts[1].padStart(2, '0');
+                let y = parts[2];
+                if (y.length === 2) y = '20' + y;
+                return `${y}-${m}-${d}`;
+            }
+            return dateStr;
+        }
+
+        function getCrowdColor(level) {
+            if (!level || level === '-') return '';
+            const l = parseInt(level);
+            // Reusing the exact same classes as prices for consistency
+            if (l > 80) return 'bg-peak';  // Red
+            if (l > 50) return 'bg-high';  // Orange
+            if (l > 25) return 'bg-med';   // Yellow
+            return 'bg-low';               // Green
+        }
+    </script>
+</body>
+</html>
