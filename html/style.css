@@ -31,7 +31,7 @@ h1 {
 .main-layout {
     display: flex;
     align-items: flex-start;
-    justify-content: center; /* Centers the whole group */
+    justify-content: center; 
     gap: 40px;
     max-width: 1600px;
     margin: 40px auto;
@@ -51,7 +51,7 @@ h1 {
 
 /* Side Column Images */
 .side-image {
-    flex: 0 1 300px; /* Allows images to shrink slightly if needed */
+    flex: 0 1 300px; 
     position: sticky;
     top: 20px;
 }
@@ -70,9 +70,9 @@ h1 {
     border: 1px solid #cfdef3;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(42,82,152,0.1);
-    width: 100%; /* Fill the main-content column */
+    width: 100%; 
     box-sizing: border-box;
-    margin: 0; /* Let the parent gap handle spacing */
+    margin: 0; 
 }
 
 .countdown-wrapper h2 {
@@ -133,4 +133,80 @@ a:hover {
     text-transform: uppercase;
     opacity: 0.8;
     margin-top: 4px;
+}
+
+/* =========================================
+   RESTORED TABLE & INPUT STYLES
+   ========================================= */
+
+/* Ensure DataTables Wrapper enables scrolling */
+.dataTables_wrapper {
+    width: 100%;
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
+    /* Optional: Add a white background behind the table wrapper if it sits directly on blue */
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+table {
+    min-width: 450px; 
+    width: 100% !important; 
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
+    background-color: white;
+    color: #222;
+}
+
+th {
+    background-color: #f4f7f6;
+    color: #0368d9;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #eef1f6;
+}
+
+/* Form styling for inputs and selects (Date pickers, search boxes) */
+input, select {
+    background-color: white !important;
+    color: #222 !important;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+select option {
+    background-color: white !important;
+    color: #222 !important;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #2a5298;
+}
+
+/* DataTables dropdown styling */
+.dt-button-collection {
+    background-color: white !important;
+}
+
+.dt-button-collection .dt-button {
+    background-color: white !important;
+    color: #222 !important;
+}
+
+.dt-button-collection .dt-button:hover {
+    background-color: #f0f0f0 !important;
+    color: #222 !important;
 }
