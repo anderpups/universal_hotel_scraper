@@ -1,253 +1,253 @@
 [
     {
         "name": "Terra Luna",
-        "ap_price": 214,
+        "price": 214,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Dockside",
-        "ap_price": 119,
+        "price": 119,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Surfside",
-        "ap_price": 125,
+        "price": 125,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Cabana Bay",
-        "ap_price": 147,
+        "price": 147,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Stella Nova",
-        "ap_price": 260,
+        "price": 260,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Aventura",
-        "ap_price": 150,
+        "price": 150,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Sapphire Falls",
-        "ap_price": 178,
+        "price": 178,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Helios",
-        "ap_price": 437,
+        "price": 437,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Portofino Bay",
-        "ap_price": 500,
+        "price": 500,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Royal Pacific",
-        "ap_price": 461,
+        "price": 461,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Hard Rock",
-        "ap_price": 718,
+        "price": 718,
         "date": "06/21/26",
         "crowd_level": 63
     },
     {
         "name": "Terra Luna",
-        "ap_price": 145,
+        "price": 145,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Dockside",
-        "ap_price": 111,
+        "price": 111,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Surfside",
-        "ap_price": 206,
+        "price": 206,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Cabana Bay",
-        "ap_price": 163,
+        "price": 163,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Stella Nova",
-        "ap_price": 152,
+        "price": 152,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Aventura",
-        "ap_price": 149,
+        "price": 149,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Sapphire Falls",
-        "ap_price": 161,
+        "price": 161,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Helios",
-        "ap_price": 419,
+        "price": 419,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Portofino Bay",
-        "ap_price": 386,
+        "price": 386,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Royal Pacific",
-        "ap_price": 348,
+        "price": 348,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Hard Rock",
-        "ap_price": 507,
+        "price": 507,
         "date": "09/10/26",
         "crowd_level": 12
     },
     {
         "name": "Terra Luna",
-        "ap_price": 115,
+        "price": 115,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Dockside",
-        "ap_price": 116,
+        "price": 116,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Surfside",
-        "ap_price": 107,
+        "price": 107,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Cabana Bay",
-        "ap_price": 118,
+        "price": 118,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Aventura",
-        "ap_price": 173,
+        "price": 173,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Sapphire Falls",
-        "ap_price": 399,
+        "price": 399,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Helios",
-        "ap_price": 276,
+        "price": 276,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Portofino Bay",
-        "ap_price": 492,
+        "price": 492,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Royal Pacific",
-        "ap_price": 513,
+        "price": 513,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Hard Rock",
-        "ap_price": 435,
+        "price": 435,
         "date": "02/02/26",
         "crowd_level": 15
     },
     {
         "name": "Terra Luna",
-        "ap_price": 125,
+        "price": 125,
         "date": "08/27/26",
         "crowd_level": 15
     },
     {
         "name": "Dockside",
-        "ap_price": 114,
+        "price": 114,
         "date": "08/27/26",
         "crowd_level": 15
     },
     {
         "name": "Surfside",
-        "ap_price": 139,
+        "price": 139,
         "date": "08/27/26",
         "crowd_level": 15
     },
     {
         "name": "Cabana Bay",
-        "ap_price": 148,
+        "price": 148,
         "date": "08/27/26",
         "crowd_level": 15
     },
     {
         "name": "Stella Nova",
-        "ap_price": 149,
+        "price": 149,
         "date": "08/27/26",
         "crowd_level": 15
     },
     {
         "name": "Aventura",
-        "ap_price": 133,
+        "price": 133,
         "date": "08/27/26",
         "crowd_level": 15
     },
     {
         "name": "Sapphire Falls",
-        "ap_price": 294,
+        "price": 294,
         "date": "08/27/26",
         "crowd_level": 15
     },
     {
         "name": "Helios",
-        "ap_price": 455,
+        "price": 455,
         "date": "08/27/26",
         "crowd_level": 15
     },
     {
         "name": "Portofino Bay",
-        "ap_price": 455,
+        "price": 455,
         "date": "08/27/26",
         "crowd_level": 15
     },
     {
         "name": "Royal Pacific",
-        "ap_price": 456,
+        "price": 456,
         "date": "08/27/26",
         "crowd_level": 15
     },
