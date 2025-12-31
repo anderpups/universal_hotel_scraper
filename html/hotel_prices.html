@@ -321,11 +321,10 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             // 1. Initialize Dates
-            const today = new Date('2025-12-30').toISOString().split('T')[0];
+            const today = new Date('2025-12-31').toISOString().split('T')[0];
             document.getElementById('snapshotDate').value = today;
             document.getElementById('tripStart').value = today;
 
-            const endDate = new Date('2026-12-30').toISOString().split('T')[0];
             // 2. Initialize Dropdowns
             initDropdowns();
 
