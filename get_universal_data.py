@@ -8,8 +8,9 @@ from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 import sys
 from zoneinfo import ZoneInfo
+import os
 
-lookahead_period = 365
+lookahead_period = 10 if os.getenv("_DEVELOPING") else 365
 
 ## Get todday
 today = datetime.now(ZoneInfo("America/New_York"))
@@ -146,12 +147,42 @@ for date in date_range:
   sleep_seconds = random.uniform(1, 2)
   time.sleep(sleep_seconds)
 
+# Process and merge data
+merged_data = {}
+
+# Process crowd data
+for item in crowd_data:
+    date = item['date']
+    if date not in merged_data:
+        merged_data[date] = {'prices': []}
+    merged_data[date]['crowd_level'] = item['crowd_info']
+
+# Process hotel data
+for item in hotel_info:
+    date = item['date']
+    if date not in merged_data:
+        # This case might happen if crowd data is missing for a date
+        merged_data[date] = {'crowd_level': None, 'prices': []}
+    merged_data[date]['prices'].append({'hotel': item['name'], 'aph_price': item['price']})
+
+# Convert to the desired list format
+final_data = []
+for date, data in merged_data.items():
+    # Only include dates that have price info
+    if data['prices']:
+        final_data.append({
+            'date': date,
+            'crowd_level': data.get('crowd_level'),
+            'prices': data['prices']
+        })
+
+# Sort the final data by date
+final_data.sort(key=lambda x: datetime.strptime(x['date'], '%m/%d/%y'))
+
+
 # create filename with today's date
-filename = f"{today.strftime('%Y%m%d')}.json"
+filename = f"hotel-prices-{today.strftime('%Y%m%d')}.json"
 
 ## Write the data to a JSON file
-with open(f"{data_folder}/hotel_info-{filename}", "w") as file:
-  json.dump(hotel_info, file, indent=2)
-
-with open(f"{data_folder}/crowd_info-{filename}", "w") as file:
-  json.dump(crowd_data, file, indent=2)
+with open(f"{data_folder}/{filename}", "w") as file:
+  json.dump(final_data, file, separators=(',', ':'))
