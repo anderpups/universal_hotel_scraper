@@ -17,7 +17,7 @@ def send_html_email(filtered_hotel_info, price_alert):
     if 'emails' in price_alert:
       recipients_email = price_alert['emails']
     else:
-       recipients_email = ["anderpups@gmail.com", "heatherschorah@yahoo.com"]
+       recipients_email = ["anderpups@gmail.com"]
     sender_email = "universal.hotel.price.alert@gmail.com"  # Your Gmail address
     app_password = (os.environ['GMAIL_APP_PASSWORD'])
     ## This is dumb, should make better
@@ -59,12 +59,29 @@ def send_html_email(filtered_hotel_info, price_alert):
         if 'server' in locals() and server:
             server.quit()
 
-## Find all hotel_info JSON files in the data folder
-hotel_info_json_files = glob.glob(os.path.join(data_folder, "hotel_info*.json"))
+## Find all hotel-prices JSON files in the data folder
+# Updated glob pattern to match the new file naming convention
+hotel_info_json_files = glob.glob(os.path.join(data_folder, "hotel-prices-*.json"))
 hotel_info_json_files.sort(reverse=True)
 
+if not hotel_info_json_files:
+    print(f"No hotel price files found in {data_folder}")
+    exit()
+
 with open(hotel_info_json_files[0], 'r') as f:
-    hotel_info = json.load(f)
+    raw_data = json.load(f)
+
+# Transform the new nested JSON structure into the flat list structure the script expects
+hotel_info = []
+for entry in raw_data:
+    current_date = entry.get('date')
+    # The new JSON has a 'prices' list inside each date entry
+    for price_entry in entry.get('prices', []):
+        hotel_info.append({
+            'name': price_entry.get('hotel'),
+            'date': current_date,
+            'price': price_entry.get('aph_price')
+        })
 
 ## Get price alerts
 with open('price_alerts.yaml', 'r') as file:
@@ -81,7 +98,8 @@ for price_alert in price_alerts:
   if 'price' in price_alert and type(price_alert['price']) == int:
     filtered_hotel_info = [hotel for hotel in filtered_hotel_info if int(hotel['price']) <= int(price_alert['price'])]
   elif 'price' not in price_alert:
-    lowest_price = min(int(hotel['price']) for hotel in filtered_hotel_info)
-    filtered_hotel_info = [hotel for hotel in filtered_hotel_info if int(hotel['price']) == int(lowest_price)]
+    if filtered_hotel_info: # Check to ensure list is not empty before min()
+        lowest_price = min(int(hotel['price']) for hotel in filtered_hotel_info)
+        filtered_hotel_info = [hotel for hotel in filtered_hotel_info if int(hotel['price']) == int(lowest_price)]
   if filtered_hotel_info:
     send_html_email(filtered_hotel_info, price_alert)
