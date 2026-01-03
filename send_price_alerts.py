@@ -12,36 +12,22 @@ data_folder = 'html/data'
 environment = Environment(loader=FileSystemLoader("templates/"))
 price_alert_email_template = environment.get_template("price-alert-email.html.j2")
 
-def send_html_email(filtered_hotel_info, price_alert):
-    ## Define vars
-    if 'emails' in price_alert:
-      recipients_email = price_alert['emails']
-    else:
-       recipients_email = ["anderpups@gmail.com"]
+def send_html_email(recipient_email, triggered_alerts):
     sender_email = "universal.hotel.price.alert@gmail.com"  # Your Gmail address
     app_password = (os.environ['GMAIL_APP_PASSWORD'])
-    ## This is dumb, should make better
-    if 'hotel' in price_alert:
-      subject = f'Universal Hotel Price Alert for {price_alert["hotel"]}'
-    if 'hotels' in price_alert:
-       subject = f'Universal Hotel Price Alert for {", ".join(price_alert["hotels"])}'
-    elif 'dates' in price_alert:
-      subject = f'Universal Hotel Price Alert for {" ".join(price_alert["dates"])}'
-    elif 'price' in price_alert:
-      subject = f'Universal Hotel Price Alert for {price_alert["price"]}'
-    else:
-      subject = f'Universal Hotel Price Alert for lowest price'   
+    
+    # Generic subject for grouped alerts
+    subject = f'Universal Hotel Price Alerts: {len(triggered_alerts)} Alerts Triggered'
+    
     # Create the root message and set the headers
-    # Using 'alternative' is important for HTML emails
     msg = MIMEMultipart('alternative')
     msg['From'] = sender_email
-    msg['To'] = "undisclosed-recipients:;"
-    msg['Bcc'] = "undisclosed-recipients:;"
+    msg['To'] = recipient_email
     msg['Subject'] = subject
 
     html_content = price_alert_email_template.render(
-    filtered_hotel_info=filtered_hotel_info,
-    price_alert=price_alert)
+        triggered_alerts=triggered_alerts
+    )
 
     # According to RFC 2046, the last part of a multipart message, in this case
     # the HTML message, is best and preferred.
@@ -49,7 +35,8 @@ def send_html_email(filtered_hotel_info, price_alert):
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(sender_email, app_password)
-        server.sendmail(sender_email, recipients_email, msg.as_string())
+        server.sendmail(sender_email, recipient_email, msg.as_string())
+        print(f"Sent email to {recipient_email} with {len(triggered_alerts)} alerts.")
         
     except smtplib.SMTPAuthenticationError:
         print("Authentication failed. Please check your email and app password.")
@@ -87,6 +74,11 @@ for entry in raw_data:
 with open('price_alerts.yaml', 'r') as file:
   price_alerts = yaml.safe_load(file)
 
+# Dictionary to hold alerts grouped by recipient email
+# Structure: { 'email@example.com': [ { 'criteria': alert_dict, 'matches': list_of_hotels }, ... ] }
+alerts_by_recipient = {}
+default_recipients = ["anderpups@gmail.com"]
+
 for price_alert in price_alerts:  
   filtered_hotel_info = hotel_info
   if 'hotels' in price_alert:
@@ -101,5 +93,23 @@ for price_alert in price_alerts:
     if filtered_hotel_info: # Check to ensure list is not empty before min()
         lowest_price = min(int(hotel['price']) for hotel in filtered_hotel_info)
         filtered_hotel_info = [hotel for hotel in filtered_hotel_info if int(hotel['price']) == int(lowest_price)]
+  
+  # If triggers found, assign to recipients
   if filtered_hotel_info:
-    send_html_email(filtered_hotel_info, price_alert)
+    recipients = price_alert.get('emails', default_recipients)
+    # Ensure recipients is a list (handle single string case)
+    if isinstance(recipients, str):
+        recipients = [recipients]
+    
+    for email in recipients:
+        if email not in alerts_by_recipient:
+            alerts_by_recipient[email] = []
+        
+        alerts_by_recipient[email].append({
+            'criteria': price_alert,
+            'matches': filtered_hotel_info
+        })
+
+# Send one email per recipient containing all their alerts
+for recipient, alerts_list in alerts_by_recipient.items():
+    send_html_email(recipient, alerts_list)
