@@ -1,4 +1,15 @@
 ---
+## Not setting a price or date will give you the lowest price or trigger for any date.
+## Example 
+######################
+# - hotels: # Or hotel for a single
+#     - Stella Nova
+#   price: 100
+#   dates:
+#     - 01/29/26
+#   emails:
+#     - test@gmail.com
+######################
 - hotels:
     - Royal Pacific
   price: 370
