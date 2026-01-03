@@ -10,25 +10,22 @@ import sys
 from zoneinfo import ZoneInfo
 import os
 
-lookahead_period = 10 if os.getenv("_DEVELOPING") else 365
+lookahead_period = 10 if os.getenv("_DEVELOPING") else 366
 
-## Get todday
+## Get today
 today = datetime.now(ZoneInfo("America/New_York"))
-
-## Get tomorrow
-tomorrow = today + timedelta(days=1)
 
 ## Get the end date
 end_date = today + timedelta(days=lookahead_period)
 
 ## Get the year for today and the end date
-years = [(tomorrow.strftime('%Y')), (end_date.strftime('%Y'))]
+years = [(today.strftime('%Y')), (end_date.strftime('%Y'))]
 
 ## Get unique years
 years = set(years)
 
-## Generate a list of daterenders starting from tomorrow
-date_range = list(pandas.date_range(start=tomorrow, periods=lookahead_period, freq='D'))
+## Generate a list of daterenders starting from today
+date_range = list(pandas.date_range(start=today, periods=lookahead_period, freq='D'))
 
 ## Shuffle the date range
 random.shuffle(date_range)

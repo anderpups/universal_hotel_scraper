@@ -3,6 +3,6 @@ requests==2.28.1
 beautifulsoup4==4.11.2
 pandas==1.5.3
 matplotlib==3.6.3
-numpy==1.24.2
+numpy==1.26
 Jinja2==3.1.2
 PyYAML==6.0.2

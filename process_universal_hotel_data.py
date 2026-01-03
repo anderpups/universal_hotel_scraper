@@ -45,18 +45,20 @@ with open(f'{data_folder}/data_location_list.txt', "w") as f:
 
 chart_template = environment.get_template("price-chart.html.j2")
 
-# Find all JSON files
-hotel_info_json_files = glob.glob(os.path.join(data_folder, "hotel_info-*.json"))
-hotel_info_json_files.sort()
+# Find all JSON files (Updated for new naming convention)
+# Expected format: hotel-prices-20250514.json
+hotel_prices_json_files = glob.glob(os.path.join(data_folder, "hotel-prices-*.json"))
+hotel_prices_json_files.sort()
 
 # Build a list of available data files to pass to JavaScript
 data_files = []
 
-for file_path in hotel_info_json_files:
+for file_path in hotel_prices_json_files:
     filename = os.path.basename(file_path)
-    # Filename format expected: hotel_info-20250514.json
+    # Filename format expected: hotel-prices-20250514.json
+    # Split by '-' gives ['hotel', 'prices', '20250514.json']
     try:
-        date_part = filename.split("-")[1].split(".")[0]
+        date_part = filename.split("-")[2].split(".")[0]
         gather_date = datetime.strptime(date_part, "%Y%m%d")
                 
         data_files.append({

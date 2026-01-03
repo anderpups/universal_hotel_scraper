@@ -11,7 +11,7 @@
         /* Reusing your existing styles */
         .controls {
             background: #fff;
-            border-radius: 12px;
+border-radius: 12px;
             box-shadow: 0 4px 24px rgba(42,82,152,0.10);
             padding: 20px;
             margin: 20px auto;
@@ -19,56 +19,56 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            align-items: center;
+align-items: center;
         }
         
         .control-group {
             display: flex;
-            flex-direction: column;
+flex-direction: column;
             gap: 5px;
         }
         
         .control-group label {
             font-weight: 600;
-            color: #2a5298;
+color: #2a5298;
             font-size: 14px;
         }
         
         .time-period-buttons {
             display: flex;
-            gap: 10px;
+gap: 10px;
             flex-wrap: wrap;
         }
         
         .time-btn {
             padding: 8px 16px;
-            border: 2px solid #2a5298;
+border: 2px solid #2a5298;
             background: white;
             color: #2a5298;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.2s;
-        }
+}
         
         .time-btn.active, .time-btn:hover {
             background: #2a5298;
-            color: white;
+color: white;
         }
         
         .hotel-selector, .stay-date-selector {
             max-height: 200px;
-            overflow-y: auto;
+overflow-y: auto;
             border: 1px solid #ddd;
             border-radius: 6px;
             padding: 10px;
             background: white;
             min-width: 200px;
-        }
+}
         
         .hotel-checkbox {
             display: flex;
-            align-items: center;
+align-items: center;
             gap: 8px;
             margin-bottom: 5px;
             font-size: 14px;
@@ -76,64 +76,64 @@
         
         .color-indicator {
             width: 16px;
-            height: 16px;
+height: 16px;
             border-radius: 50%;
             display: inline-block;
         }
         
         .chart-container {
             background: #fff;
-            border-radius: 12px;
+border-radius: 12px;
             box-shadow: 0 4px 24px rgba(42,82,152,0.10);
             padding: 20px;
             margin: 20px auto;
             max-width: 1200px;
             height: 600px;
             position: relative;
-        }
+}
 
         #loadingOverlay {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(255,255,255,0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 10;
-            border-radius: 12px;
+border-radius: 12px;
         }
         
         .progress-bar {
             width: 300px;
-            height: 10px;
+height: 10px;
             background: #eee;
             border-radius: 5px;
             margin-top: 10px;
             overflow: hidden;
-        }
+}
         
         .progress-fill {
             height: 100%;
-            background: #2a5298;
+background: #2a5298;
             width: 0%;
             transition: width 0.2s;
         }
         
         .bulk-actions {
             display: flex;
-            gap: 10px;
+gap: 10px;
             margin-top: 10px;
         }
         
         .bulk-btn {
             padding: 6px 12px;
-            background: #f0f0f0;
+background: #f0f0f0;
             border: 1px solid #ccc;
             border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
-        }
+}
     </style>
 </head>
 <body>
@@ -144,7 +144,8 @@
     </h1>
     
     <div style="text-align: center; margin: 10px 0; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px; color: #856404; font-weight: 600; max-width: 1200px; margin: 10px auto;">
-        📝 Note: Prices from 6/19/25 to 8/25/25 are for four people
+        📝 Note: 
+Prices from 6/19/25 to 8/25/25 are for four people
     </div>
     
     <div class="controls">
@@ -153,28 +154,32 @@
             <div class="time-period-buttons">
                 <button class="time-btn active" data-days="7">7 Days</button>
                 <button class="time-btn" data-days="14">14 Days</button>
-                <button class="time-btn" data-days="30">30 Days</button>
+     
+           <button class="time-btn" data-days="30">30 Days</button>
                 <button class="time-btn" data-days="90">90 Days</button>
                 <button class="time-btn" data-days="365">365 Days</button>
                 <button class="time-btn" data-days="999999">All</button>
             </div>
         </div>
         
-        <div class="control-group">
+  
+      <div class="control-group">
             <label>Select Hotels:</label>
             <div class="hotel-selector" id="hotelSelector"></div>
             <div class="bulk-actions">
                 <button class="bulk-btn" onclick="selectAllHotels()">Select All</button>
                 <button class="bulk-btn" onclick="deselectAllHotels()">Deselect All</button>
             </div>
-        </div>
+   
+     </div>
         
         <div class="control-group">
             <label>Stay Date:</label>
             <div class="stay-date-selector" id="stayDateSelector"></div>
             <div class="bulk-actions">
                 <button class="bulk-btn" onclick="selectAllDates()">Select All</button>
-                <button class="bulk-btn" onclick="deselectAllDates()">Deselect All</button>
+                <button class="bulk-btn" onclick="deselectAllDates()">Deselect 
+All</button>
             </div>
         </div>
     </div>
@@ -187,9 +192,11 @@
         <canvas id="priceChart"></canvas>
     </div>
     
-    <script>
+    
+<script>
         // List of files passed from Python
-        const dataFiles = {{ data_files | tojson }};
+        const dataFiles = {{ data_files |
+tojson }};
         const allGatherDates = dataFiles.map(f => f.date).sort();
         
         // Configuration
@@ -198,79 +205,82 @@
             '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA',
             '#F1948A', '#85C1E9', '#D7BDE2', '#A9DFBF', '#FAD7A0'
         ];
-        
-        // Global State
-        let chartData = []; // Will hold the aggregated data
+// Global State
+        let chartData = [];
+// Will hold the aggregated data
         let chart = null;
-        let selectedDays = 7;
+let selectedDays = 7;
         
         // -- DATA FETCHING LOGIC --
         
 async function fetchAllData() {
             const total = dataFiles.length;
-            let loaded = 0;
+let loaded = 0;
             const updateProgress = () => {
                 loaded++;
-                const pct = Math.round((loaded / total) * 100);
+const pct = Math.round((loaded / total) * 100);
                 document.getElementById('progressFill').style.width = pct + '%';
                 document.getElementById('loadingText').innerText = `Loading historical data... (${loaded}/${total})`;
             };
-
-            // Temporary map to aggregate data: hotelName -> { stayDate -> [history] }
+// Temporary map to aggregate data: hotelName -> { stayDate -> [history] }
             const tempMap = {};
-
-            // Fetch in batches to prevent browser network congestion
-            const BATCH_SIZE = 10; 
-            for (let i = 0; i < total; i += BATCH_SIZE) {
+// Fetch in batches to prevent browser network congestion
+            const BATCH_SIZE = 10;
+for (let i = 0; i < total; i += BATCH_SIZE) {
                 const batch = dataFiles.slice(i, i + BATCH_SIZE);
-                
-                await Promise.all(batch.map(fileInfo => 
+await Promise.all(batch.map(fileInfo => 
                     fetch(fileInfo.url)
                         .then(res => {
                             if (!res.ok) throw new Error('Failed to load');
-                            return res.json();
+                 
+           return res.json();
                         })
                         .then(json => {
-                            // Process this file's data
+                            // UPDATED: Process new JSON structure
+                            // array of { date: '...', prices: [{ hotel: '...', aph_price: ... }] }
                             json.forEach(entry => {
-                                const hName = entry.name;
                                 const sDate = entry.date; 
-                                const price = entry.price;
                                 const gDate = fileInfo.date; 
 
-                                if (!tempMap[hName]) tempMap[hName] = {};
-                                if (!tempMap[hName][sDate]) tempMap[hName][sDate] = [];
-                                
-                                tempMap[hName][sDate].push({
-                                    gather_date: gDate,
-                                    price: price
-                                });
+                                if (entry.prices && Array.isArray(entry.prices)) {
+                                    entry.prices.forEach(priceEntry => {
+                                        const hName = priceEntry.hotel;
+                                        const price = priceEntry.aph_price;
+
+                                        if (!tempMap[hName]) tempMap[hName] = {};
+                                        if (!tempMap[hName][sDate]) tempMap[hName][sDate] = [];
+                                        
+                                        tempMap[hName][sDate].push({
+                                            gather_date: gDate,
+                                            price: price
+                                        });
+                                    });
+                                }
                             });
-                        })
+})
                         .catch(err => console.warn(`Skipped ${fileInfo.url}:`, err))
                         .finally(updateProgress)
                 ));
-            }
+}
 
             // --- FIX START: Sort data chronologically ---
             // Iterate through every hotel and every stay date to sort the history by gather_date
             Object.keys(tempMap).forEach(hName => {
                 Object.keys(tempMap[hName]).forEach(sDate => {
-                    tempMap[hName][sDate].sort((a, b) => new Date(a.gather_date) - new Date(b.gather_date));
+                    tempMap[hName][sDate].sort((a, b) => 
+new Date(a.gather_date) - new Date(b.gather_date));
                 });
             });
-            // --- FIX END ---
+// --- FIX END ---
 
             // Convert aggregated map to the array format expected by the chart logic
             const sortedHotelNames = Object.keys(tempMap).sort();
-            
-            chartData = sortedHotelNames.map((name, idx) => ({
+chartData = sortedHotelNames.map((name, idx) => ({
                 hotel_name: name,
                 color: hotelColors[idx % hotelColors.length],
                 stay_dates: tempMap[name]
             }));
-
-            document.getElementById('loadingOverlay').style.display = 'none';
+document.getElementById('loadingOverlay').style.display = 'none';
             
             initializeHotelSelector();
             initializeStayDateSelector();
@@ -281,48 +291,49 @@ async function fetchAllData() {
 
         function getAllStayDates() {
             const dates = new Set();
-            const today = new Date();
+const today = new Date();
             today.setHours(0, 0, 0, 0);
             
             chartData.forEach(hotel => {
                 Object.keys(hotel.stay_dates).forEach(date => {
                     const [month, day, year] = date.split('/').map(Number);
                     const fullYear = year < 50 ? 2000 + year : 1900 + year;
-                    const stayDate = new Date(fullYear, month - 1, day);
+             
+       const stayDate = new Date(fullYear, month - 1, day);
                     if (stayDate > today) dates.add(date);
                 });
             });
-            
-            return Array.from(dates).sort((a, b) => {
+return Array.from(dates).sort((a, b) => {
                 const [mA, dA, yA] = a.split('/').map(Number);
                 const [mB, dB, yB] = b.split('/').map(Number);
                 const dateA = new Date(yA < 50 ? 2000+yA : 1900+yA, mA-1, dA);
-                const dateB = new Date(yB < 50 ? 2000+yB : 1900+yB, mB-1, dB);
+                const dateB = new Date(yB < 50 ? 2000+yB : 
+1900+yB, mB-1, dB);
                 return dateA - dateB;
             });
-        }
+}
         
         function initializeHotelSelector() {
             const selector = document.getElementById('hotelSelector');
-            selector.innerHTML = '';
+selector.innerHTML = '';
             const defaultSelected = ['Royal Pacific', 'Hard Rock', 'Portofino Bay'];
-            
-            chartData.forEach((hotel, index) => {
+chartData.forEach((hotel, index) => {
                 const isChecked = defaultSelected.includes(hotel.hotel_name);
                 const div = document.createElement('div');
                 div.className = 'hotel-checkbox';
                 div.innerHTML = `
-                    <input type="checkbox" id="hotel-${index}" ${isChecked ? 'checked' : ''} onchange="updateChart()">
+                    <input type="checkbox" id="hotel-${index}" 
+${isChecked ? 'checked' : ''} onchange="updateChart()">
                     <span class="color-indicator" style="background-color: ${hotel.color}"></span>
                     <label for="hotel-${index}">${hotel.hotel_name}</label>
                 `;
                 selector.appendChild(div);
             });
-        }
+}
         
         function initializeStayDateSelector() {
             const selector = document.getElementById('stayDateSelector');
-            const dates = getAllStayDates();
+const dates = getAllStayDates();
             selector.innerHTML = '';
             
             dates.forEach((date, index) => {
@@ -330,103 +341,111 @@ async function fetchAllData() {
                 div.className = 'hotel-checkbox';
                 div.innerHTML = `
                     <input type="checkbox" id="date-${index}" ${index === 0 ? 'checked' : ''} onchange="updateChart()">
-                    <label for="date-${index}">${date}</label>
+     
+               <label for="date-${index}">${date}</label>
                 `;
                 selector.appendChild(div);
             });
-        }
+}
         
         function getSelectedHotels() {
             return chartData.filter((_, idx) => {
                 const el = document.getElementById(`hotel-${idx}`);
                 return el && el.checked;
             });
-        }
+}
         
         function getSelectedStayDates() {
             const allDates = getAllStayDates();
-            return allDates.filter((_, idx) => {
+return allDates.filter((_, idx) => {
                 const el = document.getElementById(`date-${idx}`);
                 return el && el.checked;
             });
-        }
+}
 
         function filterByTimePeriod(data, days) {
             if (days >= 999999) return data;
-            const cutoff = new Date();
+const cutoff = new Date();
             cutoff.setDate(cutoff.getDate() - days);
             
             return data.map(hotel => {
                 const filteredStays = {};
                 Object.keys(hotel.stay_dates).forEach(sDate => {
                     const history = hotel.stay_dates[sDate].filter(entry => new Date(entry.gather_date) >= cutoff);
-                    if (history.length) filteredStays[sDate] = history;
+                    if (history.length) filteredStays[sDate] = 
+history;
                 });
                 return { ...hotel, stay_dates: filteredStays };
             });
-        }
+}
         
         function updateChart() {
             const activeHotels = getSelectedHotels();
-            const activeDates = getSelectedStayDates();
+const activeDates = getSelectedStayDates();
             const filteredData = filterByTimePeriod(activeHotels, selectedDays);
             
             if (chart) chart.destroy();
             
             const datasets = [];
-            filteredData.forEach(hotel => {
+filteredData.forEach(hotel => {
                 activeDates.forEach(stayDate => {
                     if (hotel.stay_dates[stayDate]) {
                         datasets.push({
                             label: `${hotel.hotel_name} - ${stayDate}`,
-                            data: hotel.stay_dates[stayDate].map(e => ({ x: e.gather_date, y: e.price })),
+   
+                         data: hotel.stay_dates[stayDate].map(e => ({ x: e.gather_date, y: e.price })),
                             borderColor: hotel.color,
                             backgroundColor: hotel.color + '20',
-                            fill: false,
+       
+                     fill: false,
                             tension: 0.1,
                             pointRadius: 4
-                        });
+                    
+    });
                     }
                 });
             });
-            
-            const ctx = document.getElementById('priceChart').getContext('2d');
+const ctx = document.getElementById('priceChart').getContext('2d');
             chart = new Chart(ctx, {
                 type: 'line',
                 data: { datasets },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                  
+  maintainAspectRatio: false,
                     scales: {
                         x: { type: 'time', time: { unit: 'day', tooltipFormat: 'MMM d, yyyy' }, title: { display: true, text: 'Date Data Gathered' } },
-                        y: { title: { display: true, text: 'Price ($)' }, ticks: { callback: v => '$' + v } }
+                        y: { title: { display: true, 
+text: 'Price ($)' }, ticks: { callback: v => '$' + v } }
                     },
                     plugins: {
                         title: { display: true, text: 'Hotel Price Trends Over Time' },
-                        legend: { position: 'top' },
+            
+            legend: { position: 'top' },
                         tooltip: { callbacks: { label: c => c.dataset.label + ': $' + c.parsed.y } }
                     }
                 }
-            });
+          
+  });
         }
 
         // Bulk Helpers
-        window.selectAllHotels = () => { document.querySelectorAll('#hotelSelector input').forEach(c => c.checked = true); updateChart(); };
+        window.selectAllHotels = () => { document.querySelectorAll('#hotelSelector input').forEach(c => c.checked = true);
+updateChart(); };
         window.deselectAllHotels = () => { document.querySelectorAll('#hotelSelector input').forEach(c => c.checked = false); updateChart(); };
-        window.selectAllDates = () => { document.querySelectorAll('#stayDateSelector input').forEach(c => c.checked = true); updateChart(); };
-        window.deselectAllDates = () => { document.querySelectorAll('#stayDateSelector input').forEach(c => c.checked = false); updateChart(); };
-
-        // Event Listeners for Time Period
+window.selectAllDates = () => { document.querySelectorAll('#stayDateSelector input').forEach(c => c.checked = true); updateChart(); };
+window.deselectAllDates = () => { document.querySelectorAll('#stayDateSelector input').forEach(c => c.checked = false); updateChart(); };
+// Event Listeners for Time Period
         document.querySelectorAll('.time-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 selectedDays = parseInt(this.dataset.days);
                 updateChart();
-            });
+   
+         });
         });
-
-        // Start Fetching
+// Start Fetching
         fetchAllData();
     </script>
 </body>
