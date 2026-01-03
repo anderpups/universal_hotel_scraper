@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Universal Hotel Info</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>
+        <img src="universal_logo.png" alt="Universal Logo Left" class="universal-logo">
+        Universal Hotel Info
+        <img src="universal_logo.png" alt="Universal Logo Right" class="universal-logo">
+</h1>
+
+<div class="main-layout">
+    <div class="side-image left-side">
+        <img src="velocicoaster.png" alt="VelociCoaster">
+    </div>
+
+    <div class="main-content">
+        <div class="countdown-wrapper">
+            <a href="hotel_prices.html">Today's Prices</a>
+            <a href="price_chart.html">Price Trends</a>
+        </div>
+
+        <div class="countdown-wrapper">
+            <h2>Time Until Our Next Trip</h2>
+            <div id="countdown"></div>
+        </div>
+
+            <div class="countdown-wrapper">
+                <a href="universal-game.html">Universal Studios: Escape from the Gift Shop</a>    
+            </div>
+        </div>
+
+        <div class="side-image right-side">
+            <img src="hagrids.png" alt="Hagrid's">
+        </div>
+    </div>
+
+<script>
+function startCountdown(targetDate) {
+    // Set the date we're counting down to (e.g., December 31, 2025 23:59:59)
+    // You must format the targetDate string correctly for the Date object.
+    const countdownDate = new Date(targetDate).getTime();
+
+    // Update the count down every 1 second
+    const x = setInterval(function() {
+
+        // Get today's date and time
+        const now = new Date().getTime();
+
+        // Find the distance between now and the count down date
+        const distance = countdownDate - now;
+
+        // Time calculations for weeks, days, hours, minutes and seconds
+        const _second = 1000;
+        const _minute = _second * 60;
+        const _hour = _minute * 60;
+        const _day = _hour * 24;
+        const _week = _day * 7; // New unit for weeks
+
+        // Calculate weeks and remainder
+        const weeks = Math.floor(distance / _week);
+        const days = Math.floor((distance % _week) / _day); // Use remainder of weeks calculation
+        const hours = Math.floor((distance % _day) / _hour); // Use remainder of days calculation
+        const minutes = Math.floor((distance % _hour) / _minute); // Use remainder of hours calculation
+        const seconds = Math.floor((distance % _minute) / _second); // Use remainder of minutes calculation
+
+            document.getElementById("countdown").innerHTML = 
+                `<div class="countdown-unit"><span class="number">${weeks}</span><span class="label">w</span></div>` +
+                `<div class="countdown-unit"><span class="number">${days}</span><span class="label">d</span></div>` +
+                `<div class="countdown-unit"><span class="number">${hours}</span><span class="label">h</span></div>` +
+                `<div class="countdown-unit"><span class="number">${minutes}</span><span class="label">m</span></div>` +
+                `<div class="countdown-unit"><span class="number">${seconds}</span><span class="label">s</span></div>`;
+
+        if (distance < 0) {
+            clearInterval(x);
+            document.getElementById("countdown").innerHTML = "We are in Universal!";
+        }
+    }, 1000);
+}
+
+    const myTargetDate = "Jan 09, 2026 09:00:00";
+    startCountdown(myTargetDate);
+    </script>
+</body>
+</html>

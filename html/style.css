@@ -1,0 +1,212 @@
+body {
+    background: #0368d9;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    box-sizing: border-box; 
+}
+
+h1 {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 2.5em;
+    color: #ffffff;
+    letter-spacing: 2px;
+    padding: 0 10px;
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.universal-logo {
+    height: 60px;
+    width: auto;
+}
+
+/* Three-Column Layout Fix */
+.main-layout {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center; 
+    gap: 40px;
+    max-width: 1600px;
+    margin: 40px auto;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* The Center Stacking Container */
+.main-content {
+    flex: 0 0 400px; /* Fixed width for the middle column */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Side Column Images */
+.side-image {
+    flex: 0 1 300px; 
+    position: sticky;
+    top: 20px;
+}
+
+.side-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+
+/* Block (Card) Styling */
+.countdown-wrapper {
+    text-align: center;
+    padding: 25px;
+    background: white;
+    border: 1px solid #cfdef3;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(42,82,152,0.1);
+    width: 100%; 
+    box-sizing: border-box;
+    margin: 0; 
+}
+
+.countdown-wrapper h2 {
+    color: #2a5298;
+    margin-top: 0;
+    font-size: 1.5em;
+}
+
+/* Button Styling inside blocks */
+a {
+    display: block;
+    margin: 10px auto; 
+    padding: 12px 24px;
+    background: #2a5298;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 2px 8px rgba(42,82,152,0.08);
+    width: 80%;
+}
+
+a:hover {
+    background: #1e3c72;
+    transform: translateY(-2px) scale(1.03);
+}
+
+/* Countdown Clock Styling */
+#countdown {
+    color: #2a5298;
+    display: flex;
+    justify-content: center;
+    gap: 8px; 
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.countdown-unit {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    min-width: 55px;
+    padding: 10px 5px;
+    background: #2a5298; 
+    color: white; 
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.countdown-unit .number {
+    font-size: 1.5em;
+    line-height: 1;
+}
+
+.countdown-unit .label {
+    font-size: 0.7em;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+/* =========================================
+   RESTORED TABLE & INPUT STYLES
+   ========================================= */
+
+/* Ensure DataTables Wrapper enables scrolling */
+.dataTables_wrapper {
+    width: 100%;
+    overflow-x: auto; 
+    -webkit-overflow-scrolling: touch;
+    /* Optional: Add a white background behind the table wrapper if it sits directly on blue */
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+table {
+    min-width: 450px; 
+    width: 100% !important; 
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+    white-space: nowrap;
+    background-color: white;
+    color: #222;
+}
+
+th {
+    background-color: #f4f7f6;
+    color: #0368d9;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #eef1f6;
+}
+
+/* Form styling for inputs and selects (Date pickers, search boxes) */
+input, select {
+    background-color: white !important;
+    color: #222 !important;
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 4px;
+}
+
+select option {
+    background-color: white !important;
+    color: #222 !important;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #2a5298;
+}
+
+/* DataTables dropdown styling */
+.dt-button-collection {
+    background-color: white !important;
+}
+
+.dt-button-collection .dt-button {
+    background-color: white !important;
+    color: #222 !important;
+}
+
+.dt-button-collection .dt-button:hover {
+    background-color: #f0f0f0 !important;
+    color: #222 !important;
+}

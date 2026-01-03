@@ -1,0 +1,645 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Hotel Price Data</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.1/js/dataTables.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background-color: #0368d9; }
+
+        /* Universal Header */
+        .universal-header {
+            background-color: #0368d9;
+color: white;
+            padding: 15px 0;
+            display: flex; justify-content: center; align-items: center; gap: 20px;
+            font-size: 1.5rem; font-weight: bold;
+box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Controls */
+        .controls-bar {
+            background-color: #ffffff;
+padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex; flex-wrap: wrap; align-items: center; gap: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+        
+        .control-group { display: flex;
+align-items: center; }
+        .control-group label { font-weight: 600; font-size: 0.85rem; color: #555;
+margin-right: 8px; }
+        .control-group input[type="date"] {
+            border: 1px solid #ced4da;
+border-radius: 4px; padding: 4px 8px; font-size: 0.9rem;
+        }
+
+        /* Custom Dropdown Checklist */
+        .dropdown-check-list {
+            position: relative;
+display: inline-block;
+        }
+        .dropdown-check-list .anchor {
+            border: 1px solid #ced4da;
+border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            background: white;
+            display: inline-block;
+            min-width: 140px;
+            position: relative;
+            font-size: 0.9rem;
+}
+        .dropdown-check-list .anchor:after {
+            content: "\25BC";
+position: absolute;
+            right: 10px;
+            font-size: 0.7em;
+            top: 30%;
+            color: #555;
+}
+        .dropdown-check-list .items {
+            display: none;
+position: absolute;
+            top: 100%; left: 0;
+            border: 1px solid #ced4da;
+            background: white;
+            z-index: 1000;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 8px;
+            border-radius: 4px;
+        }
+        .dropdown-check-list .items.visible { display: block;
+}
+        
+        .dropdown-check-list .list-controls {
+            display: flex;
+justify-content: space-between;
+            padding-bottom: 8px; margin-bottom: 6px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.8rem;
+}
+        
+        /* MODIFIED BUTTON STYLE */
+        .dropdown-check-list .list-controls a {
+            color: white;
+background-color: #0368d9;
+            cursor: pointer; 
+            text-decoration: none; 
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+}
+        .dropdown-check-list .list-controls a:hover { 
+            background-color: #024b9c;
+text-decoration: none;
+        }
+
+        .dropdown-check-list .item {
+            display: flex;
+align-items: center;
+            padding: 4px 0;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        .dropdown-check-list .item input { margin-right: 8px;
+}
+        .dropdown-check-list .item:hover { background-color: #f8f9fa;
+}
+
+        /* Table */
+        .table-container { 
+            width: fit-content;
+min-width: 100%; 
+            overflow-x: visible; 
+            background: white; 
+            padding: 20px;
+            box-sizing: border-box;
+}
+        .price-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: center;
+}
+
+        .price-table thead th {
+            background-color: #f1f3f5;
+color: #495057;
+            padding: 12px 8px; border-bottom: 2px solid #dee2e6;
+            font-weight: 700; white-space: nowrap; cursor: pointer;
+}
+        
+        .price-table tbody td {
+            padding: 8px 4px;
+border-bottom: 1px solid #e9ecef;
+            vertical-align: middle; color: #212529; font-weight: 500;
+}
+
+        /* Columns */
+        .col-date { color: #0070d2;
+font-weight: 600; }
+        .col-day { color: #6c757d; font-size: 0.8rem;
+}
+
+        /* Colors */
+        .bg-low  { background-color: #d1e7dd;
+color: #0f5132; }
+        .bg-med  { background-color: #fff3cd; color: #664d03;
+}
+        .bg-high { background-color: #ffe5d0; color: #fd7e14;
+}
+        .bg-peak { background-color: #f8d7da; color: #842029;
+}
+        .bg-unavailable { background-color: #f8f9fa; color: #adb5bd !important; font-style: italic; font-weight: normal;
+}
+
+        .loading-msg { text-align: center; padding: 40px; color: #6c757d; font-style: italic;
+}
+        .error-msg { text-align: center; padding: 20px; color: #dc3545; background: #ffe6e6;
+border: 1px solid #f5c6cb; margin: 20px; border-radius: 5px;}
+        
+        /* DataTables Overrides */
+        table.dataTable thead th, table.dataTable thead td { border-bottom: 1px solid #dee2e6;
+}
+        div.dt-container .dt-paging .dt-paging-button { padding: 0.2em 0.6em;
+}
+        
+        /* Override scrolling for zoom */
+        div.dt-container, .dataTables_wrapper {
+            width: auto !important;
+overflow-x: visible !important;
+        }
+
+        /* --- MOBILE LAYOUT FIXES --- */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.5rem;
+margin-top: 20px; }
+            h1 img { height: 30px !important;
+margin: 0 10px !important; }
+
+            .controls-bar {
+                display: grid;
+grid-template-columns: 1fr 1fr; /* 2 Column Grid */
+                gap: 15px;
+padding: 15px;
+                align-items: end; /* Align bottoms so inputs line up */
+            }
+
+            .control-group {
+                flex-direction: column;
+align-items: stretch;
+                width: 100%;
+                margin: 0 !important; /* Override inline margins */
+                padding: 0 !important;
+border: none !important;
+            }
+
+            .control-group label {
+                margin-bottom: 5px;
+font-size: 0.8rem;
+            }
+
+            .control-group input, 
+            .dropdown-check-list,
+            .dropdown-check-list .anchor {
+                width: 100%;
+min-width: 0;
+                box-sizing: border-box;
+            }
+
+            /* Fix dropdown arrow position on full width */
+            .dropdown-check-list .anchor:after { top: 35%;
+}
+
+            /* Record Count: Span full width at bottom */
+            #record-count {
+                grid-column: 1 / -1;
+width: 100%;
+                text-align: center;
+                margin: 0 !important;
+                padding: 5px 0;
+                order: 10; 
+                border-top: 1px solid #f0f0f0;
+}
+
+            /* Snapshot Date: Span full width above count */
+            /* We target the specific control group for snapshot (last one) */
+            .control-group:last-of-type {
+                grid-column: 1 / -1;
+margin-top: 5px !important;
+                padding-top: 10px !important;
+                border-top: 2px solid #eee !important;
+/* Keep label and input side-by-side for this one to save vertical space? 
+                   Or stack for consistency.
+Let's stack but center it. */
+                align-items: center;
+}
+            .control-group:last-of-type input {
+                width: 100%;
+text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        <img src="universal_logo.png" alt="Universal Logo Left" style="height: 50px; float: left; margin-right: 20px;">
+        UOAP Hotel Prices
+        <img src="universal_logo.png" alt="Universal Logo Right" style="height: 50px; float: right; margin-left: 20px;">
+    </h1>
+
+    <div class="controls-bar">
+        <div class="control-group">
+            <label>Start:</label>
+      
+      <input type="date" id="tripStart">
+        </div>
+        <div class="control-group" style="margin-right: 15px;">
+            <label>End:</label>
+            <input type="date" id="tripEnd">
+        </div>
+
+        <div class="control-group">
+            <label>Hotels:</label>
+            <div id="hotels-dropdown" class="dropdown-check-list">
+    
+            <span class="anchor" onclick="toggleDropdown('hotels')">All Hotels</span>
+                <div class="items" id="hotels-items">
+                    <div class="list-controls">
+                        <a onclick="setAll('hotels', true)">Select All</a>
+                   
+     <a onclick="setAll('hotels', false)">Deselect All</a>
+                    </div>
+                    </div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label>Days:</label>
+           
+ <div id="days-dropdown" class="dropdown-check-list">
+                <span class="anchor" onclick="toggleDropdown('days')">All Days</span>
+                <div class="items" id="days-items">
+                    <div class="list-controls">
+                        <a onclick="setAll('days', true)">Select All</a>
+            
+            <a onclick="setAll('days', false)">Deselect All</a>
+                    </div>
+                    </div>
+            </div>
+        </div>
+        
+        <div class="ms-auto text-muted small" id="record-count" style="margin-left: auto;
+margin-right: 15px;"></div>
+
+        <div class="control-group" style="padding-left: 15px;
+border-left: 2px solid #eee;">
+            <label><i class="fas fa-calendar-alt"></i> Prices On:</label>
+            <input type="date" id="snapshotDate">
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div id="status-message"></div>
+        
+        <table class="price-table display" id="mainTable" style="display:none;
+width:100%">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Day</th>
+                    <th>Crowd</th>
+            
+        <th data-hotel="Aventura">Aventura</th>
+                    <th data-hotel="Cabana Bay">Cabana Bay</th>
+                    <th data-hotel="Dockside">Dockside</th>
+                    <th data-hotel="Hard Rock">Hard Rock</th>
+                    <th data-hotel="Helios">Helios</th>
+   
+                 <th data-hotel="Portofino Bay">Portofino</th>
+                    <th data-hotel="Royal Pacific">Royal Pacific</th>
+                    <th data-hotel="Sapphire Falls">Sapphire</th>
+                    <th data-hotel="Stella Nova">Stella Nova</th>
+             
+       <th data-hotel="Surfside">Surfside</th>
+                    <th data-hotel="Terra Luna">Terra Luna</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // CONFIG
+   
+     const HOTEL_COLUMNS = [
+            "Aventura", "Cabana Bay", "Dockside", "Hard Rock", "Helios", 
+            "Portofino Bay", "Royal Pacific", "Sapphire Falls", "Stella Nova", 
+            "Surfside", "Terra Luna"
+        ];
+const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+// State
+        let currentDataMap = {}; 
+        let hotelStats = {};
+let tableInstance = null; 
+        
+        // Filter State
+        let selectedDays = [...DAYS_OF_WEEK];
+let selectedHotels = [...HOTEL_COLUMNS];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. Initialize Dates
+            const today = new Date('{{ today_date }}').toISOString().split('T')[0];
+            document.getElementById('snapshotDate').value = today;
+            document.getElementById('tripStart').value = today;
+
+            // 2. Initialize Dropdowns
+            initDropdowns();
+
+     
+       // 3. Fetch Initial Data
+            fetchData();
+
+            // Listeners for standard filters
+            document.getElementById('tripStart').addEventListener('change', renderTable);
+            document.getElementById('tripEnd').addEventListener('change', renderTable);
+
+            // Listener for Snapshot Date
+            document.getElementById('snapshotDate').addEventListener('change', () => {
+    
+            document.getElementById('tripStart').value = document.getElementById('snapshotDate').value;
+                fetchData();
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.dropdown-check-list')) {
+         
+           document.querySelectorAll('.dropdown-check-list .items').forEach(el => el.classList.remove('visible'));
+}
+            });
+        });
+// --- FILTER UI LOGIC ---
+        function initDropdowns() {
+            // Build Days List
+            const daysContainer = document.getElementById('days-items');
+DAYS_OF_WEEK.forEach(day => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `<label><input type="checkbox" checked value="${day}" onchange="updateFilterState('days')"> ${day}</label>`;
+                daysContainer.appendChild(div);
+            });
+// Build Hotels List
+            const hotelsContainer = document.getElementById('hotels-items');
+HOTEL_COLUMNS.forEach(hotel => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `<label><input type="checkbox" checked value="${hotel}" onchange="updateFilterState('hotels')"> ${hotel}</label>`;
+                hotelsContainer.appendChild(div);
+            });
+}
+
+        function toggleDropdown(type) {
+            const list = document.getElementById(`${type}-items`);
+// Close others
+            document.querySelectorAll('.dropdown-check-list .items').forEach(el => {
+                if (el !== list) el.classList.remove('visible');
+            });
+list.classList.toggle('visible');
+        }
+
+        function setAll(type, isSelected) {
+            const container = document.getElementById(`${type}-items`);
+const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = isSelected);
+            updateFilterState(type);
+}
+
+        function updateFilterState(type) {
+            if (type === 'days') {
+                const container = document.getElementById('days-items');
+selectedDays = Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
+                
+                // Update anchor text
+                const anchor = document.querySelector('#days-dropdown .anchor');
+anchor.innerText = selectedDays.length === DAYS_OF_WEEK.length ? 'All Days' : 
+                                   selectedDays.length === 0 ?
+'No Days' : 
+                                   `${selectedDays.length} Days Selected`;
+// Re-render rows because some days might be hidden/shown
+                renderTable();
+} 
+            else if (type === 'hotels') {
+                const container = document.getElementById('hotels-items');
+selectedHotels = Array.from(container.querySelectorAll('input:checked')).map(cb => cb.value);
+
+                // Update anchor text
+                const anchor = document.querySelector('#hotels-dropdown .anchor');
+anchor.innerText = selectedHotels.length === HOTEL_COLUMNS.length ? 'All Hotels' : 
+                                   selectedHotels.length === 0 ?
+'No Hotels' : 
+                                   `${selectedHotels.length} Hotels Selected`;
+// Update Column Visibility (No need to full re-render rows if only hiding columns)
+                updateColumnVisibility();
+}
+        }
+
+        // --- DATA LOGIC ---
+        async function fetchData() {
+            const snapshotInput = document.getElementById('snapshotDate').value;
+if (!snapshotInput) return;
+
+            const cleanDate = snapshotInput.replace(/-/g, ''); 
+            // UPDATED: New file format hotel-prices-YYYYMMDD.json
+            const dataFile = `data/hotel-prices-${cleanDate}.json`;
+
+            const statusDiv = document.getElementById('status-message');
+const table = document.getElementById('mainTable');
+            
+            statusDiv.innerHTML = `<div class="loading-msg"><div class="spinner-border text-primary spinner-border-sm me-2"></div>Loading data for ${snapshotInput}...</div>`;
+            table.style.display = 'none';
+currentDataMap = {}; 
+
+            try {
+                // UPDATED: Single fetch
+                const response = await fetch(dataFile);
+                if (!response.ok) throw new Error(`Data file not found for ${snapshotInput}.`);
+                
+                const data = await response.json();
+
+                processData(data);
+                
+                statusDiv.innerHTML = '';
+                table.style.display = 'table';
+                renderTable();
+} catch (error) {
+                statusDiv.innerHTML = `<div class="error-msg"><strong>No Data Found</strong><br>We couldn't find a price file for ${snapshotInput}.<br><span class="small text-muted">${error.message}</span></div>`;
+}
+        }
+
+        function processData(dataList) {
+            currentDataMap = {};
+            hotelStats = {}; 
+
+            // UPDATED: Process new JSON structure
+            // [{ date: "MM/DD/YY", crowd_level: 39, prices: [{hotel: "X", aph_price: 100}, ...] }, ...]
+            dataList.forEach(item => {
+                const isoDate = parseDate(item.date);
+                
+                if (!currentDataMap[isoDate]) {
+                    currentDataMap[isoDate] = { 
+                        date: isoDate, 
+                        displayDate: item.date, 
+                        prices: {}, 
+                        crowd: item.crowd_level || '0' 
+                    };
+                }
+
+                // Process prices array
+                if (item.prices && Array.isArray(item.prices)) {
+                    item.prices.forEach(p => {
+                        const hotelName = p.hotel;
+                        const price = parseInt(p.aph_price); // UPDATED: Key is aph_price
+
+                        currentDataMap[isoDate].prices[hotelName] = price;
+
+                        if (!isNaN(price)) {
+                            if (!hotelStats[hotelName]) {
+                                hotelStats[hotelName] = { min: price, max: price };
+                            } else {
+                                if (price < hotelStats[hotelName].min) hotelStats[hotelName].min = price;
+                                if (price > hotelStats[hotelName].max) hotelStats[hotelName].max = price;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function renderTable() {
+            if (tableInstance) {
+                tableInstance.destroy();
+tableInstance = null;
+            }
+
+            const tbody = document.getElementById('table-body');
+tbody.innerHTML = '';
+
+            const startFilter = document.getElementById('tripStart').value;
+            const endFilter = document.getElementById('tripEnd').value;
+            const sortedDates = Object.keys(currentDataMap).sort();
+            let rowCount = 0;
+sortedDates.forEach(dateKey => {
+                // Date Range Filter
+                if (startFilter && dateKey < startFilter) return;
+                if (endFilter && dateKey > endFilter) return;
+
+                const d = new Date(dateKey + 'T12:00:00');
+             
+   const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+
+                // Day of Week Filter
+                if (!selectedDays.includes(dayName)) return;
+
+                rowCount++;
+                const rowData = currentDataMap[dateKey];
+                const 
+tr = document.createElement('tr');
+                
+                let html = `
+                    <td class="col-date" data-order="${dateKey}">${rowData.displayDate}</td>
+                    <td class="col-day">${dayName}</td>
+                    
+<td class="${getCrowdColor(rowData.crowd)}" data-order="${rowData.crowd || 0}">${rowData.crowd || '-'}</td>
+                `;
+
+                // Render ALL hotels initially (DataTables hides them later)
+                HOTEL_COLUMNS.forEach(hotelName => {
+                    const price = rowData.prices[hotelName];
+let cellContent = 'unavailable';
+                    let cellClass = 'bg-unavailable';
+                    let sortValue = 999999;
+if (price) {
+                        cellContent = `$${price}`;
+cellClass = getDynamicPriceColor(price, hotelName);
+                        sortValue = price;
+                    }
+                    html += `<td class="${cellClass}" data-order="${sortValue}">${cellContent}</td>`;
+});
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('record-count').innerText = `Showing ${rowCount} dates`;
+// Init DataTables
+            tableInstance = new DataTable('#mainTable', {
+                paging: false,
+                searching: false,
+                info: false,
+                ordering: true,
+              
+  order: [] 
+            });
+// Apply Column Visibility
+            updateColumnVisibility();
+}
+
+        function updateColumnVisibility() {
+            if (!tableInstance) return;
+// Fixed columns: Date(0), Day(1), Crowd(2). Hotels start at 3.
+            HOTEL_COLUMNS.forEach((hotelName, index) => {
+                const colIndex = index + 3; 
+                const isVisible = selectedHotels.includes(hotelName);
+                tableInstance.column(colIndex).visible(isVisible);
+            });
+}
+
+        // --- DYNAMIC COLOR & HELPERS ---
+        function getDynamicPriceColor(price, hotelName) {
+            const stats = hotelStats[hotelName];
+if (!stats) return ''; 
+            if (stats.max === stats.min) return 'bg-med';
+            const ratio = (price - stats.min) / (stats.max - stats.min);
+if (ratio <= 0.25) return 'bg-low';   
+            if (ratio <= 0.50) return 'bg-med';   
+            if (ratio <= 0.75) return 'bg-high';  
+            return 'bg-peak';
+}
+
+        function parseDate(dateStr) {
+            if (!dateStr) return '9999-99-99';
+if (dateStr.includes('-') && dateStr.length === 10) return dateStr; 
+            const parts = dateStr.split('/');
+if (parts.length === 3) {
+                const m = parts[0].padStart(2, '0');
+const d = parts[1].padStart(2, '0');
+                let y = parts[2];
+                if (y.length === 2) y = '20' + y;
+                return `${y}-${m}-${d}`;
+}
+            return dateStr;
+}
+
+        function getCrowdColor(level) {
+            if (!level || level === '-') return '';
+const l = parseInt(level);
+            if (l > 80) return 'bg-peak'; 
+            if (l > 50) return 'bg-high';
+if (l > 25) return 'bg-med';  
+            return 'bg-low';              
+        }
+    </script>
+</body>
+</html>

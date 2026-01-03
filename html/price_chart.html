@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Price Trends</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        /* Reusing your existing styles */
+        .controls {
+            background: #fff;
+border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(42,82,152,0.10);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+flex-direction: column;
+            gap: 5px;
+        }
+        
+        .control-group label {
+            font-weight: 600;
+color: #2a5298;
+            font-size: 14px;
+        }
+        
+        .time-period-buttons {
+            display: flex;
+gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .time-btn {
+            padding: 8px 16px;
+border: 2px solid #2a5298;
+            background: white;
+            color: #2a5298;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+}
+        
+        .time-btn.active, .time-btn:hover {
+            background: #2a5298;
+color: white;
+        }
+        
+        .hotel-selector, .stay-date-selector {
+            max-height: 200px;
+overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            background: white;
+            min-width: 200px;
+}
+        
+        .hotel-checkbox {
+            display: flex;
+align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .color-indicator {
+            width: 16px;
+height: 16px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .chart-container {
+            background: #fff;
+border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(42,82,152,0.10);
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            height: 600px;
+            position: relative;
+}
+
+        #loadingOverlay {
+            position: absolute;
+top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+border-radius: 12px;
+        }
+        
+        .progress-bar {
+            width: 300px;
+height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+}
+        
+        .progress-fill {
+            height: 100%;
+background: #2a5298;
+            width: 0%;
+            transition: width 0.2s;
+        }
+        
+        .bulk-actions {
+            display: flex;
+gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .bulk-btn {
+            padding: 6px 12px;
+background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+}
+    </style>
+</head>
+<body>
+    <h1>
+        <img src="universal_logo.png" alt="Universal Logo Left" style="height: 50px; float: left; margin-right: 20px;">
+        Hotel Price Trends
+        <img src="universal_logo.png" alt="Universal Logo Right" style="height: 50px; float: right; margin-left: 20px;">
+    </h1>
+    
+    <div style="text-align: center; margin: 10px 0; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 6px; color: #856404; font-weight: 600; max-width: 1200px; margin: 10px auto;">
+        📝 Note: 
+Prices from 6/19/25 to 8/25/25 are for four people
+    </div>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label>Time Period:</label>
+            <div class="time-period-buttons">
+                <button class="time-btn active" data-days="7">7 Days</button>
+                <button class="time-btn" data-days="14">14 Days</button>
+     
+           <button class="time-btn" data-days="30">30 Days</button>
+                <button class="time-btn" data-days="90">90 Days</button>
+                <button class="time-btn" data-days="365">365 Days</button>
+                <button class="time-btn" data-days="999999">All</button>
+            </div>
+        </div>
+        
+  
+      <div class="control-group">
+            <label>Select Hotels:</label>
+            <div class="hotel-selector" id="hotelSelector"></div>
+            <div class="bulk-actions">
+                <button class="bulk-btn" onclick="selectAllHotels()">Select All</button>
+                <button class="bulk-btn" onclick="deselectAllHotels()">Deselect All</button>
+            </div>
+   
+     </div>
+        
+        <div class="control-group">
+            <label>Stay Date:</label>
+            <div class="stay-date-selector" id="stayDateSelector"></div>
+            <div class="bulk-actions">
+                <button class="bulk-btn" onclick="selectAllDates()">Select All</button>
+                <button class="bulk-btn" onclick="deselectAllDates()">Deselect 
+All</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <div id="loadingOverlay">
+            <div id="loadingText">Initializing data...</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <canvas id="priceChart"></canvas>
+    </div>
+    
+    
+<script>
+        // List of files passed from Python
+        const dataFiles = [{"date": "2025-05-14", "id": "20250514", "url": "data/hotel-prices-20250514.json"}, {"date": "2025-05-15", "id": "20250515", "url": "data/hotel-prices-20250515.json"}, {"date": "2025-05-16", "id": "20250516", "url": "data/hotel-prices-20250516.json"}, {"date": "2025-05-17", "id": "20250517", "url": "data/hotel-prices-20250517.json"}, {"date": "2025-05-18", "id": "20250518", "url": "data/hotel-prices-20250518.json"}, {"date": "2025-05-19", "id": "20250519", "url": "data/hotel-prices-20250519.json"}, {"date": "2025-05-20", "id": "20250520", "url": "data/hotel-prices-20250520.json"}, {"date": "2025-05-21", "id": "20250521", "url": "data/hotel-prices-20250521.json"}, {"date": "2025-05-22", "id": "20250522", "url": "data/hotel-prices-20250522.json"}, {"date": "2025-05-23", "id": "20250523", "url": "data/hotel-prices-20250523.json"}, {"date": "2025-05-24", "id": "20250524", "url": "data/hotel-prices-20250524.json"}, {"date": "2025-05-25", "id": "20250525", "url": "data/hotel-prices-20250525.json"}, {"date": "2025-05-26", "id": "20250526", "url": "data/hotel-prices-20250526.json"}, {"date": "2025-05-27", "id": "20250527", "url": "data/hotel-prices-20250527.json"}, {"date": "2025-05-28", "id": "20250528", "url": "data/hotel-prices-20250528.json"}, {"date": "2025-05-29", "id": "20250529", "url": "data/hotel-prices-20250529.json"}, {"date": "2025-05-30", "id": "20250530", "url": "data/hotel-prices-20250530.json"}, {"date": "2025-05-31", "id": "20250531", "url": "data/hotel-prices-20250531.json"}, {"date": "2025-06-01", "id": "20250601", "url": "data/hotel-prices-20250601.json"}, {"date": "2025-06-02", "id": "20250602", "url": "data/hotel-prices-20250602.json"}, {"date": "2025-06-03", "id": "20250603", "url": "data/hotel-prices-20250603.json"}, {"date": "2025-06-04", "id": "20250604", "url": "data/hotel-prices-20250604.json"}, {"date": "2025-06-05", "id": "20250605", "url": "data/hotel-prices-20250605.json"}, {"date": "2025-06-06", "id": "20250606", "url": "data/hotel-prices-20250606.json"}, {"date": "2025-06-07", "id": "20250607", "url": "data/hotel-prices-20250607.json"}, {"date": "2025-06-08", "id": "20250608", "url": "data/hotel-prices-20250608.json"}, {"date": "2025-06-09", "id": "20250609", "url": "data/hotel-prices-20250609.json"}, {"date": "2025-06-10", "id": "20250610", "url": "data/hotel-prices-20250610.json"}, {"date": "2025-06-11", "id": "20250611", "url": "data/hotel-prices-20250611.json"}, {"date": "2025-06-12", "id": "20250612", "url": "data/hotel-prices-20250612.json"}, {"date": "2025-06-13", "id": "20250613", "url": "data/hotel-prices-20250613.json"}, {"date": "2025-06-14", "id": "20250614", "url": "data/hotel-prices-20250614.json"}, {"date": "2025-06-15", "id": "20250615", "url": "data/hotel-prices-20250615.json"}, {"date": "2025-06-16", "id": "20250616", "url": "data/hotel-prices-20250616.json"}, {"date": "2025-06-17", "id": "20250617", "url": "data/hotel-prices-20250617.json"}, {"date": "2025-06-18", "id": "20250618", "url": "data/hotel-prices-20250618.json"}, {"date": "2025-06-19", "id": "20250619", "url": "data/hotel-prices-20250619.json"}, {"date": "2025-06-20", "id": "20250620", "url": "data/hotel-prices-20250620.json"}, {"date": "2025-06-21", "id": "20250621", "url": "data/hotel-prices-20250621.json"}, {"date": "2025-06-22", "id": "20250622", "url": "data/hotel-prices-20250622.json"}, {"date": "2025-06-23", "id": "20250623", "url": "data/hotel-prices-20250623.json"}, {"date": "2025-06-24", "id": "20250624", "url": "data/hotel-prices-20250624.json"}, {"date": "2025-06-25", "id": "20250625", "url": "data/hotel-prices-20250625.json"}, {"date": "2025-06-26", "id": "20250626", "url": "data/hotel-prices-20250626.json"}, {"date": "2025-06-27", "id": "20250627", "url": "data/hotel-prices-20250627.json"}, {"date": "2025-06-28", "id": "20250628", "url": "data/hotel-prices-20250628.json"}, {"date": "2025-06-29", "id": "20250629", "url": "data/hotel-prices-20250629.json"}, {"date": "2025-06-30", "id": "20250630", "url": "data/hotel-prices-20250630.json"}, {"date": "2025-07-01", "id": "20250701", "url": "data/hotel-prices-20250701.json"}, {"date": "2025-07-02", "id": "20250702", "url": "data/hotel-prices-20250702.json"}, {"date": "2025-07-03", "id": "20250703", "url": "data/hotel-prices-20250703.json"}, {"date": "2025-07-04", "id": "20250704", "url": "data/hotel-prices-20250704.json"}, {"date": "2025-07-05", "id": "20250705", "url": "data/hotel-prices-20250705.json"}, {"date": "2025-07-06", "id": "20250706", "url": "data/hotel-prices-20250706.json"}, {"date": "2025-07-07", "id": "20250707", "url": "data/hotel-prices-20250707.json"}, {"date": "2025-07-08", "id": "20250708", "url": "data/hotel-prices-20250708.json"}, {"date": "2025-07-09", "id": "20250709", "url": "data/hotel-prices-20250709.json"}, {"date": "2025-07-10", "id": "20250710", "url": "data/hotel-prices-20250710.json"}, {"date": "2025-07-11", "id": "20250711", "url": "data/hotel-prices-20250711.json"}, {"date": "2025-07-12", "id": "20250712", "url": "data/hotel-prices-20250712.json"}, {"date": "2025-07-13", "id": "20250713", "url": "data/hotel-prices-20250713.json"}, {"date": "2025-07-14", "id": "20250714", "url": "data/hotel-prices-20250714.json"}, {"date": "2025-07-15", "id": "20250715", "url": "data/hotel-prices-20250715.json"}, {"date": "2025-07-16", "id": "20250716", "url": "data/hotel-prices-20250716.json"}, {"date": "2025-07-17", "id": "20250717", "url": "data/hotel-prices-20250717.json"}, {"date": "2025-07-18", "id": "20250718", "url": "data/hotel-prices-20250718.json"}, {"date": "2025-07-19", "id": "20250719", "url": "data/hotel-prices-20250719.json"}, {"date": "2025-07-20", "id": "20250720", "url": "data/hotel-prices-20250720.json"}, {"date": "2025-07-21", "id": "20250721", "url": "data/hotel-prices-20250721.json"}, {"date": "2025-07-22", "id": "20250722", "url": "data/hotel-prices-20250722.json"}, {"date": "2025-07-23", "id": "20250723", "url": "data/hotel-prices-20250723.json"}, {"date": "2025-07-24", "id": "20250724", "url": "data/hotel-prices-20250724.json"}, {"date": "2025-07-25", "id": "20250725", "url": "data/hotel-prices-20250725.json"}, {"date": "2025-07-26", "id": "20250726", "url": "data/hotel-prices-20250726.json"}, {"date": "2025-07-27", "id": "20250727", "url": "data/hotel-prices-20250727.json"}, {"date": "2025-07-28", "id": "20250728", "url": "data/hotel-prices-20250728.json"}, {"date": "2025-07-29", "id": "20250729", "url": "data/hotel-prices-20250729.json"}, {"date": "2025-07-30", "id": "20250730", "url": "data/hotel-prices-20250730.json"}, {"date": "2025-07-31", "id": "20250731", "url": "data/hotel-prices-20250731.json"}, {"date": "2025-08-01", "id": "20250801", "url": "data/hotel-prices-20250801.json"}, {"date": "2025-08-02", "id": "20250802", "url": "data/hotel-prices-20250802.json"}, {"date": "2025-08-03", "id": "20250803", "url": "data/hotel-prices-20250803.json"}, {"date": "2025-08-04", "id": "20250804", "url": "data/hotel-prices-20250804.json"}, {"date": "2025-08-05", "id": "20250805", "url": "data/hotel-prices-20250805.json"}, {"date": "2025-08-06", "id": "20250806", "url": "data/hotel-prices-20250806.json"}, {"date": "2025-08-07", "id": "20250807", "url": "data/hotel-prices-20250807.json"}, {"date": "2025-08-08", "id": "20250808", "url": "data/hotel-prices-20250808.json"}, {"date": "2025-08-09", "id": "20250809", "url": "data/hotel-prices-20250809.json"}, {"date": "2025-08-10", "id": "20250810", "url": "data/hotel-prices-20250810.json"}, {"date": "2025-08-11", "id": "20250811", "url": "data/hotel-prices-20250811.json"}, {"date": "2025-08-12", "id": "20250812", "url": "data/hotel-prices-20250812.json"}, {"date": "2025-08-13", "id": "20250813", "url": "data/hotel-prices-20250813.json"}, {"date": "2025-08-14", "id": "20250814", "url": "data/hotel-prices-20250814.json"}, {"date": "2025-08-15", "id": "20250815", "url": "data/hotel-prices-20250815.json"}, {"date": "2025-08-16", "id": "20250816", "url": "data/hotel-prices-20250816.json"}, {"date": "2025-08-17", "id": "20250817", "url": "data/hotel-prices-20250817.json"}, {"date": "2025-08-18", "id": "20250818", "url": "data/hotel-prices-20250818.json"}, {"date": "2025-08-19", "id": "20250819", "url": "data/hotel-prices-20250819.json"}, {"date": "2025-08-20", "id": "20250820", "url": "data/hotel-prices-20250820.json"}, {"date": "2025-08-21", "id": "20250821", "url": "data/hotel-prices-20250821.json"}, {"date": "2025-08-22", "id": "20250822", "url": "data/hotel-prices-20250822.json"}, {"date": "2025-08-23", "id": "20250823", "url": "data/hotel-prices-20250823.json"}, {"date": "2025-08-24", "id": "20250824", "url": "data/hotel-prices-20250824.json"}, {"date": "2025-08-25", "id": "20250825", "url": "data/hotel-prices-20250825.json"}, {"date": "2025-08-26", "id": "20250826", "url": "data/hotel-prices-20250826.json"}, {"date": "2025-08-27", "id": "20250827", "url": "data/hotel-prices-20250827.json"}, {"date": "2025-08-28", "id": "20250828", "url": "data/hotel-prices-20250828.json"}, {"date": "2025-08-29", "id": "20250829", "url": "data/hotel-prices-20250829.json"}, {"date": "2025-08-30", "id": "20250830", "url": "data/hotel-prices-20250830.json"}, {"date": "2025-08-31", "id": "20250831", "url": "data/hotel-prices-20250831.json"}, {"date": "2025-09-01", "id": "20250901", "url": "data/hotel-prices-20250901.json"}, {"date": "2025-09-02", "id": "20250902", "url": "data/hotel-prices-20250902.json"}, {"date": "2025-09-03", "id": "20250903", "url": "data/hotel-prices-20250903.json"}, {"date": "2025-09-04", "id": "20250904", "url": "data/hotel-prices-20250904.json"}, {"date": "2025-09-05", "id": "20250905", "url": "data/hotel-prices-20250905.json"}, {"date": "2025-09-06", "id": "20250906", "url": "data/hotel-prices-20250906.json"}, {"date": "2025-09-07", "id": "20250907", "url": "data/hotel-prices-20250907.json"}, {"date": "2025-09-08", "id": "20250908", "url": "data/hotel-prices-20250908.json"}, {"date": "2025-09-09", "id": "20250909", "url": "data/hotel-prices-20250909.json"}, {"date": "2025-09-10", "id": "20250910", "url": "data/hotel-prices-20250910.json"}, {"date": "2025-09-11", "id": "20250911", "url": "data/hotel-prices-20250911.json"}, {"date": "2025-09-12", "id": "20250912", "url": "data/hotel-prices-20250912.json"}, {"date": "2025-09-13", "id": "20250913", "url": "data/hotel-prices-20250913.json"}, {"date": "2025-09-14", "id": "20250914", "url": "data/hotel-prices-20250914.json"}, {"date": "2025-09-15", "id": "20250915", "url": "data/hotel-prices-20250915.json"}, {"date": "2025-09-16", "id": "20250916", "url": "data/hotel-prices-20250916.json"}, {"date": "2025-09-17", "id": "20250917", "url": "data/hotel-prices-20250917.json"}, {"date": "2025-09-18", "id": "20250918", "url": "data/hotel-prices-20250918.json"}, {"date": "2025-09-19", "id": "20250919", "url": "data/hotel-prices-20250919.json"}, {"date": "2025-09-20", "id": "20250920", "url": "data/hotel-prices-20250920.json"}, {"date": "2025-09-21", "id": "20250921", "url": "data/hotel-prices-20250921.json"}, {"date": "2025-09-22", "id": "20250922", "url": "data/hotel-prices-20250922.json"}, {"date": "2025-09-23", "id": "20250923", "url": "data/hotel-prices-20250923.json"}, {"date": "2025-09-24", "id": "20250924", "url": "data/hotel-prices-20250924.json"}, {"date": "2025-09-25", "id": "20250925", "url": "data/hotel-prices-20250925.json"}, {"date": "2025-09-26", "id": "20250926", "url": "data/hotel-prices-20250926.json"}, {"date": "2025-09-27", "id": "20250927", "url": "data/hotel-prices-20250927.json"}, {"date": "2025-09-28", "id": "20250928", "url": "data/hotel-prices-20250928.json"}, {"date": "2025-09-29", "id": "20250929", "url": "data/hotel-prices-20250929.json"}, {"date": "2025-09-30", "id": "20250930", "url": "data/hotel-prices-20250930.json"}, {"date": "2025-10-01", "id": "20251001", "url": "data/hotel-prices-20251001.json"}, {"date": "2025-10-02", "id": "20251002", "url": "data/hotel-prices-20251002.json"}, {"date": "2025-10-03", "id": "20251003", "url": "data/hotel-prices-20251003.json"}, {"date": "2025-10-04", "id": "20251004", "url": "data/hotel-prices-20251004.json"}, {"date": "2025-10-05", "id": "20251005", "url": "data/hotel-prices-20251005.json"}, {"date": "2025-10-06", "id": "20251006", "url": "data/hotel-prices-20251006.json"}, {"date": "2025-10-07", "id": "20251007", "url": "data/hotel-prices-20251007.json"}, {"date": "2025-10-08", "id": "20251008", "url": "data/hotel-prices-20251008.json"}, {"date": "2025-10-09", "id": "20251009", "url": "data/hotel-prices-20251009.json"}, {"date": "2025-10-10", "id": "20251010", "url": "data/hotel-prices-20251010.json"}, {"date": "2025-10-11", "id": "20251011", "url": "data/hotel-prices-20251011.json"}, {"date": "2025-10-12", "id": "20251012", "url": "data/hotel-prices-20251012.json"}, {"date": "2025-10-13", "id": "20251013", "url": "data/hotel-prices-20251013.json"}, {"date": "2025-10-14", "id": "20251014", "url": "data/hotel-prices-20251014.json"}, {"date": "2025-10-15", "id": "20251015", "url": "data/hotel-prices-20251015.json"}, {"date": "2025-10-16", "id": "20251016", "url": "data/hotel-prices-20251016.json"}, {"date": "2025-10-17", "id": "20251017", "url": "data/hotel-prices-20251017.json"}, {"date": "2025-10-18", "id": "20251018", "url": "data/hotel-prices-20251018.json"}, {"date": "2025-10-19", "id": "20251019", "url": "data/hotel-prices-20251019.json"}, {"date": "2025-10-20", "id": "20251020", "url": "data/hotel-prices-20251020.json"}, {"date": "2025-10-21", "id": "20251021", "url": "data/hotel-prices-20251021.json"}, {"date": "2025-10-22", "id": "20251022", "url": "data/hotel-prices-20251022.json"}, {"date": "2025-10-23", "id": "20251023", "url": "data/hotel-prices-20251023.json"}, {"date": "2025-10-24", "id": "20251024", "url": "data/hotel-prices-20251024.json"}, {"date": "2025-10-25", "id": "20251025", "url": "data/hotel-prices-20251025.json"}, {"date": "2025-10-26", "id": "20251026", "url": "data/hotel-prices-20251026.json"}, {"date": "2025-10-27", "id": "20251027", "url": "data/hotel-prices-20251027.json"}, {"date": "2025-10-28", "id": "20251028", "url": "data/hotel-prices-20251028.json"}, {"date": "2025-10-29", "id": "20251029", "url": "data/hotel-prices-20251029.json"}, {"date": "2025-10-30", "id": "20251030", "url": "data/hotel-prices-20251030.json"}, {"date": "2025-10-31", "id": "20251031", "url": "data/hotel-prices-20251031.json"}, {"date": "2025-11-01", "id": "20251101", "url": "data/hotel-prices-20251101.json"}, {"date": "2025-11-02", "id": "20251102", "url": "data/hotel-prices-20251102.json"}, {"date": "2025-11-03", "id": "20251103", "url": "data/hotel-prices-20251103.json"}, {"date": "2025-11-04", "id": "20251104", "url": "data/hotel-prices-20251104.json"}, {"date": "2025-11-05", "id": "20251105", "url": "data/hotel-prices-20251105.json"}, {"date": "2025-11-06", "id": "20251106", "url": "data/hotel-prices-20251106.json"}, {"date": "2025-11-07", "id": "20251107", "url": "data/hotel-prices-20251107.json"}, {"date": "2025-11-08", "id": "20251108", "url": "data/hotel-prices-20251108.json"}, {"date": "2025-11-09", "id": "20251109", "url": "data/hotel-prices-20251109.json"}, {"date": "2025-11-10", "id": "20251110", "url": "data/hotel-prices-20251110.json"}, {"date": "2025-11-11", "id": "20251111", "url": "data/hotel-prices-20251111.json"}, {"date": "2025-11-12", "id": "20251112", "url": "data/hotel-prices-20251112.json"}, {"date": "2025-11-13", "id": "20251113", "url": "data/hotel-prices-20251113.json"}, {"date": "2025-11-14", "id": "20251114", "url": "data/hotel-prices-20251114.json"}, {"date": "2025-11-15", "id": "20251115", "url": "data/hotel-prices-20251115.json"}, {"date": "2025-11-16", "id": "20251116", "url": "data/hotel-prices-20251116.json"}, {"date": "2025-11-17", "id": "20251117", "url": "data/hotel-prices-20251117.json"}, {"date": "2025-11-18", "id": "20251118", "url": "data/hotel-prices-20251118.json"}, {"date": "2025-11-19", "id": "20251119", "url": "data/hotel-prices-20251119.json"}, {"date": "2025-11-20", "id": "20251120", "url": "data/hotel-prices-20251120.json"}, {"date": "2025-11-21", "id": "20251121", "url": "data/hotel-prices-20251121.json"}, {"date": "2025-11-22", "id": "20251122", "url": "data/hotel-prices-20251122.json"}, {"date": "2025-11-23", "id": "20251123", "url": "data/hotel-prices-20251123.json"}, {"date": "2025-11-24", "id": "20251124", "url": "data/hotel-prices-20251124.json"}, {"date": "2025-11-25", "id": "20251125", "url": "data/hotel-prices-20251125.json"}, {"date": "2025-11-26", "id": "20251126", "url": "data/hotel-prices-20251126.json"}, {"date": "2025-11-27", "id": "20251127", "url": "data/hotel-prices-20251127.json"}, {"date": "2025-11-28", "id": "20251128", "url": "data/hotel-prices-20251128.json"}, {"date": "2025-11-29", "id": "20251129", "url": "data/hotel-prices-20251129.json"}, {"date": "2025-11-30", "id": "20251130", "url": "data/hotel-prices-20251130.json"}, {"date": "2025-12-01", "id": "20251201", "url": "data/hotel-prices-20251201.json"}, {"date": "2025-12-02", "id": "20251202", "url": "data/hotel-prices-20251202.json"}, {"date": "2025-12-03", "id": "20251203", "url": "data/hotel-prices-20251203.json"}, {"date": "2025-12-04", "id": "20251204", "url": "data/hotel-prices-20251204.json"}, {"date": "2025-12-05", "id": "20251205", "url": "data/hotel-prices-20251205.json"}, {"date": "2025-12-06", "id": "20251206", "url": "data/hotel-prices-20251206.json"}, {"date": "2025-12-07", "id": "20251207", "url": "data/hotel-prices-20251207.json"}, {"date": "2025-12-08", "id": "20251208", "url": "data/hotel-prices-20251208.json"}, {"date": "2025-12-09", "id": "20251209", "url": "data/hotel-prices-20251209.json"}, {"date": "2025-12-10", "id": "20251210", "url": "data/hotel-prices-20251210.json"}, {"date": "2025-12-11", "id": "20251211", "url": "data/hotel-prices-20251211.json"}, {"date": "2025-12-12", "id": "20251212", "url": "data/hotel-prices-20251212.json"}, {"date": "2025-12-13", "id": "20251213", "url": "data/hotel-prices-20251213.json"}, {"date": "2025-12-14", "id": "20251214", "url": "data/hotel-prices-20251214.json"}, {"date": "2025-12-15", "id": "20251215", "url": "data/hotel-prices-20251215.json"}, {"date": "2025-12-16", "id": "20251216", "url": "data/hotel-prices-20251216.json"}, {"date": "2025-12-17", "id": "20251217", "url": "data/hotel-prices-20251217.json"}, {"date": "2025-12-18", "id": "20251218", "url": "data/hotel-prices-20251218.json"}, {"date": "2025-12-19", "id": "20251219", "url": "data/hotel-prices-20251219.json"}, {"date": "2025-12-20", "id": "20251220", "url": "data/hotel-prices-20251220.json"}, {"date": "2025-12-21", "id": "20251221", "url": "data/hotel-prices-20251221.json"}, {"date": "2025-12-22", "id": "20251222", "url": "data/hotel-prices-20251222.json"}, {"date": "2025-12-23", "id": "20251223", "url": "data/hotel-prices-20251223.json"}, {"date": "2025-12-24", "id": "20251224", "url": "data/hotel-prices-20251224.json"}, {"date": "2025-12-25", "id": "20251225", "url": "data/hotel-prices-20251225.json"}, {"date": "2025-12-26", "id": "20251226", "url": "data/hotel-prices-20251226.json"}, {"date": "2025-12-27", "id": "20251227", "url": "data/hotel-prices-20251227.json"}, {"date": "2025-12-28", "id": "20251228", "url": "data/hotel-prices-20251228.json"}, {"date": "2025-12-29", "id": "20251229", "url": "data/hotel-prices-20251229.json"}, {"date": "2025-12-30", "id": "20251230", "url": "data/hotel-prices-20251230.json"}, {"date": "2025-12-31", "id": "20251231", "url": "data/hotel-prices-20251231.json"}, {"date": "2026-01-01", "id": "20260101", "url": "data/hotel-prices-20260101.json"}, {"date": "2026-01-02", "id": "20260102", "url": "data/hotel-prices-20260102.json"}, {"date": "2026-01-03", "id": "20260103", "url": "data/hotel-prices-20260103.json"}];
+        const allGatherDates = dataFiles.map(f => f.date).sort();
+        
+        // Configuration
+        const hotelColors = [
+            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', 
+            '#F7DC6F', '#BB8FCE', '#85C1E9', '#F8C471', '#82E0AA',
+            '#F1948A', '#85C1E9', '#D7BDE2', '#A9DFBF', '#FAD7A0'
+        ];
+// Global State
+        let chartData = [];
+// Will hold the aggregated data
+        let chart = null;
+let selectedDays = 7;
+        
+        // -- DATA FETCHING LOGIC --
+        
+async function fetchAllData() {
+            const total = dataFiles.length;
+let loaded = 0;
+            const updateProgress = () => {
+                loaded++;
+const pct = Math.round((loaded / total) * 100);
+                document.getElementById('progressFill').style.width = pct + '%';
+                document.getElementById('loadingText').innerText = `Loading historical data... (${loaded}/${total})`;
+            };
+// Temporary map to aggregate data: hotelName -> { stayDate -> [history] }
+            const tempMap = {};
+// Fetch in batches to prevent browser network congestion
+            const BATCH_SIZE = 10;
+for (let i = 0; i < total; i += BATCH_SIZE) {
+                const batch = dataFiles.slice(i, i + BATCH_SIZE);
+await Promise.all(batch.map(fileInfo => 
+                    fetch(fileInfo.url)
+                        .then(res => {
+                            if (!res.ok) throw new Error('Failed to load');
+                 
+           return res.json();
+                        })
+                        .then(json => {
+                            // UPDATED: Process new JSON structure
+                            // array of { date: '...', prices: [{ hotel: '...', aph_price: ... }] }
+                            json.forEach(entry => {
+                                const sDate = entry.date; 
+                                const gDate = fileInfo.date; 
+
+                                if (entry.prices && Array.isArray(entry.prices)) {
+                                    entry.prices.forEach(priceEntry => {
+                                        const hName = priceEntry.hotel;
+                                        const price = priceEntry.aph_price;
+
+                                        if (!tempMap[hName]) tempMap[hName] = {};
+                                        if (!tempMap[hName][sDate]) tempMap[hName][sDate] = [];
+                                        
+                                        tempMap[hName][sDate].push({
+                                            gather_date: gDate,
+                                            price: price
+                                        });
+                                    });
+                                }
+                            });
+})
+                        .catch(err => console.warn(`Skipped ${fileInfo.url}:`, err))
+                        .finally(updateProgress)
+                ));
+}
+
+            // --- FIX START: Sort data chronologically ---
+            // Iterate through every hotel and every stay date to sort the history by gather_date
+            Object.keys(tempMap).forEach(hName => {
+                Object.keys(tempMap[hName]).forEach(sDate => {
+                    tempMap[hName][sDate].sort((a, b) => 
+new Date(a.gather_date) - new Date(b.gather_date));
+                });
+            });
+// --- FIX END ---
+
+            // Convert aggregated map to the array format expected by the chart logic
+            const sortedHotelNames = Object.keys(tempMap).sort();
+chartData = sortedHotelNames.map((name, idx) => ({
+                hotel_name: name,
+                color: hotelColors[idx % hotelColors.length],
+                stay_dates: tempMap[name]
+            }));
+document.getElementById('loadingOverlay').style.display = 'none';
+            
+            initializeHotelSelector();
+            initializeStayDateSelector();
+            updateChart();
+        }
+
+        // -- CHART & UI LOGIC (Mostly unchanged from previous) --
+
+        function getAllStayDates() {
+            const dates = new Set();
+const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            chartData.forEach(hotel => {
+                Object.keys(hotel.stay_dates).forEach(date => {
+                    const [month, day, year] = date.split('/').map(Number);
+                    const fullYear = year < 50 ? 2000 + year : 1900 + year;
+             
+       const stayDate = new Date(fullYear, month - 1, day);
+                    if (stayDate > today) dates.add(date);
+                });
+            });
+return Array.from(dates).sort((a, b) => {
+                const [mA, dA, yA] = a.split('/').map(Number);
+                const [mB, dB, yB] = b.split('/').map(Number);
+                const dateA = new Date(yA < 50 ? 2000+yA : 1900+yA, mA-1, dA);
+                const dateB = new Date(yB < 50 ? 2000+yB : 
+1900+yB, mB-1, dB);
+                return dateA - dateB;
+            });
+}
+        
+        function initializeHotelSelector() {
+            const selector = document.getElementById('hotelSelector');
+selector.innerHTML = '';
+            const defaultSelected = ['Royal Pacific', 'Hard Rock', 'Portofino Bay'];
+chartData.forEach((hotel, index) => {
+                const isChecked = defaultSelected.includes(hotel.hotel_name);
+                const div = document.createElement('div');
+                div.className = 'hotel-checkbox';
+                div.innerHTML = `
+                    <input type="checkbox" id="hotel-${index}" 
+${isChecked ? 'checked' : ''} onchange="updateChart()">
+                    <span class="color-indicator" style="background-color: ${hotel.color}"></span>
+                    <label for="hotel-${index}">${hotel.hotel_name}</label>
+                `;
+                selector.appendChild(div);
+            });
+}
+        
+        function initializeStayDateSelector() {
+            const selector = document.getElementById('stayDateSelector');
+const dates = getAllStayDates();
+            selector.innerHTML = '';
+            
+            dates.forEach((date, index) => {
+                const div = document.createElement('div');
+                div.className = 'hotel-checkbox';
+                div.innerHTML = `
+                    <input type="checkbox" id="date-${index}" ${index === 0 ? 'checked' : ''} onchange="updateChart()">
+     
+               <label for="date-${index}">${date}</label>
+                `;
+                selector.appendChild(div);
+            });
+}
+        
+        function getSelectedHotels() {
+            return chartData.filter((_, idx) => {
+                const el = document.getElementById(`hotel-${idx}`);
+                return el && el.checked;
+            });
+}
+        
+        function getSelectedStayDates() {
+            const allDates = getAllStayDates();
+return allDates.filter((_, idx) => {
+                const el = document.getElementById(`date-${idx}`);
+                return el && el.checked;
+            });
+}
+
+        function filterByTimePeriod(data, days) {
+            if (days >= 999999) return data;
+const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() - days);
+            
+            return data.map(hotel => {
+                const filteredStays = {};
+                Object.keys(hotel.stay_dates).forEach(sDate => {
+                    const history = hotel.stay_dates[sDate].filter(entry => new Date(entry.gather_date) >= cutoff);
+                    if (history.length) filteredStays[sDate] = 
+history;
+                });
+                return { ...hotel, stay_dates: filteredStays };
+            });
+}
+        
+        function updateChart() {
+            const activeHotels = getSelectedHotels();
+const activeDates = getSelectedStayDates();
+            const filteredData = filterByTimePeriod(activeHotels, selectedDays);
+            
+            if (chart) chart.destroy();
+            
+            const datasets = [];
+filteredData.forEach(hotel => {
+                activeDates.forEach(stayDate => {
+                    if (hotel.stay_dates[stayDate]) {
+                        datasets.push({
+                            label: `${hotel.hotel_name} - ${stayDate}`,
+   
+                         data: hotel.stay_dates[stayDate].map(e => ({ x: e.gather_date, y: e.price })),
+                            borderColor: hotel.color,
+                            backgroundColor: hotel.color + '20',
+       
+                     fill: false,
+                            tension: 0.1,
+                            pointRadius: 4
+                    
+    });
+                    }
+                });
+            });
+const ctx = document.getElementById('priceChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: { datasets },
+                options: {
+                    responsive: true,
+                  
+  maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'time', time: { unit: 'day', tooltipFormat: 'MMM d, yyyy' }, title: { display: true, text: 'Date Data Gathered' } },
+                        y: { title: { display: true, 
+text: 'Price ($)' }, ticks: { callback: v => '$' + v } }
+                    },
+                    plugins: {
+                        title: { display: true, text: 'Hotel Price Trends Over Time' },
+            
+            legend: { position: 'top' },
+                        tooltip: { callbacks: { label: c => c.dataset.label + ': $' + c.parsed.y } }
+                    }
+                }
+          
+  });
+        }
+
+        // Bulk Helpers
+        window.selectAllHotels = () => { document.querySelectorAll('#hotelSelector input').forEach(c => c.checked = true);
+updateChart(); };
+        window.deselectAllHotels = () => { document.querySelectorAll('#hotelSelector input').forEach(c => c.checked = false); updateChart(); };
+window.selectAllDates = () => { document.querySelectorAll('#stayDateSelector input').forEach(c => c.checked = true); updateChart(); };
+window.deselectAllDates = () => { document.querySelectorAll('#stayDateSelector input').forEach(c => c.checked = false); updateChart(); };
+// Event Listeners for Time Period
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedDays = parseInt(this.dataset.days);
+                updateChart();
+   
+         });
+        });
+// Start Fetching
+        fetchAllData();
+    </script>
+</body>
+</html>

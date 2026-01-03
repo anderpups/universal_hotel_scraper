@@ -1,0 +1,185 @@
+import requests
+import json
+import pandas
+import time
+import random
+import re
+from datetime import datetime, timedelta
+from bs4 import BeautifulSoup
+import sys
+from zoneinfo import ZoneInfo
+import os
+
+lookahead_period = 10 if os.getenv("_DEVELOPING") else 366
+
+## Get today
+today = datetime.now(ZoneInfo("America/New_York"))
+
+## Get the end date
+end_date = today + timedelta(days=lookahead_period)
+
+## Get the year for today and the end date
+years = [(today.strftime('%Y')), (end_date.strftime('%Y'))]
+
+## Get unique years
+years = set(years)
+
+## Generate a list of daterenders starting from today
+date_range = list(pandas.date_range(start=today, periods=lookahead_period, freq='D'))
+
+## Shuffle the date range
+random.shuffle(date_range)
+
+hotel_info = []
+
+data_folder = 'html/data'
+
+## Words we want to remove from the Hotel names
+words_to_remove = ["Loews", "Hotel", "Universal", "Inn and Suites", "Resort", ", a", "Endless Summer - ", "Beach", "Grand"]
+
+## Function to remove a list of words from a string using replace()
+def remove_words_loop(text, words_to_remove):
+  """Removes a list of words from a string using a loop and replace()."""
+  new_text = text
+  for word in words_to_remove:
+    new_text = new_text.replace(word, '')
+    new_text = new_text.replace("  "," ")
+    new_text = new_text.strip()
+  return new_text
+
+## Function to fetch hotel data for a specific date
+## and return a list of dictionaries with hotel name, price, and date
+## The function takes a date string in the format MM/DD/YYYY
+def get_hotel_data_for_date(date):
+  """
+  Fetch hotel data for a specific date string (MM/DD/YYYY).
+  Returns a list of dictionaries with hotel name price and date.
+  """
+  ## Set the query parameters for the web request
+  params = {
+    'hgID': 641,
+    'langID': 1,
+    'checkin': date,
+    'nights': 1,
+    'adults': 2,
+    'children': 0,
+    'promo': 'aph',
+    'iata': '',
+    'group': '',
+    'hotels': '',
+    'ada': ''
+  }
+  try:
+    ## Make the web request to the Universal Orlando website
+    response = requests.get('https://reservations.universalorlando.com/ibe/default.aspx', params=params, timeout=15)
+    ## Check if the response is successful
+    response.raise_for_status()
+    ## Parse the response content using BeautifulSoup
+    ## and extract the hotel price info
+    soup = BeautifulSoup(response.text, 'html.parser')
+    hotels_html = soup.find('section', id='cnWsResultHotels')
+    ## If hotels_html is None, return an empty list
+    if not hotels_html:
+      return []
+    ## Find the html division containing the hotel items
+    hotels = hotels_html.find_all('div', class_='ws-property-item')
+    ## Initialize an empty list to store the hotel data
+    hotels_list = []
+    ## Loop through the hotel items and extract the name and price
+    for hotel in hotels:
+      try:
+        ## Get the hotel name and use the funcition remove_words_loop to remove the unwanted words
+        hotel_name = remove_words_loop((hotel.find('div', class_='ws-property-title').h1.a.text), words_to_remove)
+        ## Get the hotel price and convert it to an integer
+        hotel_price = int((hotel.find('div', class_='ws-property-price').span.text).replace("$",""))
+        ## Append the hotel data to the list
+        hotels_list.append({"name": hotel_name, "price": hotel_price,"date": datetime.strptime(date, "%m/%d/%Y").strftime("%m/%d/%y")})
+      except Exception as e:
+        print(f"Error parsing hotel info: {e}")
+    return hotels_list
+  except Exception as e:
+    print(f"Error fetching data for {date}: {e}")
+    return []
+
+## Function to get the crowd info
+def crowd_info(start_date_str, end_date_str):
+  try:
+    start_date = datetime.strptime(start_date_str, "%m/%d/%y")
+    end_date = datetime.strptime(end_date_str, "%m/%d/%y")
+
+    ## Make the web request to thrill-data website
+    response = requests.get(f'https://oi-nest-prod-ff3c6f88c478.herokuapp.com/crowd/levels', timeout=15)
+    response.raise_for_status()
+    response_json = response.json()
+    
+    filtered_data = []
+
+    for item in response_json["responseObject"]:
+        # Parse the API date (Format is usually YYYY-MM-DD from this API)
+        item_date_obj = datetime.strptime(item["date"], "%Y-%m-%d")
+
+        # Check if the date falls within the range (Inclusive)
+        if start_date <= item_date_obj <= end_date:
+            filtered_data.append({
+                "date": item_date_obj.strftime("%m/%d/%y"),
+                "crowd_info": int(item["crowd"]["crowdScore"] * 100)
+            })
+
+    return filtered_data
+
+  except Exception as e:
+    print(f"Error fetching crowd info: {e}")
+    sys.exit(1)
+
+crowd_data = crowd_info(today.strftime('%m/%d/%y'), end_date.strftime('%m/%d/%y'))
+
+## Loop through the date range and fetch hotel data
+for date in date_range:
+  date_str = date.strftime('%m/%d/%Y')
+  ## get the hotel data for the date
+  date_info = get_hotel_data_for_date(date_str)
+  hotel_info.extend(date_info)
+  print(f"Found {len(date_info)} hotels available for {date_str}")
+  print(f'Dates left to process: {len(date_range) - date_range.index(date) - 1}')
+  sleep_seconds = random.uniform(1, 2)
+  time.sleep(sleep_seconds)
+
+# Process and merge data
+merged_data = {}
+
+# Process crowd data
+for item in crowd_data:
+    date = item['date']
+    if date not in merged_data:
+        merged_data[date] = {'prices': []}
+    merged_data[date]['crowd_level'] = item['crowd_info']
+
+# Process hotel data
+for item in hotel_info:
+    date = item['date']
+    if date not in merged_data:
+        # This case might happen if crowd data is missing for a date
+        merged_data[date] = {'crowd_level': None, 'prices': []}
+    merged_data[date]['prices'].append({'hotel': item['name'], 'aph_price': item['price']})
+
+# Convert to the desired list format
+final_data = []
+for date, data in merged_data.items():
+    # Only include dates that have price info
+    if data['prices']:
+        final_data.append({
+            'date': date,
+            'crowd_level': data.get('crowd_level'),
+            'prices': data['prices']
+        })
+
+# Sort the final data by date
+final_data.sort(key=lambda x: datetime.strptime(x['date'], '%m/%d/%y'))
+
+
+# create filename with today's date
+filename = f"hotel-prices-{today.strftime('%Y%m%d')}.json"
+
+## Write the data to a JSON file
+with open(f"{data_folder}/{filename}", "w") as file:
+  json.dump(final_data, file, separators=(',', ':'))
