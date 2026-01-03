@@ -52,17 +52,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r python_code/requirements.txt
 
-      - name: Run get_universal_data.py
+      - name: Run get_universal_hotel_data.py
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.gatherData) || github.event_name == 'schedule' }}
         run: |
           cd python_code
-          python3 get_universal_data.py
+          python3 get_universal_hotel_data.py
 
-      - name: Run process_universal_data.py
+      - name: Run process_universal_hotel_data.py
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.processData) || github.event_name == 'schedule' }}
         run: |
           cd python_code
-          python3 process_universal_data.py
+          python3 process_universal_hotel_data.py
 
       - name: Update repo
         if: ${{ (github.event_name == 'workflow_dispatch' && inputs.publishData) || github.event_name == 'schedule' }}
