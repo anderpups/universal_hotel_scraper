@@ -25,7 +25,8 @@ today = datetime.now(ZoneInfo("America/New_York"))
 tomorrow = today + timedelta(days=1)
 
 hotel_prices_html = hotel_prices_template.render(
-    today_date=today.strftime('%Y-%m-%d')
+    today_date=today.strftime('%Y-%m-%d'),
+    today_date_text=today.strftime('%B %-d, %Y')
     )
 
 with open(hotel_prices_html_file_path, "w") as f:
